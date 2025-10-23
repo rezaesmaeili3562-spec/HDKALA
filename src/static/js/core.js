@@ -3,6 +3,25 @@ const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 const notifyEl = document.getElementById('notification');
 
+const PAGE_LINKS = {
+    home: 'index.html',
+    login: 'pages/login.html',
+    products: 'pages/products.html',
+    wishlist: 'pages/wishlist.html',
+    compare: 'pages/compare.html',
+    cart: 'pages/cart.html',
+    checkout: 'pages/checkout.html',
+    about: 'pages/about.html',
+    contact: 'pages/contact.html',
+    blog: 'pages/blog.html',
+    profile: 'pages/profile.html',
+    orders: 'pages/orders.html',
+    addresses: 'pages/addresses.html',
+    'admin-login': 'pages/admin-login.html',
+    admin: 'pages/admin.html',
+    'product:p1': 'pages/product-p1.html'
+};
+
 function notify(msg, isError=false){
     notifyEl.textContent = msg;
     notifyEl.classList.toggle('error', isError);
@@ -14,6 +33,14 @@ function notify(msg, isError=false){
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
 function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
+
+function pageLink(slug){
+    const file = PAGE_LINKS[slug];
+    if(!file) return `#${slug}`;
+    const isNested = window.location.pathname.includes('/pages/');
+    const prefix = isNested ? '../' : './';
+    return `${prefix}${file}`;
+}
 
 function getCategoryName(category) {
     const categories = {

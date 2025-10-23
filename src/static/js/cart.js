@@ -319,11 +319,11 @@ function createUserAddressSection() {
                 <div class="text-center py-4 text-gray-500">
                     <iconify-icon icon="mdi:map-marker-off" width="32" class="mb-2"></iconify-icon>
                     <p>هیچ آدرسی ثبت نکرده‌اید</p>
-                    <a href="#addresses" class="text-primary hover:text-primary/80 mt-2 inline-block">افزودن آدرس</a>
+            <a href="${pageLink('addresses')}" class="text-primary hover:text-primary/80 mt-2 inline-block">افزودن آدرس</a>
                 </div>
             `}
             
-            <a href="#addresses" class="text-primary hover:text-primary/80 text-sm flex items-center gap-1">
+            <a href="${pageLink('addresses')}" class="text-primary hover:text-primary/80 text-sm flex items-center gap-1">
                 <iconify-icon icon="mdi:plus"></iconify-icon>
                 تغییر آدرس ارسال
             </a>

@@ -6,9 +6,9 @@ function renderProductDetailPage(id){
             <div class="text-center text-gray-500 py-20">
                 <iconify-icon icon="mdi:package-variant-remove" width="64" class="mb-4"></iconify-icon>
                 <p class="text-lg">محصول مورد نظر یافت نشد</p>
-                <a href="#products" class="text-primary hover:text-primary/80 mt-4 inline-block">بازگشت به محصولات</a>
+                <a href="${pageLink('products')}" class="text-primary hover:text-primary/80 mt-4 inline-block">بازگشت به محصولات</a>
             </div>
-        `; 
+        `;
         return; 
     }
     
@@ -21,9 +21,9 @@ function renderProductDetailPage(id){
     page.innerHTML = `
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <a href="#home" class="hover:text-primary transition-colors">خانه</a>
+            <a href="${pageLink('home')}" class="hover:text-primary transition-colors">خانه</a>
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <a href="#products" class="hover:text-primary transition-colors">محصولات</a>
+            <a href="${pageLink('products')}" class="hover:text-primary transition-colors">محصولات</a>
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
             <a href="#products:${p.category}" class="hover:text-primary transition-colors">${getCategoryName(p.category)}</a>
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
@@ -405,7 +405,7 @@ function renderWishlistPage(){
             <div class="text-center py-12">
                 <iconify-icon icon="mdi:heart-off" width="64" class="text-gray-400 mb-4"></iconify-icon>
                 <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">لیست علاقه‌مندی‌های شما خالی است</p>
-                <a href="#products" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
+                <a href="${pageLink('products')}" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
             </div>
         ` : `
             <div id="wishlistProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
