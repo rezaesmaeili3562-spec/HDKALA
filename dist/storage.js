@@ -221,6 +221,7 @@ if(!LS.get('HDK_compare')) LS.set('HDK_compare', []);
 if(!LS.get('HDK_blogs')) LS.set('HDK_blogs', sampleBlogs);
 if(!LS.get('HDK_addresses')) LS.set('HDK_addresses', sampleAddresses);
 if(!LS.get('HDK_notifications')) LS.set('HDK_notifications', sampleNotifications);
+if(!LS.get('HDK_adminAuth')) LS.set('HDK_adminAuth', { loggedIn: false });
 
 /* ---------- State ---------- */
 let products = LS.get('HDK_products', []);
@@ -234,6 +235,7 @@ let compareList = LS.get('HDK_compare', []);
 let blogs = LS.get('HDK_blogs', []);
 let addresses = LS.get('HDK_addresses', []);
 let notifications = LS.get('HDK_notifications', []);
+let adminAuth = LS.get('HDK_adminAuth', { loggedIn: false });
 let currentPage = 'home';
 let currentProductId = null;
 let editingProductId = null;
@@ -244,7 +246,6 @@ const cartCountEl = $('#cartCount');
 const wishlistCountEl = $('#wishlistCount');
 const compareCountEl = $('#compareCount');
 const userLabel = $('#userLabel');
-const adminBtn = $('#adminBtn');
 const mobileMenuBtn = $('#mobileMenuBtn');
 const mobileMenu = $('#mobileMenu');
 const searchInput = $('#searchInput');
@@ -286,17 +287,31 @@ const adminDiscountCount = $('#adminDiscountCount');
 const adminOrderCount = $('#adminOrderCount');
 
 /* ---------- Filter Elements ---------- */
-const sortSelect = $('#sortSelect');
-const minPrice = $('#minPrice');
-const maxPrice = $('#maxPrice');
-const categoryFilter = $('#categoryFilter');
-const discountFilter = $('#discountFilter');
-const brandFilter = $('#brandFilter');
-const stockFilter = $('#stockFilter');
-const ratingFilter = $('#ratingFilter');
-const priceRange = $('#priceRange');
-const applyFilterBtn = $('#applyFilter');
-const clearFilterBtn = $('#clearFilter');
+let sortSelect = $('#sortSelect');
+let minPrice = $('#minPrice');
+let maxPrice = $('#maxPrice');
+let categoryFilter = $('#categoryFilter');
+let discountFilter = $('#discountFilter');
+let brandFilter = $('#brandFilter');
+let stockFilter = $('#stockFilter');
+let ratingFilter = $('#ratingFilter');
+let priceRange = $('#priceRange');
+let applyFilterBtn = $('#applyFilter');
+let clearFilterBtn = $('#clearFilter');
+
+function refreshFilterElements() {
+    sortSelect = $('#sortSelect');
+    minPrice = $('#minPrice');
+    maxPrice = $('#maxPrice');
+    categoryFilter = $('#categoryFilter');
+    discountFilter = $('#discountFilter');
+    brandFilter = $('#brandFilter');
+    stockFilter = $('#stockFilter');
+    ratingFilter = $('#ratingFilter');
+    priceRange = $('#priceRange');
+    applyFilterBtn = $('#applyFilter');
+    clearFilterBtn = $('#clearFilter');
+}
 
 /* ---------- utils ---------- */
 function getProductById(id){ return products.find(p=>p.id === id); }

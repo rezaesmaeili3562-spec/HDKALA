@@ -104,7 +104,7 @@ function updateAdminStats() {
 function showProductForm() {
     productForm.classList.remove('hidden');
     formTitle.textContent = editingProductId ? 'ویرایش محصول' : 'افزودن محصول جدید';
-    
+
     if (editingProductId) {
         const product = getProductById(editingProductId);
         $('#productName').value = product.name;
@@ -116,7 +116,8 @@ function showProductForm() {
         $('#productStock').value = product.stock;
         $('#productStatus').value = product.status || '';
         $('#productRating').value = product.rating;
-        
+        $('#productImageUrl').value = product.img && !product.img.startsWith('data:') ? product.img : '';
+
         // Set image preview if exists
         if (product.img) {
             $('#imagePreview').innerHTML = `
@@ -134,6 +135,7 @@ function showProductForm() {
         $('#productStock').value = '0';
         $('#productStatus').value = '';
         $('#productRating').value = '5';
+        $('#productImageUrl').value = '';
         $('#imagePreview').innerHTML = '';
     }
 }
@@ -158,14 +160,52 @@ function setupAdminInputHandlers() {
     $('#productImage').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
+            if (!file.type.startsWith('image/')) {
+                notify('فقط فایل‌های تصویری قابل بارگذاری هستند', true);
+                e.target.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                notify('حجم تصویر نباید بیشتر از ۵ مگابایت باشد', true);
+                e.target.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#imagePreview').innerHTML = `
                     <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                 `;
+                $('#productImageUrl').value = '';
             };
             reader.readAsDataURL(file);
         }
+    });
+
+    $('#productImageUrl').addEventListener('blur', function() {
+        const url = this.value.trim();
+        if (!url) {
+            const fileInput = $('#productImage');
+            const hasFile = fileInput && fileInput.value;
+            if (!hasFile) {
+                $('#imagePreview').innerHTML = '';
+            }
+            return;
+        }
+
+        const img = new Image();
+        img.onload = () => {
+            $('#imagePreview').innerHTML = `
+                <img src="${url}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+            `;
+            $('#productImage').value = '';
+        };
+        img.onerror = () => {
+            notify('امکان بارگذاری تصویر از این آدرس وجود ندارد', true);
+            $('#imagePreview').innerHTML = '';
+            this.value = '';
+            this.focus();
+        };
+        img.src = url;
     });
 }
 
@@ -189,6 +229,7 @@ function deleteProduct(productId) {
 }
 
 function saveProduct() {
+    const wasEditing = Boolean(editingProductId);
     const name = $('#productName').value.trim();
     const price = parseInt($('#productPrice').value) || 0;
     const desc = $('#productDesc').value.trim();
@@ -215,9 +256,10 @@ function saveProduct() {
     }
     
     // Get image data
+    const imageUrl = $('#productImageUrl').value.trim();
     const imagePreview = $('#imagePreview img');
-    const img = imagePreview ? imagePreview.src : '';
-    
+    const img = imageUrl || (imagePreview ? imagePreview.src : '');
+
     if (editingProductId) {
         // Update existing product
         const index = products.findIndex(p => p.id === editingProductId);
@@ -262,7 +304,7 @@ function saveProduct() {
     renderAdminProducts();
     productForm.classList.add('hidden');
     editingProductId = null;
-    notify(editingProductId ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
+    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
     
     // Update main products view if on products page
     if (currentPage === 'home' || currentPage === 'products') {
@@ -425,69 +467,15 @@ function deleteBlog(blogId) {
     }
 }
 
-/* ---------- Product Image Upload Fix ---------- */
-function setupImageUpload() {
-    // این تابع مشکل آپلود عکس را برطرف می‌کند
-    document.addEventListener('change', (e) => {
-        if (e.target.type === 'file' && e.target.accept.includes('image')) {
-            const file = e.target.files[0];
-            if (file) {
-                // بررسی نوع فایل
-                if (!file.type.startsWith('image/')) {
-                    notify('لطفا فقط فایل تصویری انتخاب کنید', true);
-                    e.target.value = '';
-                    return;
-                }
-                
-                // بررسی سایز فایل (حداکثر 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', true);
-                    e.target.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // نمایش پیش‌نمایش
-                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
-                        if (previewContainer) {
-                            previewContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
-                                <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
-                                    <iconify-icon icon="mdi:close"></iconify-icon>
-                                </button>
-                            `;
-                            
-                            // دکمه حذف عکس
-                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
-                                previewContainer.innerHTML = '';
-                                e.target.value = '';
-                            });
-                        }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    });
-}
-
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
-closeAdminModal.addEventListener('click', closeAdminPanel);
-addProductBtn.addEventListener('click', () => {
+if (closeAdminModal) closeAdminModal.addEventListener('click', closeAdminPanel);
+if (addProductBtn) addProductBtn.addEventListener('click', () => {
     editingProductId = null;
     showProductForm();
 });
-saveProductBtn.addEventListener('click', saveProduct);
-cancelProductBtn.addEventListener('click', () => {
+if (saveProductBtn) saveProductBtn.addEventListener('click', saveProduct);
+if (cancelProductBtn) cancelProductBtn.addEventListener('click', () => {
     productForm.classList.add('hidden');
     editingProductId = null;
 });
-adminSearch.addEventListener('input', renderAdminProducts);
-
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
+if (adminSearch) adminSearch.addEventListener('input', renderAdminProducts);
