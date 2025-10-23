@@ -62,9 +62,11 @@ function renderProductDetailPage(id){
                         <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${p.id}">
                             <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>
                         </button>
-                        <button class="notify-me p-2 text-gray-500 hover:text-blue-500 transition-colors" data-id="${p.id}">
-                            <iconify-icon icon="mdi:bell-outline" width="24"></iconify-icon>
-                        </button>
+                        ${p.stock === 0 ? `
+                            <button class="notify-me p-2 text-gray-500 hover:text-blue-500 transition-colors" data-id="${p.id}">
+                                <iconify-icon icon="mdi:bell-outline" width="24"></iconify-icon>
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
                 
@@ -462,6 +464,10 @@ function renderAddressesPage() {
     
     contentRoot.appendChild(page);
     setupAddressEvents();
+
+    if (userAddresses.length === 0) {
+        showAddressForm();
+    }
 }
 
 function setupAddressEvents() {

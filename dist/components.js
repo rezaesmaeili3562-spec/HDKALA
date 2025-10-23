@@ -103,18 +103,18 @@ function createPaymentOptions(selectedMethod = 'online') {
     return `
         <div class="space-y-3">
             ${paymentMethods.map(method => `
-                <label class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedMethod === method.id 
-                    ? 'border-green-500 bg-green-50 dark:bg-green-500/10' 
+                <label class="payment-option flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedMethod === method.id
+                    ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
                     : 'border-gray-300 hover:border-primary/50'
                 }">
                     <input type="radio" name="payment" value="${method.id}" 
                            ${selectedMethod === method.id ? 'checked' : ''}
                            class="text-primary hidden">
                     <div class="flex items-center gap-3 flex-1">
-                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                            selectedMethod === method.id 
-                            ? 'border-blue-500 bg-blue-500' 
+                        <div class="payment-circle w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                            selectedMethod === method.id
+                            ? 'border-blue-500 bg-blue-500'
                             : 'border-gray-400'
                         }">
                             ${selectedMethod === method.id ? `

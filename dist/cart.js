@@ -236,6 +236,9 @@ function removeFromCompare(productId) {
     updateCompareBadge();
     renderCompareProducts();
     notify('محصول از مقایسه حذف شد');
+    if (compareList.length === 0) {
+        compareModal.classList.add('hidden');
+    }
 }
 
 /* ---------- Enhanced Checkout ---------- */
@@ -391,10 +394,32 @@ function setupCheckoutEvents() {
             $$('.payment-option').forEach(option => {
                 option.classList.remove('border-green-500', 'bg-green-50');
                 option.classList.add('border-gray-300');
+                const circle = option.querySelector('.payment-circle');
+                if (circle) {
+                    circle.classList.remove('border-blue-500', 'bg-blue-500');
+                    circle.classList.add('border-gray-400');
+                    const icon = circle.querySelector('iconify-icon');
+                    if (icon) {
+                        icon.remove();
+                    }
+                }
             });
-            
-            this.closest('.payment-option').classList.add('border-green-500', 'bg-green-50');
-            this.closest('.payment-option').classList.remove('border-gray-300');
+
+            const currentOption = this.closest('.payment-option');
+            currentOption.classList.add('border-green-500', 'bg-green-50');
+            currentOption.classList.remove('border-gray-300');
+
+            const activeCircle = currentOption.querySelector('.payment-circle');
+            if (activeCircle) {
+                activeCircle.classList.remove('border-gray-400');
+                activeCircle.classList.add('border-blue-500', 'bg-blue-500');
+                if (!activeCircle.querySelector('iconify-icon')) {
+                    const icon = document.createElement('iconify-icon');
+                    icon.setAttribute('icon', 'mdi:check');
+                    icon.classList.add('text-white', 'text-sm');
+                    activeCircle.appendChild(icon);
+                }
+            }
         });
     });
     

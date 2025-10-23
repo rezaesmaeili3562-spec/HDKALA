@@ -162,9 +162,16 @@ const paymentMethods = [
         id: 'installment',
         name: 'پرداخت قسطی',
         icon: 'mdi:calendar',
-        description: 'قسطی 4 ماهه با کارت‌های بانکی'
+        description: 'قسطی ۴ ماهه با کارت‌های بانکی'
     }
 ];
+
+const adminAccount = {
+    name: 'مدیر سیستم',
+    phone: '09123456789',
+    email: 'admin@hdkala.com',
+    password: 'Admin@123'
+};
 
 const operatorLogos = {
     'irancell': {

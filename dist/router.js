@@ -56,6 +56,9 @@ function renderPage(){
         case 'addresses':
             renderAddressesPage();
             break;
+        case 'admin-login':
+            renderAdminLoginPage();
+            break;
         case 'admin':
             renderAdminPage();
             break;
@@ -281,11 +284,26 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    if (!adminAuth || !adminAuth.loggedIn) {
+        notify('برای ورود به پنل مدیریت ابتدا باید احراز هویت کنید', true);
+        navigate('admin-login');
+        return;
+    }
+
     const page = document.createElement('div');
     page.innerHTML = `
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-            <h1 class="text-2xl font-bold mb-6">پنل مدیریت</h1>
-            
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">داشبورد مدیریت</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${adminAuth.adminName || adminAccount.name}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">آخرین ورود: ${adminAuth.loginTime ? new Date(adminAuth.loginTime).toLocaleString('fa-IR') : '---'}</span>
+                    <button id="adminLogout" class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">خروج</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-primary/10 p-4 rounded-lg text-center">
                     <div class="text-2xl font-bold text-primary">${products.length}</div>
@@ -308,11 +326,14 @@ function renderAdminPage() {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
                     <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
-                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors mb-4" onclick="openAdminPanel()">
-                        مدیریت محصولات
-                    </button>
+                    <div class="space-y-3">
+                        <button id="openAdminPanel" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                            مدیریت محصولات
+                        </button>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">برای افزودن، ویرایش یا حذف محصولات از دکمه بالا استفاده کنید.</p>
+                    </div>
                 </div>
-                
+
                 <div>
                     <h3 class="text-lg font-semibold mb-4">مدیریت بلاگ</h3>
                     ${createBlogManagement()}
@@ -320,9 +341,124 @@ function renderAdminPage() {
             </div>
         </div>
     `;
-    
+
     contentRoot.appendChild(page);
     setupBlogManagement();
+
+    $('#openAdminPanel').addEventListener('click', openAdminPanel);
+    $('#adminLogout').addEventListener('click', () => {
+        adminAuth = { loggedIn: false };
+        LS.set('HDK_adminAuth', adminAuth);
+        notify('خروج مدیر انجام شد');
+        navigate('admin-login');
+    });
+}
+
+function renderAdminLoginPage() {
+    const page = document.createElement('div');
+    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    page.innerHTML = `
+        <div class="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div class="text-center">
+                <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2 justify-center">
+                    <iconify-icon icon="mdi:shield-account" width="28"></iconify-icon>
+                    HDKALA Admin
+                </a>
+                <h2 class="mt-6 text-2xl font-bold text-gray-900 dark:text-white">ورود مدیر سیستم</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">برای دسترسی به پنل مدیریت اطلاعات ورود را وارد کنید.</p>
+            </div>
+
+            <form id="adminLoginForm" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">شماره تماس (اجباری)</label>
+                    <div class="relative">
+                        <input type="tel" id="adminPhone" name="phone" placeholder="09xxxxxxxxx" maxlength="11"
+                               class="w-full p-3 pr-10 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-left"
+                               autocomplete="off">
+                        <span id="adminOperator" class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"></span>
+                    </div>
+                    <p class="text-xs text-gray-400">در صورت تمایل می‌توانید ایمیل را نیز وارد کنید.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">ایمیل (اختیاری)</label>
+                    <input type="email" id="adminEmail" name="email" placeholder="admin@example.com"
+                           class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">رمز ورود</label>
+                    <input type="password" id="adminPassword" name="password" required
+                           class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                           placeholder="رمز عبور">
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                    ورود به پنل مدیریت
+                </button>
+            </form>
+
+            <div class="text-center text-xs text-gray-400">
+                دسترسی فقط برای مدیران مجاز فراهم است.
+            </div>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
+
+    const phoneInput = $('#adminPhone', page);
+    const operatorEl = $('#adminOperator', page);
+
+    phoneInput.addEventListener('input', () => {
+        const value = phoneInput.value.trim();
+        if (value.length > 11) {
+            phoneInput.value = value.slice(0, 11);
+        }
+        const operator = getOperatorLogo(value);
+        const operatorMeta = operatorLogos[operator];
+        operatorEl.innerHTML = operatorMeta ? `<iconify-icon icon="${operatorMeta.icon}" class="${operatorMeta.color}"></iconify-icon>` : '';
+    });
+
+    $('#adminLoginForm', page).addEventListener('submit', (e) => {
+        e.preventDefault();
+        const phone = phoneInput.value.trim();
+        const email = $('#adminEmail', page).value.trim();
+        const password = $('#adminPassword', page).value;
+
+        if (!phone) {
+            notify('وارد کردن شماره تماس مدیر الزامی است', true);
+            phoneInput.focus();
+            return;
+        }
+
+        if (!validatePhone(phone)) {
+            notify('شماره تماس وارد شده معتبر نیست', true);
+            phoneInput.focus();
+            return;
+        }
+
+        if (email && !validateEmail(email)) {
+            notify('ایمیل وارد شده معتبر نیست', true);
+            return;
+        }
+
+        const isPhoneMatch = phone === adminAccount.phone;
+        const isEmailMatch = !email || email.toLowerCase() === adminAccount.email.toLowerCase();
+        const isPasswordMatch = password === adminAccount.password;
+
+        if (isPhoneMatch && isEmailMatch && isPasswordMatch) {
+            adminAuth = {
+                loggedIn: true,
+                adminName: adminAccount.name,
+                loginTime: new Date().toISOString()
+            };
+            LS.set('HDK_adminAuth', adminAuth);
+            notify('ورود مدیر با موفقیت انجام شد');
+            navigate('admin');
+        } else {
+            notify('اطلاعات ورود مدیر نادرست است', true);
+        }
+    });
 }
 
 /* ---------- Render products ---------- */
@@ -341,7 +477,7 @@ function renderProducts(list) {
 function setupAdminNavigation() {
     // اضافه کردن لینک ادمین به navigation (فقط برای توسعه)
     const adminLink = document.createElement('a');
-    adminLink.href = '#admin';
+    adminLink.href = '#admin-login';
     adminLink.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
     adminLink.textContent = 'پنل مدیریت';
     adminLink.style.marginRight = 'auto';

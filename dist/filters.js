@@ -1,3 +1,6 @@
+let filterPanelOpen = false;
+let filterControls = { openFilters: () => filterSidebar?.classList.add('open'), closeFilters: () => filterSidebar?.classList.remove('open') };
+
 /* ---------- Update Brand Filter ---------- */
 function updateBrandFilter() {
     if (!brandFilter) return;
@@ -214,33 +217,51 @@ function setupFilterSidebar() {
 
 /* ---------- Enhanced Filter Functionality ---------- */
 function setupFilterToggle() {
-    let isFilterOpen = false;
-    
-    filterBtn.addEventListener('click', () => {
-        if (isFilterOpen) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
-        } else {
-            filterSidebar.classList.add('open');
-            isFilterOpen = true;
-        }
-    });
-    
+    if (!filterSidebar) return null;
+
+    const overlay = document.getElementById('filterOverlay');
+
+    const openFilters = () => {
+        filterSidebar.classList.add('open');
+        filterPanelOpen = true;
+    };
+
+    const closeFilters = () => {
+        filterSidebar.classList.remove('open');
+        filterPanelOpen = false;
+    };
+
+    if (filterBtn) {
+        filterBtn.addEventListener('click', () => {
+            if (filterPanelOpen) {
+                closeFilters();
+            } else {
+                openFilters();
+            }
+        });
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeFilters);
+    }
+
     // بستن فیلتر با کلیک خارج
     document.addEventListener('click', (e) => {
-        if (isFilterOpen && !filterSidebar.contains(e.target) && !filterBtn.contains(e.target)) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
+        const clickedOutsideSidebar = filterSidebar && !filterSidebar.contains(e.target);
+        const clickedFilterBtn = filterBtn && filterBtn.contains(e.target);
+        if (filterPanelOpen && clickedOutsideSidebar && !clickedFilterBtn) {
+            closeFilters();
         }
     });
-    
+
     // بستن با دکمه بستن
     document.addEventListener('click', (e) => {
         if (e.target.closest('#closeFilters') || e.target.closest('#filterCollapse')) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
+            closeFilters();
         }
     });
+
+    return { openFilters, closeFilters };
 }
 
 /* ---------- Search Functionality ---------- */
@@ -329,48 +350,44 @@ function setupPriceValidation() {
 }
 
 /* ---------- Event Listeners ---------- */
-filterBtn.addEventListener('click', () => {
-    filterSidebar.classList.add('open');
-});
+function bindFilterEvents() {
+    if (sortSelect) sortSelect.addEventListener('change', applyFilters);
+    if (minPrice) minPrice.addEventListener('change', applyFilters);
+    if (maxPrice) maxPrice.addEventListener('change', applyFilters);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+    if (discountFilter) discountFilter.addEventListener('change', applyFilters);
+    if (brandFilter) brandFilter.addEventListener('change', applyFilters);
+    if (stockFilter) stockFilter.addEventListener('change', applyFilters);
+    if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
 
-closeFilters.addEventListener('click', () => {
-    filterSidebar.classList.remove('open');
-});
+    if (priceRange) priceRange.addEventListener('input', (e) => {
+        if (maxPrice) {
+            maxPrice.value = e.target.value;
+        }
+        applyFilters();
+    });
 
-// Filter event listeners
-if (sortSelect) sortSelect.addEventListener('change', applyFilters);
-if (minPrice) minPrice.addEventListener('change', applyFilters);
-if (maxPrice) maxPrice.addEventListener('change', applyFilters);
-if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
-if (discountFilter) discountFilter.addEventListener('change', applyFilters);
-if (brandFilter) brandFilter.addEventListener('change', applyFilters);
-if (stockFilter) stockFilter.addEventListener('change', applyFilters);
-if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
+    if (applyFilterBtn) applyFilterBtn.addEventListener('click', () => {
+        applyFilters();
+        filterControls.closeFilters();
+        filterPanelOpen = false;
+    });
 
-if (priceRange) priceRange.addEventListener('input', (e) => {
-    maxPrice.value = e.target.value;
-    applyFilters();
-});
+    if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
+        if (sortSelect) sortSelect.value = 'popular';
+        if (minPrice) minPrice.value = '';
+        if (maxPrice) maxPrice.value = '';
+        if (categoryFilter) categoryFilter.value = '';
+        if (discountFilter) discountFilter.value = '';
+        if (brandFilter) brandFilter.value = '';
+        if (stockFilter) stockFilter.value = '';
+        if (ratingFilter) ratingFilter.value = '';
+        if (priceRange) priceRange.value = '50000000';
 
-if (applyFilterBtn) applyFilterBtn.addEventListener('click', applyFilters);
-
-if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
-    if (sortSelect) sortSelect.value = 'popular';
-    if (minPrice) minPrice.value = '';
-    if (maxPrice) maxPrice.value = '';
-    if (categoryFilter) categoryFilter.value = '';
-    if (discountFilter) discountFilter.value = '';
-    if (brandFilter) brandFilter.value = '';
-    if (stockFilter) stockFilter.value = '';
-    if (ratingFilter) ratingFilter.value = '';
-    if (priceRange) priceRange.value = '50000000';
-    
-    applyFilters();
-    filterSidebar.classList.remove('open');
-});
-
-if (searchInput) {
-    searchInput.addEventListener('input', applyFilters);
+        applyFilters();
+        filterControls.closeFilters();
+        filterPanelOpen = false;
+    });
 }
 
 mobileMenuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('hidden'));
@@ -416,7 +433,14 @@ themeToggle.addEventListener('click', ()=> {
 /* ---------- Initialize Filters ---------- */
 function initializeFilters() {
     setupFilterSidebar();
-    setupFilterToggle();
+    if (typeof refreshFilterElements === 'function') {
+        refreshFilterElements();
+    }
+    const controls = setupFilterToggle();
+    if (controls) {
+        filterControls = controls;
+    }
+    bindFilterEvents();
     setupSearch();
     setupCategoryFiltering();
     setupPriceValidation();
