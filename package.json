@@ -2,8 +2,8 @@
   "name": "hdkala-shop",
   "version": "1.0.0",
   "scripts": {
-    "dev": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "build": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "dev": "node ./node_modules/tailwindcss/lib/cli.js -i ./src/input.css -o ./dist/output.css --watch",
+    "build": "node ./node_modules/tailwindcss/lib/cli.js -i ./src/input.css -o ./dist/output.css --minify",
     "generate:pages": "node scripts/generate-pages.js"
   },
   "devDependencies": {
