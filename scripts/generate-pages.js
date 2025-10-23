@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const templatePath = path.join(__dirname, '..', 'dist', 'index.html');
-const outputDir = path.join(__dirname, '..', 'dist', 'pages');
+const templatePath = path.join(__dirname, '..', 'src', 'templates', 'index.html');
+const distDir = path.join(__dirname, '..', 'dist');
+const distPagesDir = path.join(distDir, 'pages');
+const templatePagesDir = path.join(__dirname, '..', 'src', 'templates', 'pages');
 const placeholder = '<!-- PAGE_INITIALIZER -->';
 
 const pages = [
@@ -30,29 +32,46 @@ function ensureTemplate(template) {
   }
 }
 
-function adjustAssetPaths(html) {
+function adjustAssetPaths(html, relativeRoot = '.') {
+  const prefix = relativeRoot === '.' ? './' : relativeRoot.endsWith('/') ? relativeRoot : `${relativeRoot}/`;
   return html
-    .replace(/href="\.\/output\.css"/g, 'href="../output.css"')
-    .replace(/src="\.\//g, 'src="../');
+    .replace(/href="\.\/static\//g, `href="${prefix}static/`)
+    .replace(/src="\.\/static\//g, `src="${prefix}static/`);
 }
 
-function injectHash(template, hash) {
+function injectHash(template, hash, assetRoot = '.') {
   const safeHash = hash.replace(/'/g, "\\'");
   const injection = `${placeholder}\n  <script>window.__INITIAL_HASH__ = '${safeHash}';</script>`;
   const withHash = template.replace(placeholder, injection);
-  return adjustAssetPaths(withHash);
+  return adjustAssetPaths(withHash, assetRoot);
+}
+
+function writeFile(filePath, contents) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, contents, 'utf8');
+}
+
+function copyBaseTemplate(template) {
+  writeFile(path.join(distDir, 'index.html'), template);
 }
 
 function main() {
   const template = fs.readFileSync(templatePath, 'utf8');
   ensureTemplate(template);
-  fs.mkdirSync(outputDir, { recursive: true });
+
+  copyBaseTemplate(template);
 
   pages.forEach(page => {
-    const output = injectHash(template, page.hash);
-    const outputPath = path.join(outputDir, page.file);
-    fs.writeFileSync(outputPath, output, 'utf8');
-    console.log(`Generated ${path.relative(process.cwd(), outputPath)} for hash ${page.hash}`);
+    const output = injectHash(template, page.hash, '..');
+    const distOutputPath = path.join(distPagesDir, page.file);
+    const templateOutputPath = path.join(templatePagesDir, page.file);
+
+    writeFile(distOutputPath, output);
+    writeFile(templateOutputPath, output);
+
+    console.log(
+      `Generated ${path.relative(process.cwd(), distOutputPath)} and ${path.relative(process.cwd(), templateOutputPath)} for hash ${page.hash}`
+    );
   });
 }
 
