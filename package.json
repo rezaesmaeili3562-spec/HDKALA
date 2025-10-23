@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "copy:static": "node scripts/sync-static.js",
-    "dev": "npm run copy:static && node ./node_modules/tailwindcss/lib/cli.js -i ./src/static/css/input.css -o ./dist/static/css/output.css --watch",
-    "build": "npm run copy:static && node ./node_modules/tailwindcss/lib/cli.js -i ./src/static/css/input.css -o ./dist/static/css/output.css --minify",
+    "dev": "npm run copy:static && node ./node_modules/tailwindcss/lib/cli.js -i ./src/static/css/input.css -o ./src/static/css/output.css --watch",
+    "build": "npm run copy:static && node ./node_modules/tailwindcss/lib/cli.js -i ./src/static/css/input.css -o ./src/static/css/output.css --minify",
     "generate:pages": "npm run copy:static && node scripts/generate-pages.js"
   },
   "devDependencies": {
