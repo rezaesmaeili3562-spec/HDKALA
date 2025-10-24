@@ -82,8 +82,16 @@ function renderProductsList(list, container){
                     </div>
                 </a>
                 <div class="absolute top-2 left-2 flex gap-2">
-                    <button aria-label="افزودن به علاقه‌مندی‌ها" data-id="${p.id}" class="add-to-wishlist bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
-                        <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="${inWishlist ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
+                    <button aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}" data-id="${p.id}"
+                            class="add-to-wishlist wishlist-button wishlist-button--compact bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm"
+                            data-wishlist-active="${inWishlist ? 'true' : 'false'}"
+                            data-label-active="حذف از علاقه‌مندی"
+                            data-label-inactive="افزودن به علاقه‌مندی">
+                        <span class="wishlist-icon-wrapper">
+                            <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                            <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                        </span>
+                        <span class="wishlist-tooltip"></span>
                     </button>
                     <button aria-label="مقایسه محصول" data-id="${p.id}" class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
                         <iconify-icon icon="${inCompare ? 'mdi:scale-balance' : 'mdi:scale-balance'}" class="${inCompare ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
@@ -119,6 +127,9 @@ function renderProductsList(list, container){
             </div>
         `;
         container.appendChild(article);
+        if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
+            window.refreshWishlistButtons(article);
+        }
     });
 }
 
