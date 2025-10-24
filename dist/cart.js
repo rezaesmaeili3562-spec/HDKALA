@@ -4,12 +4,12 @@ function updateCartDisplay() {
     cartItems.innerHTML = '';
     
     if (cart.length === 0) {
-        cartItems.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <iconify-icon icon="mdi:cart-off" width="48" class="mb-4"></iconify-icon>
-                <p>سبد خرید شما خالی است</p>
-            </div>
-        `;
+        cartItems.innerHTML = createEmptyState({
+            icon: 'mdi:cart-off',
+            title: 'سبد خرید شما خالی است',
+            description: 'برای شروع خرید، محصولات مورد علاقه خود را به سبد اضافه کنید.',
+            actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="18"></iconify-icon><span>مشاهده محصولات</span></a>'
+        });
         cartTotal.textContent = '۰ تومان';
         cartDiscount.textContent = '۰ تومان';
         cartFinalTotal.textContent = '۰ تومان';

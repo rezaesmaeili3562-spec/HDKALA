@@ -17,41 +17,68 @@ function renderProductDetailPage(id){
     const inWishlist = wishlist.includes(p.id);
     const inCompare = compareList.includes(p.id);
     
+    const productImages = typeof getProductImages === 'function' ? getProductImages(p) : (p.img ? [p.img] : []);
+    const mainImage = productImages.length > 0 ? productImages[0] : '';
+    const isOutOfStock = p.stock === 0;
+    const initialQuantity = isOutOfStock ? 0 : 1;
+    const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
+    const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
+    const variantSummaryParts = [];
+    if (hasColors && p.colors[0]) { variantSummaryParts.push(`رنگ: ${p.colors[0]}`); }
+    if (hasSizes && p.sizes[0]) { variantSummaryParts.push(`سایز: ${p.sizes[0]}`); }
+    const variantSummaryText = variantSummaryParts.length > 0
+        ? `انتخاب شما — ${variantSummaryParts.join(' | ')}`
+        : 'گزینه‌ای برای انتخاب وجود ندارد.';
+    const addToCartButtonClasses = isOutOfStock
+        ? 'add-to-cart flex-1 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-2'
+        : 'add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2';
+    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
+    const addToCartLabelMarkup = isOutOfStock
+        ? '<span class="text-red-500 font-semibold">ناموجود</span>'
+        : '<span>افزودن به سبد خرید</span>';
+    const buyNowClasses = isOutOfStock
+        ? 'buy-now flex-1 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed'
+        : 'buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors';
+    const stockLabel = isOutOfStock
+        ? '<span class="text-red-500 font-semibold">ناموجود</span>'
+        : `<span class="text-green-500 font-semibold">${p.stock} عدد در انبار</span>`;
+
     const page = document.createElement('div');
     page.innerHTML = `
-        <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <a href="#home" class="hover:text-primary transition-colors">خانه</a>
-            <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <a href="#products" class="hover:text-primary transition-colors">محصولات</a>
-            <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <a href="#products:${p.category}" class="hover:text-primary transition-colors">${getCategoryName(p.category)}</a>
-            <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <span class="text-primary">${p.name}</span>
+        <nav class="mb-6" aria-label="مسیر راهنما">
+            <ol class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <li><a href="#home" class="hover:text-primary transition-colors">خانه</a></li>
+                <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
+                <li><a href="#products" class="hover:text-primary transition-colors">محصولات</a></li>
+                <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
+                <li><a href="#products:${p.category}" class="hover:text-primary transition-colors">${getCategoryName(p.category)}</a></li>
+                <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
+                <li><span class="text-primary">${p.name}</span></li>
+            </ol>
         </nav>
-        
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Product Images -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                <div class="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
-                    ${p.img ? 
-                        `<img src="${p.img}" alt="${p.name}" class="w-full h-96 object-cover rounded-lg zoom-image" />` :
-                        `<iconify-icon icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>`
-                    }
+                <div class="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                    ${mainImage
+                        ? `<img id="mainProductImage" src="${mainImage}" alt="${p.name}" class="w-full h-96 object-cover rounded-lg" data-active="${mainImage}" />`
+                        : `<iconify-icon icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>`}
                 </div>
-                <div class="grid grid-cols-4 gap-2">
-                    ${[1,2,3,4].map(i => `
-                        <div class="h-20 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center cursor-pointer border-2 border-transparent hover:border-primary transition-colors">
-                            ${p.img ? 
-                                `<img src="${p.img}" alt="${p.name}" class="w-full h-20 object-cover rounded-lg" />` :
-                                `<iconify-icon icon="mdi:image" width="24" class="text-gray-400"></iconify-icon>`
-                            }
-                        </div>
-                    `).join('')}
-                </div>
+                ${productImages.length > 1 ? `
+                    <div class="grid grid-cols-4 gap-2 mt-4">
+                        ${productImages.map((image, index) => `
+                            <button type="button"
+                                    class="product-thumbnail h-20 rounded-lg overflow-hidden border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors ${index === 0 ? 'border-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                                    data-image="${image}"
+                                    aria-label="تصویر ${index + 1}"
+                                    aria-selected="${index === 0 ? 'true' : 'false'}">
+                                <img src="${image}" alt="${p.name}" class="w-full h-20 object-cover" />
+                            </button>
+                        `).join('')}
+                    </div>
+                ` : ''}
             </div>
-            
-            <!-- Product Info -->
+
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                 <div class="flex justify-between items-start mb-4">
                     <h1 class="text-2xl font-bold">${p.name}</h1>
@@ -63,27 +90,27 @@ function renderProductDetailPage(id){
                                 data-label-active="حذف از علاقه‌مندی"
                                 data-label-inactive="افزودن به علاقه‌مندی">
                             <span class="wishlist-icon-wrapper">
-                                <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24"
-                                             class="wishlist-icon wishlist-icon-current"></iconify-icon>
-                                <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" width="24"
-                                             class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                                <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                                <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" width="24" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
                             </span>
                             <span class="wishlist-tooltip"></span>
                         </button>
                         <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${p.id}">
                             <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>
                         </button>
-                        <button class="notify-me p-2 text-gray-500 hover:text-blue-500 transition-colors" data-id="${p.id}">
-                            <iconify-icon icon="mdi:bell-outline" width="24"></iconify-icon>
-                        </button>
+                        ${isOutOfStock ? `
+                            <button class="notify-me p-2 text-blue-500 hover:text-blue-600 transition-colors" data-id="${p.id}">
+                                <iconify-icon icon="mdi:bell-alert-outline" width="24"></iconify-icon>
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
-                
+
                 <div class="flex items-center gap-2 mb-4">
                     <div class="text-yellow-500">${'★'.repeat(p.rating)}${p.rating < 5 ? '☆'.repeat(5-p.rating) : ''}</div>
                     <span class="text-gray-500 text-sm">(۱۲ نظر)</span>
                 </div>
-                
+
                 <div class="mb-6">
                     ${p.discount > 0 ? `
                         <div class="flex items-center gap-4 mb-2">
@@ -94,54 +121,78 @@ function renderProductDetailPage(id){
                     ` : `
                         <div class="text-2xl font-bold text-primary mb-2">${formatPrice(finalPrice)}</div>
                     `}
-                    
+
                     ${p.status === 'new' ? `<span class="badge badge-new mr-2">جدید</span>` : ''}
                     ${p.status === 'hot' ? `<span class="badge badge-hot mr-2">فروش ویژه</span>` : ''}
                     ${p.status === 'bestseller' ? `<span class="badge bg-purple-500 text-white mr-2">پرفروش</span>` : ''}
                 </div>
-                
+
                 <p class="text-gray-600 dark:text-gray-400 mb-6">${p.desc}</p>
-                
-                ${p.colors.length > 0 ? `
+
+                ${hasColors ? `
                 <div class="mb-6">
-                    <h3 class="font-medium mb-2">رنگ‌بندی:</h3>
-                    <div class="flex gap-2">
-                        ${p.colors.map(color => `
-                            <button class="color-option px-3 py-1 border border-gray-300 rounded-lg hover:border-primary transition-colors" data-color="${color}">${color}</button>
+                    <h3 class="font-medium mb-2">انتخاب رنگ</h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${p.colors.map((color, index) => `
+                            <button type="button"
+                                    class="color-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                                    data-color="${color}"
+                                    aria-pressed="${index === 0 ? 'true' : 'false'}">
+                                ${color}
+                            </button>
                         `).join('')}
                     </div>
                 </div>
                 ` : ''}
-                
+
+                ${hasSizes ? `
+                <div class="mb-6">
+                    <h3 class="font-medium mb-2">انتخاب سایز</h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${p.sizes.map((size, index) => `
+                            <button type="button"
+                                    class="size-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                                    data-size="${size}"
+                                    aria-pressed="${index === 0 ? 'true' : 'false'}">
+                                ${size}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${(hasColors || hasSizes) ? `
+                <div class="selected-variant text-sm text-gray-600 dark:text-gray-300 bg-primary/5 border border-dashed border-primary/30 rounded-xl px-4 py-3 mb-6">
+                    ${variantSummaryText}
+                </div>
+                ` : ''}
+
                 <div class="mb-6">
                     <h3 class="font-medium mb-2">تعداد:</h3>
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
-                            <button class="decrease-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">-</button>
-                            <span class="w-12 text-center text-lg quantity-display">1</span>
-                            <button class="increase-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">+</button>
+                            <button type="button" class="decrease-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>-</button>
+                            <span class="w-12 text-center text-lg quantity-display">${initialQuantity}</span>
+                            <button type="button" class="increase-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>+</button>
                         </div>
                         <div class="text-sm text-gray-500">
-                            ${p.stock > 0 ? 
-                                `<span class="text-green-500">${p.stock} عدد در انبار</span>` : 
-                                `<span class="text-red-500">ناموجود</span>`
-                            }
+                            ${stockLabel}
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-3 mb-6">
-                    <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
-                        <iconify-icon icon="mdi:cart-plus" width="20"></iconify-icon>
-                        ${p.stock > 0 ? 'افزودن به سبد خرید' : 'ناموجود'}
+                    <button class="${addToCartButtonClasses}" data-id="${p.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                        <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
+                        ${addToCartLabelMarkup}
                     </button>
-                    <button class="buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
+                    <button class="${buyNowClasses}" data-id="${p.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
                         خرید الآن
                     </button>
                 </div>
-                
+
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                         <div class="flex items-center gap-1">
                             <iconify-icon icon="mdi:package-variant"></iconify-icon>
                             <span>ارسال رایگان برای خرید بالای ۵۰۰ هزار تومان</span>
@@ -154,7 +205,7 @@ function renderProductDetailPage(id){
                 </div>
             </div>
         </div>
-        
+
         <!-- Product Tabs -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 mb-12">
             <div class="border-b border-gray-200 dark:border-gray-700">
@@ -271,57 +322,192 @@ function renderProductDetailPage(id){
 }
 
 function setupProductDetailEvents(page, product) {
-    let quantity = 1;
+    const isOutOfStock = product.stock === 0;
+    let quantity = isOutOfStock ? 0 : 1;
     const quantityDisplay = $('.quantity-display', page);
-    
+    const decreaseBtn = $('.decrease-qty', page);
+    const increaseBtn = $('.increase-qty', page);
+    const addToCartButton = $('.add-to-cart', page);
+    const buyNowButton = $('.buy-now', page);
+    const colorButtons = $$('.color-option', page);
+    const sizeButtons = $$('.size-option', page);
+    const variantSummary = $('.selected-variant', page);
+    const thumbnails = $$('.product-thumbnail', page);
+    const mainImageEl = $('#mainProductImage', page);
+    let activeImage = mainImageEl ? (mainImageEl.getAttribute('data-active') || mainImageEl.getAttribute('src')) : null;
+    let selectedColor = colorButtons.length > 0 ? colorButtons[0].getAttribute('data-color') : null;
+    let selectedSize = sizeButtons.length > 0 ? sizeButtons[0].getAttribute('data-size') : null;
+
+    if (quantityDisplay) {
+        quantityDisplay.textContent = quantity;
+    }
+
+    const updateVariantButtons = (buttons, selectedValue, attribute) => {
+        if (!Array.isArray(buttons) || buttons.length === 0) return;
+        buttons.forEach(btn => {
+            const value = btn.getAttribute(`data-${attribute}`);
+            const isActive = value === selectedValue;
+            btn.classList.toggle('border-primary', isActive);
+            btn.classList.toggle('text-primary', isActive);
+            btn.classList.toggle('bg-primary/5', isActive);
+            btn.classList.toggle('shadow-sm', isActive);
+            btn.classList.toggle('ring-2', isActive);
+            btn.classList.toggle('ring-primary/30', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+    };
+
+    const updateVariantSummary = () => {
+        if (!variantSummary) return;
+        const parts = [];
+        if (selectedColor) parts.push(`رنگ: ${selectedColor}`);
+        if (selectedSize) parts.push(`سایز: ${selectedSize}`);
+        variantSummary.textContent = parts.length > 0
+            ? `انتخاب شما — ${parts.join(' | ')}`
+            : 'گزینه‌ای برای انتخاب وجود ندارد.';
+    };
+
+    const syncVariantDataAttributes = () => {
+        if (addToCartButton) {
+            if (selectedColor) {
+                addToCartButton.setAttribute('data-color', selectedColor);
+            } else {
+                addToCartButton.removeAttribute('data-color');
+            }
+            if (selectedSize) {
+                addToCartButton.setAttribute('data-size', selectedSize);
+            } else {
+                addToCartButton.removeAttribute('data-size');
+            }
+        }
+        if (buyNowButton) {
+            if (selectedColor) {
+                buyNowButton.setAttribute('data-color', selectedColor);
+            } else {
+                buyNowButton.removeAttribute('data-color');
+            }
+            if (selectedSize) {
+                buyNowButton.setAttribute('data-size', selectedSize);
+            } else {
+                buyNowButton.removeAttribute('data-size');
+            }
+        }
+    };
+
+    const updateThumbnailState = (activeSrc) => {
+        if (!Array.isArray(thumbnails) || thumbnails.length === 0) return;
+        thumbnails.forEach(btn => {
+            const isActive = btn.getAttribute('data-image') === activeSrc;
+            btn.classList.toggle('border-primary', isActive);
+            btn.classList.toggle('ring-2', isActive);
+            btn.classList.toggle('ring-primary/30', isActive);
+            btn.classList.toggle('shadow-sm', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+    };
+
+    updateVariantButtons(colorButtons, selectedColor, 'color');
+    updateVariantButtons(sizeButtons, selectedSize, 'size');
+    updateVariantSummary();
+    syncVariantDataAttributes();
+    updateThumbnailState(activeImage);
+
     // Quantity controls
-    $('.decrease-qty', page).addEventListener('click', () => {
-        if(quantity > 1){
-            quantity--;
-            quantityDisplay.textContent = quantity;
-        }
-    });
-    
-    $('.increase-qty', page).addEventListener('click', () => {
-        if(quantity < product.stock){
-            quantity++;
-            quantityDisplay.textContent = quantity;
-        }
-    });
-    
+    if (decreaseBtn) {
+        decreaseBtn.addEventListener('click', () => {
+            if (isOutOfStock) return;
+            if (quantity > 1) {
+                quantity--;
+                if (quantityDisplay) {
+                    quantityDisplay.textContent = quantity;
+                }
+            }
+        });
+    }
+
+    if (increaseBtn) {
+        increaseBtn.addEventListener('click', () => {
+            if (isOutOfStock) return;
+            if (quantity < product.stock) {
+                quantity++;
+                if (quantityDisplay) {
+                    quantityDisplay.textContent = quantity;
+                }
+            }
+        });
+    }
+
     // Product actions
     page.addEventListener('click', (e) => {
+        const colorBtn = e.target.closest('.color-option');
+        if (colorBtn) {
+            selectedColor = colorBtn.getAttribute('data-color');
+            updateVariantButtons(colorButtons, selectedColor, 'color');
+            updateVariantSummary();
+            syncVariantDataAttributes();
+            return;
+        }
+
+        const sizeBtn = e.target.closest('.size-option');
+        if (sizeBtn) {
+            selectedSize = sizeBtn.getAttribute('data-size');
+            updateVariantButtons(sizeButtons, selectedSize, 'size');
+            updateVariantSummary();
+            syncVariantDataAttributes();
+            return;
+        }
+
+        const thumbnailBtn = e.target.closest('.product-thumbnail');
+        if (thumbnailBtn) {
+            const image = thumbnailBtn.getAttribute('data-image');
+            if (image && mainImageEl) {
+                mainImageEl.src = image;
+                mainImageEl.setAttribute('data-active', image);
+                activeImage = image;
+            }
+            updateThumbnailState(activeImage);
+            return;
+        }
+
         const addBtn = e.target.closest('.add-to-cart');
-        if(addBtn){ 
-            addToCart(addBtn.getAttribute('data-id'), quantity); 
-            return; 
+        if(addBtn){
+            if (isOutOfStock) {
+                notify('این محصول در حال حاضر موجود نیست', true);
+                return;
+            }
+            addToCart(addBtn.getAttribute('data-id'), quantity);
+            return;
         }
-        
+
         const favBtn = e.target.closest('.add-to-wishlist');
-        if(favBtn){ 
-            toggleWishlist(favBtn.getAttribute('data-id')); 
-            return; 
+        if(favBtn){
+            toggleWishlist(favBtn.getAttribute('data-id'));
+            return;
         }
-        
+
         const compBtn = e.target.closest('.add-to-compare');
-        if(compBtn){ 
-            toggleCompare(compBtn.getAttribute('data-id')); 
-            return; 
+        if(compBtn){
+            toggleCompare(compBtn.getAttribute('data-id'));
+            return;
         }
-        
+
         const notifyBtn = e.target.closest('.notify-me');
-        if(notifyBtn){ 
-            showNotifyMeModal(product); 
-            return; 
+        if(notifyBtn){
+            showNotifyMeModal(product);
+            return;
         }
-        
+
         const buyBtn = e.target.closest('.buy-now');
-        if(buyBtn){ 
-            addToCart(buyBtn.getAttribute('data-id'), quantity); 
+        if(buyBtn){
+            if (isOutOfStock) {
+                notify('این محصول در حال حاضر موجود نیست', true);
+                return;
+            }
+            addToCart(buyBtn.getAttribute('data-id'), quantity);
             location.hash = 'checkout';
-            return; 
+            return;
         }
-        
+
         const tabBtn = e.target.closest('.tab-button');
         if(tabBtn){
             $$('.tab-button', page).forEach(btn => {
@@ -330,12 +516,12 @@ function setupProductDetailEvents(page, product) {
             });
             tabBtn.classList.add('border-primary', 'text-primary');
             tabBtn.classList.remove('border-transparent', 'text-gray-500');
-            
+
             $$('.tab-content', page).forEach(content => content.classList.remove('active'));
             $(`#tab-${tabBtn.getAttribute('data-tab')}`, page).classList.add('active');
             return;
         }
-        
+
         const star = e.target.closest('.rating-star');
         if(star){
             const rating = parseInt(star.getAttribute('data-rating'));
@@ -351,8 +537,11 @@ function setupProductDetailEvents(page, product) {
             return;
         }
     });
-    
-    $('#relatedProducts', page).addEventListener('click', handleProductActions);
+
+    const relatedProducts = $('#relatedProducts', page);
+    if (relatedProducts) {
+        relatedProducts.addEventListener('click', handleProductActions);
+    }
 }
 
 function showNotifyMeModal(product) {
@@ -411,10 +600,13 @@ function renderWishlistPage(){
             <span class="text-gray-600 dark:text-gray-400">${wishlist.length} محصول</span>
         </div>
         ${wishlist.length === 0 ? `
-            <div class="text-center py-12">
-                <iconify-icon icon="mdi:heart-off" width="64" class="text-gray-400 mb-4"></iconify-icon>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">لیست علاقه‌مندی‌های شما خالی است</p>
-                <a href="#products" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
+            <div class="py-12">
+                ${createEmptyState({
+                    icon: 'mdi:heart-off',
+                    title: 'لیست علاقه‌مندی‌های شما خالی است',
+                    description: 'برای ذخیره محصولات محبوب خود، آن‌ها را به لیست علاقه‌مندی‌ها اضافه کنید.',
+                    actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="20"></iconify-icon><span>مشاهده محصولات</span></a>'
+                })}
             </div>
         ` : `
             <div id="wishlistProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>

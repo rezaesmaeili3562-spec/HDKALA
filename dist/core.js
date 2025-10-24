@@ -5,6 +5,40 @@ function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9)
 
 function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
 
+function getProductImages(product) {
+    if (!product) return [];
+    const images = Array.isArray(product.images)
+        ? product.images.filter(Boolean)
+        : [];
+    if (images.length > 0) {
+        return images;
+    }
+    if (product.img) {
+        return [product.img];
+    }
+    return [];
+}
+
+function getPrimaryProductImage(product) {
+    const images = getProductImages(product);
+    return images.length > 0 ? images[0] : '';
+}
+
+function createEmptyState({ icon = 'mdi:information-outline', title = '', description = '', actions = '' } = {}) {
+    return `
+        <div class="empty-state bg-white dark:bg-gray-800 border border-dashed border-primary/30 rounded-2xl p-10 text-center flex flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl">
+                <iconify-icon icon="${icon}" width="32"></iconify-icon>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">${title}</h2>
+                ${description ? `<p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">${description}</p>` : ''}
+            </div>
+            ${actions ? `<div class="flex flex-wrap items-center justify-center gap-2">${actions}</div>` : ''}
+        </div>
+    `;
+}
+
 function getCategoryName(category) {
     const categories = {
         'electronics': 'الکترونیک',
@@ -91,15 +125,17 @@ function handleProductActions(e) {
 function renderProductsList(list, container){
     if(!container) return;
     container.innerHTML = '';
-    if(!list || list.length===0){ 
+    if(!list || list.length===0){
         container.innerHTML = `
-            <div class="col-span-full text-center text-gray-500 py-10">
-                <iconify-icon icon="mdi:package-variant-remove" width="64" class="mb-4"></iconify-icon>
-                <p class="text-lg">محصولی یافت نشد</p>
-                <p class="text-sm mt-2">لطفا فیلترهای خود را تغییر دهید</p>
+            <div class="col-span-full">
+                ${createEmptyState({
+                    icon: 'mdi:package-variant-remove',
+                    title: 'محصولی یافت نشد',
+                    description: 'لطفا فیلترهای خود را تغییر دهید یا دسته دیگری را امتحان کنید.'
+                })}
             </div>
-        `; 
-        return; 
+        `;
+        return;
     }
     
     list.forEach(product => {
