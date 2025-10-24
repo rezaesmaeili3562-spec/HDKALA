@@ -82,7 +82,7 @@ function createSmallHero() {
                     <h1 class="text-2xl md:text-3xl font-extrabold mb-3">به HDKALA خوش آمدید</h1>
                     <p class="opacity-90 text-base mb-4">بهترین تجربه خرید آنلاین با تنوع بی‌نظیر محصولات و قیمت‌های استثنایی</p>
                     <div class="flex gap-3">
-                        <a href="#products" class="bg-white text-primary rounded-full px-5 py-2.5 font-medium hover:bg-gray-100 transition-colors text-sm">
+                        <a href="${pageLink('products')}" class="bg-white text-primary rounded-full px-5 py-2.5 font-medium hover:bg-gray-100 transition-colors text-sm">
                             مشاهده محصولات
                         </a>
                         <button id="quickAddDemo" class="bg-white/20 border border-white/30 rounded-full px-5 py-2.5 hover:bg-white/30 transition-colors text-sm">
