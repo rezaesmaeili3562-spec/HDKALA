@@ -26,6 +26,72 @@ const ROUTE_HANDLERS = {
     admin: () => renderAdminPage()
 };
 
+const DEFAULT_DOCUMENT_TITLE = 'HDKALA — فروشگاه آنلاین';
+
+// متادیتای مسیرها برای تعیین عنوان صفحه
+const ROUTE_META = {
+    home: { title: DEFAULT_DOCUMENT_TITLE },
+    products: {
+        title: (params = []) => {
+            if (!params[0] || typeof getCategoryName !== 'function') {
+                return 'محصولات HDKALA | دسته‌بندی‌ها';
+            }
+            const categoryName = getCategoryName(params[0]);
+            return `محصولات ${categoryName} | HDKALA`;
+        }
+    },
+    product: {
+        title: (params = []) => {
+            const productId = params[0];
+            if (!productId || typeof getProductById !== 'function') {
+                return 'جزئیات محصول | HDKALA';
+            }
+            const product = getProductById(productId);
+            return product ? `${product.name} | HDKALA` : 'جزئیات محصول | HDKALA';
+        }
+    },
+    wishlist: { title: 'علاقه‌مندی‌های من | HDKALA' },
+    compare: { title: 'مقایسه محصولات | HDKALA' },
+    cart: { title: 'سبد خرید شما | HDKALA' },
+    checkout: { title: 'تسویه حساب | HDKALA' },
+    login: { title: 'ورود یا ثبت‌نام | HDKALA' },
+    profile: { title: 'پروفایل کاربری | HDKALA' },
+    orders: { title: 'سفارش‌های من | HDKALA' },
+    addresses: { title: 'آدرس‌های من | HDKALA' },
+    about: { title: 'درباره HDKALA' },
+    contact: { title: 'تماس با HDKALA' },
+    blog: {
+        title: (params = []) => {
+            const blogId = params[0];
+            if (!blogId || !Array.isArray(blogs)) {
+                return 'مجله HDKALA';
+            }
+            const blog = blogs.find(item => item.id === blogId);
+            return blog ? `${blog.title} | مجله HDKALA` : 'مجله HDKALA';
+        }
+    },
+    admin: { title: 'مدیریت فروشگاه | HDKALA' }
+};
+
+// تابعی برای بروزرسانی عنوان صفحه با توجه به مسیر فعال
+function updateDocumentTitle(route, params = []) {
+    const meta = ROUTE_META[route];
+    let resolvedTitle = DEFAULT_DOCUMENT_TITLE;
+
+    if (meta && meta.title) {
+        if (typeof meta.title === 'function') {
+            const titleValue = meta.title(params);
+            if (titleValue && typeof titleValue === 'string') {
+                resolvedTitle = titleValue;
+            }
+        } else if (typeof meta.title === 'string' && meta.title.trim()) {
+            resolvedTitle = meta.title;
+        }
+    }
+
+    document.title = resolvedTitle;
+}
+
 function parseHash(hash) {
     const normalized = (hash || '').replace(/^#/, '').trim();
     if (!normalized) {
@@ -86,6 +152,12 @@ function renderPage(){
     };
 
     handler(context);
+
+    if (typeof setActiveNavigation === 'function') {
+        setActiveNavigation(currentPage);
+    }
+
+    updateDocumentTitle(currentPage, currentRouteParams);
 
     mobileMenu.classList.add('hidden');
     userDropdown.classList.remove('open');

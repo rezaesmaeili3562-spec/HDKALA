@@ -32,6 +32,54 @@ function getCategoryName(category) {
     return categories[category] || category;
 }
 
+// تابعی برای نگاشت مسیر به کلید ناوبری جهت هایلایت صحیح
+function mapRouteToNavigationKey(route) {
+    switch(route){
+        case 'product':
+        case 'compare':
+        case 'wishlist':
+            return 'products';
+        case 'checkout':
+            return 'cart';
+        case 'addresses':
+            return 'addresses';
+        case 'orders':
+        case 'profile':
+            return 'profile';
+        default:
+            return route || 'home';
+    }
+}
+
+// تابعی برای بروزرسانی لینک‌های ناوبری بر اساس صفحه فعال
+function setActiveNavigation(route) {
+    const normalizedRoute = mapRouteToNavigationKey(route);
+    const links = $$('[data-route-link]');
+
+    links.forEach(link => {
+        const targetRoute = link.getAttribute('data-route-link');
+        const activeClasses = (link.getAttribute('data-active-class') || '').split(/\s+/).filter(Boolean);
+        const inactiveClasses = (link.getAttribute('data-inactive-class') || '').split(/\s+/).filter(Boolean);
+        const isActive = targetRoute === normalizedRoute;
+
+        link.setAttribute('aria-current', isActive ? 'page' : 'false');
+
+        activeClasses.forEach(cls => {
+            if (!cls) return;
+            link.classList.toggle(cls, isActive);
+        });
+
+        inactiveClasses.forEach(cls => {
+            if (!cls) return;
+            if (isActive) {
+                link.classList.remove(cls);
+            } else {
+                link.classList.add(cls);
+            }
+        });
+    });
+}
+
 function handleProductActions(e) {
     const addBtn = e.target.closest('.add-to-cart');
     if(addBtn){ 
@@ -139,160 +187,9 @@ function renderProductsList(list, container){
     });
 }
 
-// اعتبارسنجی‌های جدید
-function validatePhone(phone) {
-    const phoneRegex = /^09[0-9]{9}$/;
-    return phoneRegex.test(phone);
-}
-
-function validatePostalCode(code) {
-    const postalRegex = /^[0-9]{10}$/;
-    return postalRegex.test(code);
-}
-
-function validateNationalCode(code) {
-    if (!/^\d{10}$/.test(code)) return false;
-    
-    const check = parseInt(code[9]);
-    let sum = 0;
-    for (let i = 0; i < 9; i++) {
-        sum += parseInt(code[i]) * (10 - i);
-    }
-    sum %= 11;
-    
-    return (sum < 2 && check === sum) || (sum >= 2 && check === 11 - sum);
-}
-
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 function getOperatorLogo(phone) {
     if (phone.startsWith('099')) return 'irancell';
     if (phone.startsWith('091') || phone.startsWith('0990')) return 'mci';
     if (phone.startsWith('093')) return 'rightel';
     return 'unknown';
 }
-
-// توابع جدید برای مدیریت inputها
-function setupAutoClearInputs() {
-    document.addEventListener('focus', (e) => {
-        if (e.target.matches('input[type="number"], input[type="text"]')) {
-            if (e.target.value === '0') {
-                e.target.value = '';
-            }
-        }
-    });
-}
-
-function setupInputValidation() {
-    document.addEventListener('blur', (e) => {
-        const input = e.target;
-        
-        if (input.type === 'tel' && input.hasAttribute('data-phone')) {
-            if (input.value && !validatePhone(input.value)) {
-                input.classList.add('border-red-500');
-                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.hasAttribute('data-postal')) {
-            if (input.value && !validatePostalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد پستی باید 10 رقمی باشد', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.hasAttribute('data-national')) {
-            if (input.value && !validateNationalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد ملی نامعتبر است', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.type === 'email' && input.value) {
-            if (!validateEmail(input.value)) {
-                input.classList.add('border-red-500');
-                notify('ایمیل وارد شده معتبر نیست', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-    });
-}
-
-// تابع برای مدیریت مربع‌های کد تأیید
-function setupOtpInputs(container) {
-    const inputs = $$('.otp-input', container);
-
-    inputs.forEach((input, index) => {
-        input.setAttribute('dir', 'ltr');
-        input.setAttribute('inputmode', 'numeric');
-        input.setAttribute('pattern', '[0-9]*');
-        input.type = 'tel';
-
-        input.addEventListener('focus', () => {
-            input.select();
-        });
-
-        input.addEventListener('input', (e) => {
-            const value = e.target.value.replace(/[^\d]/g, '');
-            e.target.value = value.slice(0, 1);
-
-            e.target.classList.remove('border-red-500', 'border-green-500');
-            if (!e.target.classList.contains('border-gray-300')) {
-                e.target.classList.add('border-gray-300');
-            }
-
-            if (e.target.value.length === 1) {
-                if (index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            }
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '') {
-                if (index > 0) {
-                    inputs[index - 1].focus();
-                }
-            }
-        });
-    });
-
-    if (inputs[0]) {
-        inputs[0].focus();
-    }
-}
-
-// تابع برای جمع‌آوری کد از مربع‌ها
-function getOtpCode(container) {
-    const inputs = $$('.otp-input', container);
-    return inputs.map(input => input.value).join('');
-}
-
-// تابع برای ریست کردن مربع‌های کد
-function resetOtpInputs(container) {
-    const inputs = $$('.otp-input', container);
-    inputs.forEach(input => {
-        input.value = '';
-        input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        if (!input.classList.contains('border-gray-300')) {
-            input.classList.add('border-gray-300');
-        }
-    });
-    if (inputs[0]) inputs[0].focus();
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    setupAutoClearInputs();
-    setupInputValidation();
-});
