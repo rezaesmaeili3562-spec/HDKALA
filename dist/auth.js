@@ -20,69 +20,161 @@ function updateUserDropdown() {
 }
 
 /* ---------- Authentication System ---------- */
-function renderLoginPage() {
+function renderLoginPage(initialMode = 'login') {
+    let currentMode = initialMode;
+
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
     page.innerHTML = `
-        <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
-            <div>
+        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div class="space-y-4">
                 <div class="flex justify-center">
                     <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
                         HDKALA
                     </a>
                 </div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    ورود به حساب کاربری
-                </h2>
-                <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    لطفا شماره تلفن خود را وارد کنید
-                </p>
-            </div>
-            <form class="mt-8 space-y-6" id="loginForm">
-                <div class="relative">
-                    <label for="phone" class="sr-only">شماره تلفن</label>
-                    <input id="phone" name="phone" type="tel" required 
-                           class="relative block w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-left" 
-                           placeholder="09xxxxxxxxx"
-                           pattern="09[0-9]{9}"
-                           maxlength="11">
-                    <div id="phoneError" class="text-red-500 text-xs mt-1 hidden">شماره تلفن باید با 09 شروع شده و 11 رقمی باشد</div>
+                <div class="text-center space-y-2">
+                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">ورود یا ثبت‌نام</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">با شماره تماس خود وارد شوید یا حساب جدید بسازید</p>
                 </div>
-                <div>
-                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
-                        دریافت کد تأیید
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/40 p-1 rounded-xl" role="tablist">
+                    <button type="button" data-mode="login" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
+                        ورود کاربران
+                    </button>
+                    <button type="button" data-mode="signup" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
+                        ثبت‌نام سریع
                     </button>
                 </div>
+            </div>
+
+            <form class="space-y-5" id="authForm" novalidate>
+                <div>
+                    <label for="authPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس <span class="text-red-500">*</span></label>
+                    <input id="authPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="09xxxxxxxxx">
+                    <div id="phoneError" class="text-red-500 text-xs mt-1 hidden">شماره تلفن باید با 09 شروع شده و 11 رقمی باشد</div>
+                </div>
+
+                <div>
+                    <label for="authEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل (اختیاری)</label>
+                    <input id="authEmail" type="email" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="example@email.com">
+                </div>
+
+                <div id="passwordGroup" class="space-y-1">
+                    <label for="authPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">رمز عبور (اختیاری)</label>
+                    <input id="authPassword" type="password" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="••••••">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">در صورت نداشتن رمز عبور، از ورود با کد تأیید استفاده کنید.</p>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    دریافت کد تأیید
+                </button>
             </form>
-            <div class="text-center">
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    حساب کاربری ندارید؟ با وارد کردن شماره تلفن، حساب شما ساخته خواهد شد
-                </p>
+
+            <div id="authHint" class="text-center text-xs text-gray-500 dark:text-gray-400">
+                حساب کاربری ندارید؟ شماره خود را وارد کنید تا ثبت‌نام انجام شود.
             </div>
         </div>
     `;
+
     contentRoot.innerHTML = '';
     contentRoot.appendChild(page);
-    
-    $('#loginForm').addEventListener('submit', function(e) {
+
+    const tabs = $$('.auth-tab', page);
+    const passwordGroup = $('#passwordGroup', page);
+    const phoneInput = $('#authPhone', page);
+    const emailInput = $('#authEmail', page);
+    const passwordInput = $('#authPassword', page);
+    const phoneError = $('#phoneError', page);
+    const authHint = $('#authHint', page);
+
+    function updateTabStyles() {
+        tabs.forEach(tab => {
+            const isActive = tab.getAttribute('data-mode') === currentMode;
+            tab.classList.toggle('bg-primary', isActive);
+            tab.classList.toggle('text-white', isActive);
+            tab.classList.toggle('shadow-md', isActive);
+            tab.classList.toggle('bg-white', !isActive);
+            tab.classList.toggle('dark:bg-gray-800', !isActive);
+            tab.classList.toggle('text-gray-600', !isActive);
+            tab.classList.toggle('dark:text-gray-300', !isActive);
+            tab.classList.toggle('hover:bg-gray-100', !isActive);
+            tab.classList.toggle('dark:hover:bg-gray-700', !isActive);
+        });
+
+        if (currentMode === 'login') {
+            passwordGroup.classList.remove('hidden');
+            authHint.textContent = 'اگر رمز عبور ندارید، کد تأیید برای ورود ارسال می‌شود.';
+        } else {
+            passwordGroup.classList.add('hidden');
+            passwordInput.value = '';
+            authHint.textContent = 'با وارد کردن شماره تماس، کد تأیید برای ثبت‌نام ارسال خواهد شد.';
+        }
+    }
+
+    updateTabStyles();
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentMode = tab.getAttribute('data-mode');
+            updateTabStyles();
+        });
+    });
+
+    phoneInput.addEventListener('input', () => {
+        phoneError.classList.add('hidden');
+    });
+
+    $('#authForm', page).addEventListener('submit', (e) => {
         e.preventDefault();
-        const phone = $('#phone').value.trim();
-        const phoneError = $('#phoneError');
-        
+
+        const phone = phoneInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
         if (!validatePhone(phone)) {
             phoneError.classList.remove('hidden');
             return;
         }
-        
+
         phoneError.classList.add('hidden');
-        if (phone) {
-            renderVerifyPage(phone);
+
+        if (currentMode === 'login' && password) {
+            const existingUser = LS.get('HDK_user');
+            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
+                if (!existingUser.password) {
+                    notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', true);
+                    return;
+                }
+                if (existingUser.password !== password) {
+                    notify('رمز عبور وارد شده نادرست است', true);
+                    return;
+                }
+
+                user = { ...existingUser };
+                if (email && email !== existingUser.email) {
+                    user.email = email;
+                }
+                LS.set('HDK_user', user);
+                updateUserLabel();
+                notify('با موفقیت وارد شدید!');
+                navigate('home');
+                return;
+            }
+
+            notify('حسابی با این مشخصات یافت نشد. لطفا ثبت‌نام کنید.', true);
+            return;
         }
+
+        renderVerifyPage({ phone, mode: currentMode, email });
     });
+
+    phoneInput.focus();
 }
 
-function renderVerifyPage(phone) {
+function renderVerifyPage({ phone, mode = 'login', email = '' }) {
     const operator = getOperatorLogo(phone);
     const operatorLogos = {
         'irancell': '<iconify-icon icon="mdi:signal" class="text-blue-500"></iconify-icon>',
@@ -93,17 +185,19 @@ function renderVerifyPage(phone) {
     
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    const isSignup = mode === 'signup';
+
     page.innerHTML = `
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
             <div>
                 <div class="flex justify-center">
                     <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
                         HDKALA
                     </a>
                 </div>
                 <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    تأیید شماره تلفن
+                    ${isSignup ? 'تأیید شماره برای ثبت‌نام' : 'تأیید شماره تلفن'}
                 </h2>
                 <div class="flex items-center justify-center gap-2 mt-2">
                     ${operatorLogos[operator]}
@@ -157,23 +251,29 @@ function renderVerifyPage(phone) {
 
         // Check if user exists (login) or new (signup)
         const existingUser = LS.get('HDK_user');
-        if (existingUser && existingUser.phone === phone) {
-            // Login
-            user = existingUser;
-            LS.set('HDK_user', user);
-            updateUserLabel();
-            notify('با موفقیت وارد شدید!');
-            navigate('home');
+        if (mode === 'login') {
+            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
+                user = { ...existingUser };
+                if (email && email !== existingUser.email) {
+                    user.email = email;
+                }
+                LS.set('HDK_user', user);
+                updateUserLabel();
+                notify('با موفقیت وارد شدید!');
+                navigate('home');
+            } else {
+                notify('حسابی با این شماره یافت نشد. لطفا ثبت‌نام کنید.', true);
+                renderLoginPage('signup');
+            }
         } else {
-            // Signup - show user info form
-            renderUserInfoForm(phone);
+            renderUserInfoForm({ phone, email });
         }
     });
-    
-    $('#backToLogin').addEventListener('click', renderLoginPage);
+
+    $('#backToLogin').addEventListener('click', () => renderLoginPage(mode));
 }
 
-function renderUserInfoForm(phone) {
+function renderUserInfoForm({ phone, email = '' }) {
     const page = document.createElement('div');
     page.className = 'min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8';
     page.innerHTML = `
@@ -181,7 +281,7 @@ function renderUserInfoForm(phone) {
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-primary/30 p-8">
                 <div class="flex justify-center mb-6">
                     <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
                         HDKALA
                     </a>
                 </div>
@@ -189,71 +289,82 @@ function renderUserInfoForm(phone) {
                 <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
                     لطفا اطلاعات خود را برای تکمیل ثبت‌نام وارد کنید
                 </p>
-                
-                <form class="space-y-6" id="userInfoForm">
+
+                <form class="space-y-6" id="userInfoForm" novalidate>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">نام <span class="text-red-500">*</span></label>
-                            <input type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <label for="firstName" class="block text-sm font-medium mb-2">نام <span class="text-red-500">*</span></label>
+                            <input id="firstName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">نام خانوادگی <span class="text-red-500">*</span></label>
-                            <input type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <label for="lastName" class="block text-sm font-medium mb-2">نام خانوادگی <span class="text-red-500">*</span></label>
+                            <input id="lastName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium mb-2">کد ملی <span class="text-red-500">*</span></label>
-                        <input type="text" data-national required 
+                        <label for="nationalCode" class="block text-sm font-medium mb-2">کد ملی <span class="text-red-500">*</span></label>
+                        <input id="nationalCode" type="text" data-national required
                                class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
                                maxlength="10"
                                pattern="[0-9]{10}">
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">استان محل سکونت <span class="text-red-500">*</span></label>
-                            <select required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" id="provinceSelect">
+                            <label class="block text-sm font-medium mb-2" for="provinceSelect">استان محل سکونت <span class="text-red-500">*</span></label>
+                            <select id="provinceSelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                                 <option value="">انتخاب استان</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">شهر محل سکونت <span class="text-red-500">*</span></label>
-                            <select required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" id="citySelect" disabled>
+                            <label class="block text-sm font-medium mb-2" for="citySelect">شهر محل سکونت <span class="text-red-500">*</span></label>
+                            <select id="citySelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
                                 <option value="">ابتدا استان را انتخاب کنید</option>
                             </select>
                         </div>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium mb-2">آدرس دقیق <span class="text-red-500">*</span></label>
-                        <textarea required rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
+                        <label for="addressText" class="block text-sm font-medium mb-2">آدرس دقیق <span class="text-red-500">*</span></label>
+                        <textarea id="addressText" required rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium mb-2">کد پستی <span class="text-red-500">*</span></label>
-                        <input type="text" data-postal required 
+                        <label for="postalCode" class="block text-sm font-medium mb-2">کد پستی (اختیاری)</label>
+                        <input id="postalCode" type="text" data-postal
                                class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
                                maxlength="10"
                                pattern="[0-9]{10}">
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">تاریخ تولد</label>
-                            <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
+                            <label for="birthDate" class="block text-sm font-medium mb-2">تاریخ تولد</label>
+                            <input id="birthDate" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">نام پدر</label>
-                            <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <label for="fatherName" class="block text-sm font-medium mb-2">نام پدر</label>
+                            <input id="fatherName" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
-                        <input type="email" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                        <label for="userEmail" class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
+                        <input id="userEmail" type="email" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${email || ''}">
                     </div>
-                    
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="userPassword" class="block text-sm font-medium mb-2">رمز عبور (اختیاری)</label>
+                            <input id="userPassword" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="حداقل ۴ کاراکتر">
+                        </div>
+                        <div>
+                            <label for="userPasswordConfirm" class="block text-sm font-medium mb-2">تکرار رمز عبور</label>
+                            <input id="userPasswordConfirm" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="تکرار رمز">
+                        </div>
+                    </div>
+
                     <div class="flex gap-4">
                         <button type="button" id="backToVerify" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors">
                             بازگشت
@@ -268,60 +379,85 @@ function renderUserInfoForm(phone) {
     `;
     contentRoot.innerHTML = '';
     contentRoot.appendChild(page);
-    
-    // Load provinces
+
     loadProvinces();
-    
+
     $('#provinceSelect').addEventListener('change', function() {
         const province = this.value;
         loadCities(province);
     });
-    
+
     $('#userInfoForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Validate required fields
-        const nationalCode = $('input[data-national]').value;
+
+        const nationalCode = $('#nationalCode').value.trim();
         if (!validateNationalCode(nationalCode)) {
             notify('کد ملی نامعتبر است', true);
             return;
         }
-        
-        const postalCode = $('input[data-postal]').value;
-        if (!validatePostalCode(postalCode)) {
+
+        const postalCode = $('#postalCode').value.trim();
+        if (postalCode && !validatePostalCode(postalCode)) {
             notify('کد پستی باید 10 رقمی باشد', true);
             return;
         }
-        
-        // Create user
+
+        const passwordValue = $('#userPassword').value.trim();
+        const passwordConfirm = $('#userPasswordConfirm').value.trim();
+        if (passwordValue && passwordValue.length < 4) {
+            notify('رمز عبور باید حداقل ۴ کاراکتر باشد', true);
+            return;
+        }
+        if (passwordValue && passwordValue !== passwordConfirm) {
+            notify('تکرار رمز عبور با رمز اصلی یکسان نیست', true);
+            return;
+        }
+
+        const firstName = $('#firstName').value.trim();
+        const lastName = $('#lastName').value.trim();
+        const provinceValue = $('#provinceSelect').value;
+        const cityValue = $('#citySelect').value;
+        const addressValue = $('#addressText').value.trim();
+        const emailValue = $('#userEmail').value.trim();
+        const birthDate = $('#birthDate').value.trim();
+        const fatherName = $('#fatherName').value.trim();
+
         user = {
             id: uid('u'),
-            name: $('#userInfoForm input[type="text"]:nth-child(1)').value + ' ' + $('#userInfoForm input[type="text"]:nth-child(2)').value,
-            phone: phone,
-            nationalCode: nationalCode,
-            province: $('#provinceSelect').value,
-            city: $('#citySelect').value,
-            address: $('#userInfoForm textarea').value,
-            postalCode: postalCode,
-            birthDate: $('#userInfoForm input[placeholder="۱۳۷۰/۰۱/۰۱"]').value,
-            fatherName: $('#userInfoForm input[type="text"]:last-child').value,
-            email: $('#userInfoForm input[type="email"]').value,
+            name: `${firstName} ${lastName}`.trim(),
+            firstName,
+            lastName,
+            phone,
+            nationalCode,
+            province: provinceValue,
+            city: cityValue,
+            address: addressValue,
+            postalCode: postalCode || null,
+            birthDate,
+            fatherName,
+            email: emailValue,
+            password: passwordValue || null,
             created: new Date().toISOString()
         };
-        
+
         LS.set('HDK_user', user);
         updateUserLabel();
         notify('ثبت‌نام با موفقیت انجام شد!');
         navigate('home');
     });
-    
-    $('#backToVerify').addEventListener('click', () => renderVerifyPage(phone));
+
+    $('#backToVerify').addEventListener('click', () => {
+        const currentEmail = $('#userEmail').value.trim();
+        renderVerifyPage({ phone, mode: 'signup', email: currentEmail || email });
+    });
 }
 
 function loadProvinces() {
     const provinceSelect = $('#provinceSelect');
     if (!provinceSelect) return;
-    
+
+    provinceSelect.innerHTML = '<option value="">انتخاب استان</option>';
+
     provinces.forEach(province => {
         const option = document.createElement('option');
         option.value = province.name;

@@ -17,29 +17,29 @@ function applyFilters(){
     const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
     if(q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q));
     
-    const mn = Number(minPrice.value||0), mx = Number(maxPrice.value||0);
+    const mn = Number(minPrice ? minPrice.value || 0 : 0), mx = Number(maxPrice ? maxPrice.value || 0 : 0);
     if(mn>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) >= mn);
     if(mx>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) <= mx);
     
-    const cat = categoryFilter.value;
+    const cat = categoryFilter ? categoryFilter.value : '';
     if(cat) list = list.filter(p => p.category === cat);
     
-    const disc = discountFilter.value;
+    const disc = discountFilter ? discountFilter.value : '';
     if(disc === 'has_discount') list = list.filter(p => p.discount > 0);
     if(disc === 'no_discount') list = list.filter(p => p.discount === 0);
     if(disc === 'high_discount') list = list.filter(p => p.discount >= 50);
     
-    const brand = brandFilter.value;
+    const brand = brandFilter ? brandFilter.value : '';
     if(brand) list = list.filter(p => p.brand === brand);
     
-    const stock = stockFilter.value;
+    const stock = stockFilter ? stockFilter.value : '';
     if(stock === 'in_stock') list = list.filter(p => p.stock > 0);
     if(stock === 'out_of_stock') list = list.filter(p => p.stock === 0);
     
-    const rating = ratingFilter.value;
+    const rating = ratingFilter ? ratingFilter.value : '';
     if(rating) list = list.filter(p => p.rating >= parseInt(rating));
     
-    const sort = sortSelect.value;
+    const sort = sortSelect ? sortSelect.value : 'popular';
     if(sort==='price_asc') list.sort((a,b)=> (a.price*(1-a.discount/100)) - (b.price*(1-b.discount/100)));
     else if(sort==='price_desc') list.sort((a,b)=> (b.price*(1-b.discount/100)) - (a.price*(1-a.discount/100)));
     else if(sort==='discount') list.sort((a,b)=>b.discount - a.discount);
@@ -48,7 +48,6 @@ function applyFilters(){
     
     renderProducts(list);
     updateActiveFilters();
-    notify('فیلترها اعمال شدند');
 }
 
 // نمایش فیلترهای فعال
@@ -138,109 +137,92 @@ function clearSingleFilter(filterText) {
     applyFilters();
 }
 
+/* ---------- Filter Sidebar helpers ---------- */
+let isFilterOpen = false;
+
+function refreshFilterElements() {
+    filterSidebar = $('#filterSidebar');
+    closeFilters = $('#closeFilters');
+    filterOverlay = $('#filterOverlay');
+    sortSelect = $('#sortSelect');
+    minPrice = $('#minPrice');
+    maxPrice = $('#maxPrice');
+    categoryFilter = $('#categoryFilter');
+    discountFilter = $('#discountFilter');
+    brandFilter = $('#brandFilter');
+    stockFilter = $('#stockFilter');
+    ratingFilter = $('#ratingFilter');
+    priceRange = $('#priceRange');
+    applyFilterBtn = $('#applyFilter');
+    clearFilterBtn = $('#clearFilter');
+}
+
+function setupPriceAccordion() {
+    const toggle = $('#togglePriceFilter');
+    const fields = $('#priceFilterFields');
+    const icon = $('#priceFilterIcon');
+
+    if (!toggle || !fields) return;
+
+    toggle.addEventListener('click', () => {
+        const willOpen = fields.classList.contains('hidden');
+        fields.classList.toggle('hidden');
+        if (icon) {
+            icon.classList.toggle('rotate-180', willOpen);
+        }
+    });
+}
+
+function openFilterSidebar() {
+    if (!filterSidebar) return;
+    filterSidebar.classList.add('open');
+    if (filterOverlay) {
+        filterOverlay.classList.remove('hidden');
+    }
+    isFilterOpen = true;
+}
+
+function closeFilterSidebar() {
+    if (!filterSidebar) return;
+    filterSidebar.classList.remove('open');
+    if (filterOverlay) {
+        filterOverlay.classList.add('hidden');
+    }
+    isFilterOpen = false;
+}
+
 /* ---------- Improved Filter Sidebar ---------- */
 function setupFilterSidebar() {
-    // ایجاد سایدبار فیلتر جدید
-    if (!filterSidebar) return;
-    
-    filterSidebar.innerHTML = `
-        <div class="fixed inset-0 bg-black/50 z-40 lg:hidden" id="filterOverlay"></div>
-        <div class="fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0 lg:shadow-none custom-scrollbar overflow-y-auto">
-            ${createFilterHeader()}
-            <div class="p-4 space-y-6">
-                ${createPriceFilter()}
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">دسته‌بندی</label>
-                    <select id="categoryFilter" class="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700">
-                        <option value="">همه دسته‌ها</option>
-                        <option value="electronics">الکترونیک</option>
-                        <option value="fashion">مد و پوشاک</option>
-                        <option value="home">خانه و آشپزخانه</option>
-                        <option value="books">کتاب</option>
-                        <option value="sports">ورزشی</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">برند</label>
-                    <select id="brandFilter" class="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700">
-                        <option value="">همه برندها</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">تخفیف</label>
-                    <select id="discountFilter" class="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700">
-                        ${discountOptions.map(opt => 
-                            `<option value="${opt.value}">${opt.label}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">وضعیت موجودی</label>
-                    <select id="stockFilter" class="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700">
-                        ${stockOptions.map(opt => 
-                            `<option value="${opt.value}">${opt.label}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium mb-2">حداقل امتیاز</label>
-                    <select id="ratingFilter" class="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700">
-                        ${ratingOptions.map(opt => 
-                            `<option value="${opt.value}">${opt.label}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-                
-                <div class="flex gap-3 pt-4">
-                    <button id="applyFilter" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
-                        اعمال فیلتر
-                    </button>
-                    <button id="clearFilter" class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                        پاک کردن
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Update brand filter after creating the sidebar
-    setTimeout(updateBrandFilter, 0);
+    refreshFilterElements();
+    setupPriceAccordion();
+    updateBrandFilter();
 }
 
 /* ---------- Enhanced Filter Functionality ---------- */
 function setupFilterToggle() {
-    let isFilterOpen = false;
-    
+    const collapseBtn = $('#filterCollapse');
+
+    if (!filterBtn || !filterSidebar) return;
+
     filterBtn.addEventListener('click', () => {
         if (isFilterOpen) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
+            closeFilterSidebar();
         } else {
-            filterSidebar.classList.add('open');
-            isFilterOpen = true;
+            openFilterSidebar();
         }
     });
-    
-    // بستن فیلتر با کلیک خارج
-    document.addEventListener('click', (e) => {
-        if (isFilterOpen && !filterSidebar.contains(e.target) && !filterBtn.contains(e.target)) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
-        }
-    });
-    
-    // بستن با دکمه بستن
-    document.addEventListener('click', (e) => {
-        if (e.target.closest('#closeFilters') || e.target.closest('#filterCollapse')) {
-            filterSidebar.classList.remove('open');
-            isFilterOpen = false;
-        }
-    });
+
+    if (filterOverlay) {
+        filterOverlay.addEventListener('click', closeFilterSidebar);
+    }
+
+    if (closeFilters) {
+        closeFilters.addEventListener('click', closeFilterSidebar);
+    }
+
+    if (collapseBtn) {
+        collapseBtn.addEventListener('click', closeFilterSidebar);
+    }
 }
 
 /* ---------- Search Functionality ---------- */
@@ -307,18 +289,18 @@ function setupPriceValidation() {
         minPrice.addEventListener('blur', () => {
             const min = parseInt(minPrice.value);
             const max = parseInt(maxPrice.value);
-            
+
             if (min && max && min > max) {
                 notify('حداقل قیمت نمی‌تواند از حداکثر قیمت بیشتر باشد', true);
                 minPrice.value = '';
                 minPrice.focus();
             }
         });
-        
+
         maxPrice.addEventListener('blur', () => {
             const min = parseInt(minPrice.value);
             const max = parseInt(maxPrice.value);
-            
+
             if (min && max && max < min) {
                 notify('حداکثر قیمت نمی‌تواند از حداقل قیمت کمتر باشد', true);
                 maxPrice.value = '';
@@ -328,49 +310,50 @@ function setupPriceValidation() {
     }
 }
 
-/* ---------- Event Listeners ---------- */
-filterBtn.addEventListener('click', () => {
-    filterSidebar.classList.add('open');
-});
+function bindFilterEvents() {
+    if (sortSelect) sortSelect.addEventListener('change', applyFilters);
+    if (minPrice) minPrice.addEventListener('change', applyFilters);
+    if (maxPrice) maxPrice.addEventListener('change', applyFilters);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+    if (discountFilter) discountFilter.addEventListener('change', applyFilters);
+    if (brandFilter) brandFilter.addEventListener('change', applyFilters);
+    if (stockFilter) stockFilter.addEventListener('change', applyFilters);
+    if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
 
-closeFilters.addEventListener('click', () => {
-    filterSidebar.classList.remove('open');
-});
+    if (priceRange) {
+        priceRange.addEventListener('input', (e) => {
+            maxPrice.value = e.target.value;
+            applyFilters();
+        });
+    }
 
-// Filter event listeners
-if (sortSelect) sortSelect.addEventListener('change', applyFilters);
-if (minPrice) minPrice.addEventListener('change', applyFilters);
-if (maxPrice) maxPrice.addEventListener('change', applyFilters);
-if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
-if (discountFilter) discountFilter.addEventListener('change', applyFilters);
-if (brandFilter) brandFilter.addEventListener('change', applyFilters);
-if (stockFilter) stockFilter.addEventListener('change', applyFilters);
-if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyFilters();
+            closeFilterSidebar();
+            notify('فیلترها اعمال شدند');
+        });
+    }
 
-if (priceRange) priceRange.addEventListener('input', (e) => {
-    maxPrice.value = e.target.value;
-    applyFilters();
-});
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (sortSelect) sortSelect.value = 'popular';
+            if (minPrice) minPrice.value = '';
+            if (maxPrice) maxPrice.value = '';
+            if (categoryFilter) categoryFilter.value = '';
+            if (discountFilter) discountFilter.value = '';
+            if (brandFilter) brandFilter.value = '';
+            if (stockFilter) stockFilter.value = '';
+            if (ratingFilter) ratingFilter.value = '';
+            if (priceRange) priceRange.value = '50000000';
 
-if (applyFilterBtn) applyFilterBtn.addEventListener('click', applyFilters);
-
-if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
-    if (sortSelect) sortSelect.value = 'popular';
-    if (minPrice) minPrice.value = '';
-    if (maxPrice) maxPrice.value = '';
-    if (categoryFilter) categoryFilter.value = '';
-    if (discountFilter) discountFilter.value = '';
-    if (brandFilter) brandFilter.value = '';
-    if (stockFilter) stockFilter.value = '';
-    if (ratingFilter) ratingFilter.value = '';
-    if (priceRange) priceRange.value = '50000000';
-    
-    applyFilters();
-    filterSidebar.classList.remove('open');
-});
-
-if (searchInput) {
-    searchInput.addEventListener('input', applyFilters);
+            applyFilters();
+            closeFilterSidebar();
+            notify('فیلترها بازنشانی شدند');
+        });
+    }
 }
 
 mobileMenuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('hidden'));
@@ -416,12 +399,12 @@ themeToggle.addEventListener('click', ()=> {
 /* ---------- Initialize Filters ---------- */
 function initializeFilters() {
     setupFilterSidebar();
+    bindFilterEvents();
     setupFilterToggle();
     setupSearch();
     setupCategoryFiltering();
     setupPriceValidation();
     setupSingleFilterClearing();
-    updateBrandFilter();
 }
 
 // Initialize when DOM is ready

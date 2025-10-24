@@ -1,4 +1,6 @@
 /* ---------- Admin Panel Functions ---------- */
+let pendingProductImage = '';
+
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
     renderAdminProducts();
@@ -9,6 +11,8 @@ function closeAdminPanel() {
     adminModal.classList.add('hidden');
     productForm.classList.add('hidden');
     editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
 }
 
 function renderAdminProducts() {
@@ -107,6 +111,7 @@ function showProductForm() {
     
     if (editingProductId) {
         const product = getProductById(editingProductId);
+        pendingProductImage = product?.img || '';
         $('#productName').value = product.name;
         $('#productPrice').value = product.price;
         $('#productDesc').value = product.desc;
@@ -124,6 +129,7 @@ function showProductForm() {
             `;
         }
     } else {
+        pendingProductImage = '';
         // Reset form for new product
         $('#productName').value = '';
         $('#productPrice').value = '';
@@ -160,8 +166,9 @@ function setupAdminInputHandlers() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
+                pendingProductImage = e.target.result;
                 $('#imagePreview').innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                    <img src="${pendingProductImage}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                 `;
             };
             reader.readAsDataURL(file);
@@ -216,8 +223,10 @@ function saveProduct() {
     
     // Get image data
     const imagePreview = $('#imagePreview img');
-    const img = imagePreview ? imagePreview.src : '';
+    const img = pendingProductImage || (imagePreview ? imagePreview.src : '');
     
+    const wasEditing = Boolean(editingProductId);
+
     if (editingProductId) {
         // Update existing product
         const index = products.findIndex(p => p.id === editingProductId);
@@ -257,12 +266,14 @@ function saveProduct() {
         };
         products.push(newProduct);
     }
-    
+
     LS.set('HDK_products', products);
     renderAdminProducts();
     productForm.classList.add('hidden');
     editingProductId = null;
-    notify(editingProductId ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
+    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
     
     // Update main products view if on products page
     if (currentPage === 'home' || currentPage === 'products') {
@@ -486,6 +497,8 @@ saveProductBtn.addEventListener('click', saveProduct);
 cancelProductBtn.addEventListener('click', () => {
     productForm.classList.add('hidden');
     editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
 });
 adminSearch.addEventListener('input', renderAdminProducts);
 

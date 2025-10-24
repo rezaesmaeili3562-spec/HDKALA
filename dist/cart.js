@@ -165,6 +165,9 @@ function toggleCompare(productId) {
     }
     LS.set('HDK_compare', compareList);
     updateCompareBadge();
+    if (!compareModal.classList.contains('hidden')) {
+        renderCompareProducts();
+    }
 }
 
 function openCompareModal() {

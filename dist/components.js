@@ -1,47 +1,5 @@
 /* ---------- UI Components ---------- */
 
-// کامپوننت فیلتر قیمت جدید
-function createPriceFilter() {
-    return `
-        <div class="space-y-3">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">محدوده قیمت</label>
-            <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="minPrice" 
-                           placeholder="حداقل قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
-                    <span class="text-gray-500">تومان</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="maxPrice" 
-                           placeholder="حداکثر قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
-                    <span class="text-gray-500">تومان</span>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// کامپوننت هدر فیلترها با فلش جمع‌شونده
-function createFilterHeader() {
-    return `
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-2">
-                <button id="filterCollapse" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                    <iconify-icon icon="mdi:chevron-left" class="text-xl"></iconify-icon>
-                </button>
-                <h3 class="text-lg font-semibold">فیلترها</h3>
-            </div>
-            <button id="closeFilters" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
-            </button>
-        </div>
-    `;
-}
-
 // کامپوننت اسکرول بار سفارشی
 function setupCustomScrollbar() {
     const style = document.createElement('style');
