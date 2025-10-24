@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="فروشگاه اینترنتی HDKALA - بهترین تجربه خرید آنلاین با تنوع بی‌نظیر محصولات و قیمت‌های استثنایی">
+  <meta name="keywords" content="فروشگاه آنلاین, خرید اینترنتی, الکترونیک, مد و پوشاک, خانه و آشپزخانه">
+  <title>HDKALA — فروشگاه آنلاین</title>
+  <!-- Tailwind CSS -->
+  <link href="./static/css/output.css" rel="stylesheet" />
+  <!-- Vazirmatn Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Iconify -->
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white" data-page="home">
+  <!-- PAGE_INITIALIZER -->
+  <!-- Notification Container -->
+  <div id="notification" class="fixed top-4 left-4 right-4 z-50 transition-all duration-300 transform -translate-y-full">
+    <div class="bg-green-500 text-white p-4 rounded-lg shadow-lg mx-auto max-w-md text-center">
+      <span id="notificationMessage"></span>
+    </div>
+  </div>
+  
+  <!-- Filter Sidebar -->
+  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+    <div class="p-4 border-b border-primary/20">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-primary">فیلترها</h2>
+        <button id="closeFilters" class="text-gray-500 hover:text-primary">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
+      </div>
+    </div>
+    <div class="p-4 space-y-6">
+      <!-- Sort -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">مرتب‌سازی</label>
+        <select id="sortSelect" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="popular">محبوب‌ترین</option>
+          <option value="price_asc">ارزان‌ترین</option>
+          <option value="price_desc">گران‌ترین</option>
+          <option value="discount">بیشترین تخفیف</option>
+          <option value="newest">جدیدترین</option>
+        </select>
+      </div>
+      <!-- Price Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر قیمت</label>
+        <div class="flex gap-2">
+          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+        </div>
+        <div class="mt-2">
+          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full" />
+        </div>
+      </div>
+      <!-- Category Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">دسته‌بندی</label>
+        <select id="categoryFilter" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="">همه</option>
+          <option value="electronics">الکترونیک</option>
+          <option value="fashion">مد و پوشاک</option>
+          <option value="home">خانه و آشپزخانه</option>
+          <option value="books">کتاب</option>
+          <option value="sports">ورزشی</option>
+        </select>
+      </div>
+      <!-- Discount Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر تخفیف</label>
+        <select id="discountFilter" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="">همه</option>
+          <option value="has_discount">دارای تخفیف</option>
+          <option value="no_discount">بدون تخفیف</option>
+          <option value="high_discount">تخفیف بالا (50%+)</option>
+        </select>
+      </div>
+      <!-- Brand Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">برند</label>
+        <select id="brandFilter" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="">همه برندها</option>
+        </select>
+      </div>
+      <!-- Stock Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">موجودی</label>
+        <select id="stockFilter" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="">همه موجودی‌ها</option>
+          <option value="in_stock">موجود</option>
+          <option value="out_of_stock">ناموجود</option>
+        </select>
+      </div>
+      <!-- Rating Filter -->
+      <div>
+        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">امتیاز</label>
+        <select id="ratingFilter" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary/50">
+          <option value="">همه امتیازها</option>
+          <option value="5">۵ ستاره</option>
+          <option value="4">۴ ستاره و بالاتر</option>
+          <option value="3">۳ ستاره و بالاتر</option>
+        </select>
+      </div>
+      <!-- Action Buttons -->
+      <div class="flex gap-2 pt-4">
+        <button id="applyFilter" class="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+          اعمال فیلترها
+        </button>
+        <button id="clearFilter" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+          پاک‌سازی
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div id="adminModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-primary/20">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-primary">پنل مدیریت محصولات</h2>
+          <button id="closeAdminModal" class="text-gray-500 hover:text-primary">
+            <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-semibold">لیست محصولات</h3>
+          <button id="addProductBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+            افزودن محصول جدید
+          </button>
+        </div>
+        <div class="mb-6">
+          <div class="relative">
+            <input type="text" id="adminSearch" placeholder="جستجو در محصولات..." class="w-full p-3 pr-10 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+            <iconify-icon icon="mdi:magnify" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+          </div>
+        </div>
+        <div id="adminProductsList" class="space-y-4 mb-6">
+          <!-- Products will be populated here -->
+        </div>
+        <!-- Add/Edit Product Form -->
+        <div id="productForm" class="hidden bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
+          <h4 class="text-lg font-semibold mb-4" id="formTitle">افزودن محصول جدید</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium mb-2">نام محصول</label>
+              <input id="productName" type="text" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">قیمت (تومان)</label>
+              <input id="productPrice" type="number" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">دسته‌بندی</label>
+              <select id="productCategory" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+                <option value="electronics">الکترونیک</option>
+                <option value="fashion">مد و پوشاک</option>
+                <option value="home">خانه و آشپزخانه</option>
+                <option value="books">کتاب</option>
+                <option value="sports">ورزشی</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">برند</label>
+              <input id="productBrand" type="text" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">تخفیف (%)</label>
+              <input id="productDiscount" type="number" min="0" max="100" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">موجودی</label>
+              <input id="productStock" type="number" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">وضعیت</label>
+              <select id="productStatus" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+                <option value="">بدون وضعیت</option>
+                <option value="new">جدید</option>
+                <option value="hot">فروش ویژه</option>
+                <option value="bestseller">پرفروش</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">امتیاز</label>
+              <select id="productRating" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+                <option value="1">۱ ستاره</option>
+                <option value="2">۲ ستاره</option>
+                <option value="3">۳ ستاره</option>
+                <option value="4">۴ ستاره</option>
+                <option value="5">۵ ستاره</option>
+              </select>
+            </div>
+            <div class="md:col-span-2 lg:col-span-3">
+              <label class="block text-sm font-medium mb-2">توضیحات</label>
+              <textarea id="productDesc" rows="3" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600"></textarea>
+            </div>
+              <div class="md:col-span-2 lg:col-span-3">
+              <label class="block text-sm font-medium mb-2">آپلود تصویر اصلی</label>
+              <div class="border-2 border-dashed border-primary/30 rounded-lg p-4 text-center">
+                <input type="file" id="productImage" accept="image/*" class="hidden">
+                <label for="productImage" class="cursor-pointer">
+                  <iconify-icon icon="mdi:cloud-upload" width="48" class="text-primary mb-2"></iconify-icon>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">برای آپلود تصویر کلیک کنید</p>
+                </label>
+              </div>
+              <div class="mt-3">
+                <label class="block text-sm font-medium mb-2">یا آدرس اینترنتی تصویر</label>
+                <input type="url" id="productImageUrl" placeholder="https://example.com/image.jpg"
+                       class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-600">
+              </div>
+              <div id="imagePreview" class="mt-2 flex gap-2 image-preview"></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button id="saveProduct" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">ذخیره محصول</button>
+            <button id="cancelProduct" class="border border-primary text-primary px-6 py-2 rounded-lg hover:bg-primary/10 transition-colors">لغو</button>
+          </div>
+        </div>
+        <!-- Admin Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-primary/10 p-4 rounded-lg text-center">
+            <div class="text-2xl font-bold text-primary" id="adminProductCount">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">تعداد محصولات</div>
+          </div>
+          <div class="bg-green-500/10 p-4 rounded-lg text-center">
+            <div class="text-2xl font-bold text-green-500" id="adminInStockCount">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">محصولات موجود</div>
+          </div>
+          <div class="bg-yellow-500/10 p-4 rounded-lg text-center">
+            <div class="text-2xl font-bold text-yellow-500" id="adminDiscountCount">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">تخفیف دار</div>
+          </div>
+          <div class="bg-purple-500/10 p-4 rounded-lg text-center">
+            <div class="text-2xl font-bold text-purple-500" id="adminOrderCount">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">سفارشات</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare Modal -->
+  <div id="compareModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-primary/20">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-primary">مقایسه محصولات</h2>
+          <button id="closeCompareModal" class="text-gray-500 hover:text-primary">
+            <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div id="compareProducts" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Compare products will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+    <div class="p-4 border-b border-primary/20">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-primary">سبد خرید</h2>
+        <button id="closeCart" class="text-gray-500 hover:text-primary">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
+      </div>
+    </div>
+    <div class="p-4">
+      <div id="cartItems" class="space-y-4 mb-6">
+        <!-- Cart items will be populated here -->
+      </div>
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div class="flex justify-between mb-2">
+          <span>جمع کل:</span>
+          <span id="cartTotal" class="font-bold">۰ تومان</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span>تخفیف:</span>
+          <span id="cartDiscount" class="text-green-500">۰ تومان</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span>هزینه ارسال:</span>
+          <span id="cartShipping" class="text-gray-600">۰ تومان</span>
+        </div>
+        <div class="flex justify-between mb-4 font-bold text-lg">
+          <span>مبلغ قابل پرداخت:</span>
+          <span id="cartFinalTotal">۰ تومان</span>
+        </div>
+        <button id="checkoutBtn" class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+          ادامه فرآیند خرید
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6 relative">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="text-2xl font-extrabold text-primary flex items-center gap-2" id="homeLink">
+          <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
+          HDKALA
+        </a>
+        <div class="hidden md:flex items-center gap-4">
+          <a href="./products.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+          <a href="./about.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+          <a href="./contact.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+          <a href="./blog.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+          <a href="./addresses.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+          <a href="./admin-login.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Search -->
+        <div class="relative hidden md:block">
+          <input id="searchInput" type="search" placeholder="جستجو..." class="search-box py-2 pl-10 pr-4 rounded-full border border-primary/30 bg-white/80 dark:bg-gray-800/80 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50" aria-label="جستجو">
+          <iconify-icon icon="mdi:magnify" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+        </div>
+        <!-- Theme toggle -->
+        <button id="themeToggle" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="تغییر حالت">
+          <iconify-icon id="themeIcon" icon="ph:moon-duotone" width="20"></iconify-icon>
+        </button>
+        <!-- Compare -->
+        <button id="compareBtn" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors relative" aria-label="مقایسه محصولات">
+          <iconify-icon icon="mdi:compare" width="24"></iconify-icon>
+          <span id="compareCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
+        </button>
+        <!-- Filter Button -->
+        <button id="filterBtn" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="فیلترها">
+          <iconify-icon icon="mdi:filter-outline" width="24"></iconify-icon>
+        </button>
+        <!-- Wishlist -->
+        <button id="wishlistBtn" class="relative text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="لیست علاقه‌مندی‌ها">
+          <iconify-icon icon="mdi:heart-outline" width="26"></iconify-icon>
+          <span id="wishlistCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
+        </button>
+        <!-- Cart -->
+        <button id="cartBtn" class="relative text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="سبد خرید">
+          <iconify-icon icon="mdi:cart-outline" width="26"></iconify-icon>
+          <span id="cartCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
+        </button>
+        <!-- Admin -->
+        <a href="./admin-login.html" class="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-primary/30 text-gray-700 dark:text-white hover:bg-primary hover:text-white transition-colors">ورود مدیر</a>
+        <!-- User -->
+        <div class="relative">
+          <button id="userButton" class="flex items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
+            <iconify-icon icon="mdi:user-circle-outline" width="26"></iconify-icon>
+            <span id="userLabel" class="hidden sm:inline">ورود / ثبت‌نام</span>
+          </button>
+          <!-- User Dropdown -->
+          <div id="userDropdown" class="user-dropdown absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-primary/30 py-2 z-30 opacity-0 invisible transform -translate-y-2 transition-all duration-200">
+            <div id="userDropdownContent">
+              <!-- Content will be populated dynamically -->
+            </div>
+          </div>
+        </div>
+        <!-- Mobile Menu -->
+        <button id="mobileMenuBtn" class="md:hidden text-gray-700 dark:text-white">
+          <iconify-icon icon="mdi:menu" width="26"></iconify-icon>
+        </button>
+      </div>
+    </header>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-primary/30">
+      <div class="flex flex-col gap-3">
+        <a href="./products.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+        <a href="./about.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+        <a href="./contact.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+        <a href="./blog.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+        <a href="./addresses.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+      </div>
+    </div>
+    <!-- Main Content -->
+    <div id="content" class="min-h-screen">
+      <!-- Content will be populated dynamically -->
+    </div>
+    <!-- Footer -->
+    <footer class="mt-16 border-t border-primary/20 pt-8 pb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-lg font-bold text-primary mb-4">HDKALA</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            فروشگاه آنلاین با بهترین کیفیت و قیمت. تجربه‌ای متفاوت از خرید آنلاین.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">دسترسی سریع</h4>
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="./products.html" class="hover:text-primary transition-colors">محصولات</a></li>
+            <li><a href="./about.html" class="hover:text-primary transition-colors">درباره ما</a></li>
+            <li><a href="./contact.html" class="hover:text-primary transition-colors">تماس با ما</a></li>
+            <li><a href="./blog.html" class="hover:text-primary transition-colors">بلاگ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">خدمات مشتریان</h4>
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="./about.html#shipping" class="hover:text-primary transition-colors">ارسال و بازگشت</a></li>
+            <li><a href="./about.html#terms" class="hover:text-primary transition-colors">قوانین و مقررات</a></li>
+            <li><a href="./about.html#privacy" class="hover:text-primary transition-colors">حریم خصوصی</a></li>
+            <li><a href="./about.html#faq" class="hover:text-primary transition-colors">سوالات متداول</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">تماس با ما</h4>
+          <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center gap-2">
+              <iconify-icon icon="mdi:phone"></iconify-icon>
+              <span>۰۲۱-۱۲۳۴۵۶۷۸</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <iconify-icon icon="mdi:email"></iconify-icon>
+              <span>info@hdkala.com</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <iconify-icon icon="mdi:map-marker"></iconify-icon>
+              <span>تهران، خیابان ولیعصر</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        © ۲۰۲۴ HDKALA — کلیه حقوق محفوظ است
+      </div>
+    </footer>
+  </div>
+
+  <!-- Main JavaScript Files -->
+  <script src="./static/js/core.js"></script>
+  <script src="./static/js/storage.js"></script>
+  <script src="./static/js/router.js"></script>
+  <script src="./static/js/admin.js"></script>
+  <script src="./static/js/cart.js"></script>
+  <script src="./static/js/auth.js"></script>
+  <script src="./static/js/filters.js"></script>
+  <script src="./static/js/pages.js"></script>
+  <script src="./static/js/ui.js"></script>
+  <script src="./static/js/validation.js"></script>
+  <script src="./static/js/components.js"></script>
+  <script src="./static/js/utils.js"></script>
+  <script src="./static/js/constants.js"></script>
+</body>
+</html>

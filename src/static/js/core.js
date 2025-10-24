@@ -3,6 +3,25 @@ const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 const notifyEl = document.getElementById('notification');
 
+const PAGE_LINKS = {
+    home: 'index.html',
+    login: 'login.html',
+    products: 'products.html',
+    wishlist: 'wishlist.html',
+    compare: 'compare.html',
+    cart: 'cart.html',
+    checkout: 'checkout.html',
+    about: 'about.html',
+    contact: 'contact.html',
+    blog: 'blog.html',
+    profile: 'profile.html',
+    orders: 'orders.html',
+    addresses: 'addresses.html',
+    'admin-login': 'admin-login.html',
+    admin: 'admin.html',
+    'product:p1': 'product-p1.html'
+};
+
 function notify(msg, isError=false){
     notifyEl.textContent = msg;
     notifyEl.classList.toggle('error', isError);
@@ -14,6 +33,12 @@ function notify(msg, isError=false){
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
 function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
+
+function pageLink(slug){
+    const file = PAGE_LINKS[slug];
+    if(!file) return `#${slug}`;
+    return `./${file}`;
+}
 
 function getCategoryName(category) {
     const categories = {
