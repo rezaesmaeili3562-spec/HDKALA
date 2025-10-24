@@ -236,6 +236,7 @@ let addresses = LS.get('HDK_addresses', []);
 let notifications = LS.get('HDK_notifications', []);
 let currentPage = 'home';
 let currentProductId = null;
+let currentCategory = null;
 let editingProductId = null;
 
 /* ---------- DOM refs ---------- */

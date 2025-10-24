@@ -1,9 +1,12 @@
 /* ---------- Dynamic Content Router ---------- */
 function navigate(hash){
     const parts = hash.split(':');
-    currentPage = parts[0] || 'home';
-    currentProductId = parts[1] || null;
-    currentCategory = parts[1] || null;
+    const page = parts[0] || 'home';
+
+    currentPage = page;
+    currentProductId = page === 'product' ? (parts[1] || null) : null;
+    currentCategory = page === 'products' ? (parts[1] || null) : null;
+
     renderPage();
 }
 
