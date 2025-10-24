@@ -2,13 +2,19 @@
 const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 const notifyEl = document.getElementById('notification');
+const notifyMessageEl = notifyEl ? document.getElementById('notificationMessage') : null;
 
 function notify(msg, isError=false){
-    notifyEl.textContent = msg;
+    if (!notifyEl || !notifyMessageEl) return;
+
+    notifyMessageEl.textContent = msg;
     notifyEl.classList.toggle('error', isError);
     notifyEl.classList.add('show');
-    clearTimeout(notifyEl._t);
-    notifyEl._t = setTimeout(()=> notifyEl.classList.remove('show'), 3500);
+    clearTimeout(notifyEl._timeoutId);
+    notifyEl._timeoutId = setTimeout(() => {
+        notifyEl.classList.remove('show');
+        notifyEl.classList.remove('error');
+    }, 3500);
 }
 
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
