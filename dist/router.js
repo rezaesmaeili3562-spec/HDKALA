@@ -1,6 +1,7 @@
 /* ---------- Dynamic Content Router ---------- */
 const DEFAULT_ROUTE = 'home';
 let currentRouteParams = [];
+let pageRenderTimeout = null;
 
 const ROUTE_HANDLERS = {
     login: () => renderLoginPage(),
@@ -265,8 +266,33 @@ function navigate(hash){
 window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
 window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home'));
 
+function renderPageSkeleton() {
+    if (!contentRoot) return;
+    contentRoot.setAttribute('aria-busy', 'true');
+    const skeletonCards = Array.from({ length: 6 }, () => '<div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>').join('');
+    contentRoot.innerHTML = `
+        <div class="space-y-6 animate-pulse" role="status" aria-live="polite">
+            <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                <div class="space-y-4">
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-2/3"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${skeletonCards}
+            </div>
+        </div>
+    `;
+}
+
 function renderPage(){
-    contentRoot.innerHTML = '';
+    if (!contentRoot) return;
+
+    renderPageSkeleton();
 
     const handler = ROUTE_HANDLERS[currentPage] || ROUTE_HANDLERS[DEFAULT_ROUTE];
     const context = {
@@ -274,18 +300,43 @@ function renderPage(){
         params: currentRouteParams.slice()
     };
 
-    handler(context);
+    clearTimeout(pageRenderTimeout);
+    pageRenderTimeout = setTimeout(() => {
+        if (!contentRoot) return;
+        let renderError = null;
 
-    if (typeof setActiveNavigation === 'function') {
-        setActiveNavigation(currentPage);
-    }
+        try {
+            contentRoot.innerHTML = '';
+            handler(context);
+        } catch (error) {
+            renderError = error;
+            console.error('HDKALA render error:', error);
+            contentRoot.innerHTML = createEmptyState({
+                icon: 'mdi:alert-circle-outline',
+                title: 'خطا در بارگذاری صفحه',
+                description: 'در بارگذاری این صفحه مشکلی پیش آمد. لطفاً دوباره تلاش کنید یا به صفحه دیگری بروید.'
+            });
+        } finally {
+            contentRoot.removeAttribute('aria-busy');
 
-    updateDocumentMetadata(currentPage, currentRouteParams);
+            if (typeof setActiveNavigation === 'function') {
+                setActiveNavigation(currentPage);
+            }
 
-    mobileMenu.classList.add('hidden');
-    userDropdown.classList.remove('open');
+            updateDocumentMetadata(currentPage, currentRouteParams);
 
-    window.scrollTo(0, 0);
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+            if (userDropdown) {
+                userDropdown.classList.remove('open');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        return renderError;
+    }, 250);
 }
 
 /* ---------- Home Page ---------- */
@@ -396,9 +447,22 @@ function renderHomePage(){
 /* ---------- Products Page ---------- */
 function renderProductsPage(){
     const page = document.createElement('div');
+    const categoryName = currentCategory ? getCategoryName(currentCategory) : null;
     page.innerHTML = `
+        <nav class="mb-6" aria-label="مسیر راهنما">
+            <ol class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <li><a href="#home" class="hover:text-primary transition-colors">خانه</a></li>
+                <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
+                <li><a href="#products" class="hover:text-primary transition-colors">محصولات</a></li>
+                ${categoryName ? `
+                    <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
+                    <li><span class="text-primary">${categoryName}</span></li>
+                ` : ''}
+            </ol>
+        </nav>
+
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">${currentCategory ? getCategoryName(currentCategory) : 'همه محصولات'}</h1>
+            <h1 class="text-2xl font-bold">${categoryName || 'همه محصولات'}</h1>
             <div class="flex items-center gap-4">
                 <span class="text-sm text-gray-600 dark:text-gray-400" id="productsCount">${products.length} محصول</span>
                 <button id="toggleView" class="p-2 text-gray-500 hover:text-primary transition-colors" aria-label="تغییر نمای محصولات">
@@ -522,10 +586,14 @@ function renderSearchPage(params = []){
         }
         if (resultsGrid) {
             resultsGrid.innerHTML = `
-            <div class="col-span-full bg-white dark:bg-gray-800 border border-dashed border-primary/30 rounded-xl p-8 text-center">
-                <iconify-icon icon="mdi:magnify" width="48" class="text-primary mb-3"></iconify-icon>
-                <p class="text-gray-600 dark:text-gray-400">برای مشاهده نتایج، ابتدا عبارتی را جستجو کنید.</p>
-            </div>
+                <div class="col-span-full">
+                    ${createEmptyState({
+                        icon: 'mdi:magnify',
+                        title: 'جستجوی خود را آغاز کنید',
+                        description: 'برای مشاهده نتایج، ابتدا عبارت مورد نظر خود را جستجو کنید.',
+                        actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="18"></iconify-icon><span>مشاهده محصولات</span></a>'
+                    })}
+                </div>
             `;
         }
         return;
@@ -549,10 +617,14 @@ function renderSearchPage(params = []){
         }
         if (resultsGrid) {
             resultsGrid.innerHTML = `
-                <div class="col-span-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-500/30 rounded-xl p-8 text-center">
-                    <iconify-icon icon="mdi:emoticon-sad-outline" width="48" class="text-red-500 mb-3"></iconify-icon>
-                <p class="text-gray-600 dark:text-gray-400">محصولی مطابق با جستجوی شما پیدا نشد. از کلمات کلیدی عمومی‌تر استفاده کنید.</p>
-            </div>
+                <div class="col-span-full">
+                    ${createEmptyState({
+                        icon: 'mdi:emoticon-sad-outline',
+                        title: `نتیجه‌ای برای "${safeQuery}" یافت نشد`,
+                        description: 'محصولی مطابق با جستجوی شما پیدا نشد. از کلمات کلیدی عمومی‌تر استفاده کنید یا فیلترها را تغییر دهید.',
+                        actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:arrow-right-bold-circle" width="18"></iconify-icon><span>بازگشت به محصولات</span></a>'
+                    })}
+                </div>
             `;
         }
         return;

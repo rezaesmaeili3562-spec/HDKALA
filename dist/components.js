@@ -86,6 +86,14 @@ function createProductCard(product) {
     const hasDiscount = product.discount > 0;
     const inWishlist = Array.isArray(wishlist) && wishlist.includes(product.id);
     const inCompare = Array.isArray(compareList) && compareList.includes(product.id);
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
+    const isOutOfStock = product.stock === 0;
+    const addToCartClasses = isOutOfStock
+        ? 'add-to-cart flex-1 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-2'
+        : 'add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2';
+    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
 
     const article = document.createElement('article');
     article.className = 'product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20';
@@ -93,8 +101,8 @@ function createProductCard(product) {
         <div class="relative overflow-hidden">
             <a href="#product:${product.id}">
                 <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    ${product.img
-                        ? `<img src="${product.img}" alt="${product.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />`
+                    ${primaryImage
+                        ? `<img src="${primaryImage}" alt="${product.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />`
                         : '<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>'}
                 </div>
             </a>
@@ -141,9 +149,10 @@ function createProductCard(product) {
                 <div class="text-gray-500 dark:text-gray-400">${product.brand || '---'}</div>
             </div>
             <div class="flex gap-2">
-                <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors"
-                        data-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>
-                    ${product.stock > 0 ? 'افزودن به سبد' : 'ناموجود'}
+                <button type="button" class="${addToCartClasses}"
+                        data-id="${product.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
+                    ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد</span>'}
                 </button>
                 <a href="#product:${product.id}"
                    class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -231,9 +240,18 @@ function createShippingOptions(selectedMethod = (shippingMethods[0]?.id || 'stan
 
 // کامپوننت محصول برای مقایسه
 function createCompareProduct(product) {
-    const finalPrice = product.discount > 0 ? 
+    const finalPrice = product.discount > 0 ?
         product.price * (1 - product.discount / 100) : product.price;
-    
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
+    const isOutOfStock = product.stock === 0;
+    const addToCartClasses = isOutOfStock
+        ? 'add-to-cart w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 rounded-lg font-medium cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2'
+        : 'add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm flex items-center justify-center gap-2';
+    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
+    const isInWishlist = Array.isArray(wishlist) && wishlist.includes(product.id);
+
     return `
         <div class="bg-white dark:bg-gray-800 rounded-lg border border-primary/20 p-4 relative">
             <button class="remove-compare absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
@@ -244,8 +262,8 @@ function createCompareProduct(product) {
             <div class="text-center mb-4">
                 <h3 class="font-bold text-lg mb-2">${product.name}</h3>
                 <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
-                    ${product.img ? 
-                        `<img src="${product.img}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg">` :
+                    ${primaryImage ?
+                        `<img src="${primaryImage}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg">` :
                         `<iconify-icon icon="mdi:image-off" width="32" class="text-gray-400"></iconify-icon>`
                     }
                 </div>
@@ -281,21 +299,22 @@ function createCompareProduct(product) {
                     </span>
                 </div>
             </div>
-            
+
             <div class="mt-4 space-y-2">
-                <button class="add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
-                        data-id="${product.id}">
-                    افزودن به سبد خرید
+                <button class="${addToCartClasses}"
+                        data-id="${product.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <iconify-icon icon="${addToCartIcon}" width="18"></iconify-icon>
+                    ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد خرید</span>'}
                 </button>
                 <button class="add-to-wishlist wishlist-button wishlist-button--inline w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
                         data-id="${product.id}"
-                        aria-label="${wishlist.includes(product.id) ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
-                        data-wishlist-active="${wishlist.includes(product.id) ? 'true' : 'false'}"
+                        aria-label="${isInWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
+                        data-wishlist-active="${isInWishlist ? 'true' : 'false'}"
                         data-label-active="حذف از علاقه‌مندی"
                         data-label-inactive="افزودن به علاقه‌مندی">
                     <span class="wishlist-icon-wrapper">
-                        <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
-                        <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                        <iconify-icon icon="${isInWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                        <iconify-icon icon="${isInWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
                     </span>
                     <span class="wishlist-tooltip"></span>
                     <span class="wishlist-label-text">علاقه‌مندی</span>
@@ -307,6 +326,9 @@ function createCompareProduct(product) {
 
 // کامپوننت اطلاع‌رسانی موجود شدن محصول
 function createNotifyMeModal(product) {
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
     return `
         <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6">
@@ -316,11 +338,11 @@ function createNotifyMeModal(product) {
                         <iconify-icon icon="mdi:close"></iconify-icon>
                     </button>
                 </div>
-                
+
                 <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                        ${product.img ? 
-                            `<img src="${product.img}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :
+                        ${primaryImage ?
+                            `<img src="${primaryImage}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :
                             `<iconify-icon icon="mdi:package" class="text-gray-400"></iconify-icon>`
                         }
                     </div>

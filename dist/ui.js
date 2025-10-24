@@ -411,10 +411,13 @@ function renderOrdersPage(){
     page.innerHTML = `
         <h1 class="text-2xl font-bold mb-6">سفارش‌های من</h1>
         ${orders.length === 0 ? `
-            <div class="text-center py-12">
-                <iconify-icon icon="mdi:package-variant-remove" width="64" class="text-gray-400 mb-4"></iconify-icon>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">هنوز سفارشی ثبت نکرده‌اید</p>
-                <a href="#products" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
+            <div class="py-12">
+                ${createEmptyState({
+                    icon: 'mdi:clipboard-text-outline',
+                    title: 'سفارشی ثبت نشده است',
+                    description: 'پس از ثبت سفارش، تاریخچه و وضعیت سفارش‌های شما در اینجا نمایش داده می‌شود.',
+                    actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="20"></iconify-icon><span>شروع خرید</span></a>'
+                })}
             </div>
         ` : `
             <div class="space-y-4">
@@ -434,7 +437,7 @@ function renderOrdersPage(){
                     const itemsMarkup = items.map(item => {
                         const product = getProductById(item.productId);
                         const itemName = product ? product.name : `محصول ${item.productId}`;
-                        const itemImage = product?.img;
+                        const itemImage = product ? (typeof getPrimaryProductImage === 'function' ? getPrimaryProductImage(product) : product.img) : null;
                         const itemQty = item.qty || 1;
                         const itemPrice = product
                             ? (product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price)
