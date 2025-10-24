@@ -28,6 +28,7 @@ function mapRouteToNavigationKey(route) {
         case 'addresses':
             return 'addresses';
         case 'orders':
+        case 'order-success':
         case 'profile':
             return 'profile';
         default:

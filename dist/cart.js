@@ -242,7 +242,20 @@ function removeFromCompare(productId) {
 }
 
 /* ---------- Enhanced Checkout ---------- */
+let selectedCheckoutAddressId = null;
+let selectedShippingMethodId = (typeof shippingMethods !== 'undefined' && shippingMethods.length > 0)
+    ? shippingMethods[0].id
+    : 'standard';
+
 function renderEnhancedCheckoutPage() {
+    if (user) {
+        const userAddresses = addresses.filter(addr => addr.userId === user.id);
+        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0] || null;
+        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
+    } else {
+        selectedCheckoutAddressId = null;
+    }
+
     const page = document.createElement('div');
     page.innerHTML = `
         <h1 class="text-2xl font-bold mb-6">تسویه حساب</h1>
@@ -251,16 +264,24 @@ function renderEnhancedCheckoutPage() {
                 <!-- اطلاعات ارسال -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                     <h2 class="text-lg font-bold mb-4">اطلاعات ارسال</h2>
-                    ${user ? createUserAddressSection() : '<p class="text-gray-500">لطفا ابتدا وارد حساب کاربری خود شوید</p>'}
+                    <div id="checkoutAddressSection">
+                        ${user ? '' : '<p class="text-gray-500">لطفا ابتدا وارد حساب کاربری خود شوید</p>'}
+                    </div>
                 </div>
-                
+
+                <!-- روش ارسال -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                    <h2 class="text-lg font-bold mb-4">روش ارسال</h2>
+                    ${createShippingOptions(selectedShippingMethodId)}
+                </div>
+
                 <!-- روش پرداخت -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                     <h2 class="text-lg font-bold mb-4">روش پرداخت</h2>
                     ${createPaymentOptions('online')}
                 </div>
             </div>
-            
+
             <!-- خلاصه سفارش -->
             <div>
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20 sticky top-4">
@@ -292,41 +313,273 @@ function renderEnhancedCheckoutPage() {
         </div>
     `;
     contentRoot.appendChild(page);
+
+    if (user) {
+        refreshCheckoutAddressSection();
+    }
+
     updateCheckoutDisplay();
     setupCheckoutEvents();
 }
 
-function createUserAddressSection() {
-    const userAddresses = addresses.filter(addr => addr.userId === user.id);
-    const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0];
-    
-    return `
-        <div class="space-y-4">
-            ${defaultAddress ? `
-                <div class="border-2 border-primary rounded-lg p-4 bg-primary/5">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-medium">${defaultAddress.title}</span>
-                        <span class="bg-primary text-white text-xs px-2 py-1 rounded-full">پیش‌فرض</span>
+function createUserAddressSection(userAddresses = []) {
+    if (!Array.isArray(userAddresses) || userAddresses.length === 0) {
+        return `
+            <div class="space-y-4">
+                <div class="text-center py-6 text-gray-500">
+                    <iconify-icon icon="mdi:map-marker-off" width="36" class="mb-2"></iconify-icon>
+                    <p class="mb-3">هیچ آدرسی ثبت نکرده‌اید</p>
+                    <button type="button" id="toggleCheckoutAddressForm" class="text-primary hover:text-primary/80 font-medium">
+                        افزودن آدرس جدید
+                    </button>
+                </div>
+                <div id="checkoutAddressFormContainer" class="hidden"></div>
+            </div>
+        `;
+    }
+
+    const options = userAddresses.map(address => `
+        <label class="checkout-address-option block p-4 border-2 rounded-xl transition-all cursor-pointer ${
+            address.id === selectedCheckoutAddressId
+                ? 'border-primary bg-primary/5'
+                : 'border-gray-200 hover:border-primary/60'
+        }" data-id="${address.id}">
+            <div class="flex items-start gap-3">
+                <input type="radio" name="checkoutAddress" value="${address.id}" ${address.id === selectedCheckoutAddressId ? 'checked' : ''}
+                       class="mt-1 text-primary focus:ring-primary">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-medium">${address.title}</span>
+                        ${address.isDefault ? '<span class="bg-primary text-white text-xs px-2 py-0.5 rounded-full">پیش‌فرض</span>' : ''}
                     </div>
                     <div class="text-sm text-gray-600 space-y-1">
-                        <div>${defaultAddress.province}، ${defaultAddress.city}</div>
-                        <div>${defaultAddress.fullAddress}</div>
-                        <div>کد پستی: ${defaultAddress.postalCode}</div>
-                        <div>تلفن: ${defaultAddress.phone}</div>
+                        <div>${address.province}، ${address.city}</div>
+                        <div>${address.fullAddress}</div>
+                        <div>کد پستی: ${address.postalCode}</div>
+                        <div>تلفن: ${address.phone}</div>
                     </div>
                 </div>
-            ` : `
-                <div class="text-center py-4 text-gray-500">
-                    <iconify-icon icon="mdi:map-marker-off" width="32" class="mb-2"></iconify-icon>
-                    <p>هیچ آدرسی ثبت نکرده‌اید</p>
-                    <a href="#addresses" class="text-primary hover:text-primary/80 mt-2 inline-block">افزودن آدرس</a>
+            </div>
+        </label>
+    `).join('');
+
+    return `
+        <div class="space-y-4">
+            <div class="space-y-3">
+                ${options}
+            </div>
+            <div class="flex flex-wrap gap-3 text-sm">
+                <button type="button" id="toggleCheckoutAddressForm" class="flex items-center gap-1 text-primary hover:text-primary/80">
+                    <iconify-icon icon="mdi:plus"></iconify-icon>
+                    افزودن آدرس جدید
+                </button>
+                <a href="#addresses" id="checkoutManageAddresses" class="flex items-center gap-1 text-primary/80 hover:text-primary">
+                    <iconify-icon icon="mdi:map-marker"></iconify-icon>
+                    مدیریت آدرس‌ها
+                </a>
+            </div>
+            <div id="checkoutAddressFormContainer" class="hidden"></div>
+        </div>
+    `;
+}
+
+function refreshCheckoutAddressSection() {
+    const container = $('#checkoutAddressSection');
+    if (!container || !user) return;
+
+    const userAddresses = addresses.filter(addr => addr.userId === user.id);
+    if (userAddresses.length === 0) {
+        selectedCheckoutAddressId = null;
+    } else if (!selectedCheckoutAddressId || !userAddresses.some(addr => addr.id === selectedCheckoutAddressId)) {
+        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0];
+        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
+    }
+
+    container.innerHTML = createUserAddressSection(userAddresses);
+    bindCheckoutAddressEvents();
+}
+
+function bindCheckoutAddressEvents() {
+    $$('input[name="checkoutAddress"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            selectedCheckoutAddressId = this.value;
+            updateCheckoutAddressHighlight();
+        });
+    });
+
+    const toggleBtn = $('#toggleCheckoutAddressForm');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            renderCheckoutAddressForm();
+        });
+    }
+
+    updateCheckoutAddressHighlight();
+}
+
+function updateCheckoutAddressHighlight() {
+    $$('.checkout-address-option').forEach(option => {
+        const isSelected = option.getAttribute('data-id') === selectedCheckoutAddressId;
+        option.classList.toggle('border-primary', isSelected);
+        option.classList.toggle('bg-primary/5', isSelected);
+        option.classList.toggle('border-gray-200', !isSelected);
+    });
+}
+
+function renderCheckoutAddressForm() {
+    const container = $('#checkoutAddressFormContainer');
+    if (!container) return;
+
+    container.innerHTML = createCheckoutAddressForm();
+    container.classList.remove('hidden');
+
+    const provinceSelect = $('#checkoutAddressProvince');
+    const citySelect = $('#checkoutAddressCity');
+
+    populateCheckoutProvinceOptions(provinceSelect);
+    provinceSelect.addEventListener('change', () => {
+        populateCheckoutCityOptions(provinceSelect.value, citySelect);
+    });
+
+    $('#checkoutCancelAddress').addEventListener('click', () => {
+        hideCheckoutAddressForm();
+    });
+
+    $('#checkoutAddressForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!user) {
+            notify('برای ثبت آدرس وارد حساب کاربری شوید', true);
+            return;
+        }
+
+        const formData = {
+            title: $('#checkoutAddressTitle').value.trim(),
+            province: provinceSelect.value,
+            city: citySelect.value,
+            fullAddress: $('#checkoutAddressText').value.trim(),
+            postalCode: $('#checkoutAddressPostal').value.trim(),
+            phone: $('#checkoutAddressPhone').value.trim(),
+            isDefault: $('#checkoutAddressDefault').checked,
+            userId: user.id
+        };
+
+        if (!formData.title || !formData.province || !formData.city || !formData.fullAddress) {
+            notify('لطفا همه فیلدها را تکمیل کنید', true);
+            return;
+        }
+
+        if (typeof validatePostalCode === 'function' && !validatePostalCode(formData.postalCode)) {
+            notify('کد پستی باید ۱۰ رقمی باشد', true);
+            return;
+        }
+
+        if (typeof validatePhone === 'function' && !validatePhone(formData.phone)) {
+            notify('شماره تماس معتبر نیست', true);
+            return;
+        }
+
+        if (formData.isDefault) {
+            addresses.forEach(addr => {
+                if (addr.userId === user.id) {
+                    addr.isDefault = false;
+                }
+            });
+        }
+
+        const newAddress = {
+            id: uid('addr'),
+            ...formData
+        };
+
+        addresses.push(newAddress);
+        LS.set('HDK_addresses', addresses);
+
+        selectedCheckoutAddressId = newAddress.id;
+        hideCheckoutAddressForm();
+        notify('آدرس جدید با موفقیت اضافه شد');
+        refreshCheckoutAddressSection();
+    });
+}
+
+function hideCheckoutAddressForm() {
+    const container = $('#checkoutAddressFormContainer');
+    if (!container) return;
+    container.classList.add('hidden');
+    container.innerHTML = '';
+}
+
+function populateCheckoutProvinceOptions(select) {
+    if (!select) return;
+    select.innerHTML = '<option value="">انتخاب استان</option>';
+    provinces.forEach(province => {
+        const option = document.createElement('option');
+        option.value = province.name;
+        option.textContent = province.name;
+        select.appendChild(option);
+    });
+}
+
+function populateCheckoutCityOptions(provinceName, select) {
+    if (!select) return;
+    select.innerHTML = '<option value="">انتخاب شهر</option>';
+    select.disabled = !provinceName;
+
+    if (!provinceName) return;
+
+    getProvinceCities(provinceName).forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        select.appendChild(option);
+    });
+}
+
+function createCheckoutAddressForm() {
+    return `
+        <div class="bg-white dark:bg-gray-900 border border-primary/20 rounded-2xl p-4">
+            <form id="checkoutAddressForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">عنوان آدرس</label>
+                    <input id="checkoutAddressTitle" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="مثلا: منزل">
                 </div>
-            `}
-            
-            <a href="#addresses" class="text-primary hover:text-primary/80 text-sm flex items-center gap-1">
-                <iconify-icon icon="mdi:plus"></iconify-icon>
-                تغییر آدرس ارسال
-            </a>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">استان</label>
+                        <select id="checkoutAddressProvince" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <option value="">انتخاب استان</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">شهر</label>
+                        <select id="checkoutAddressCity" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
+                            <option value="">ابتدا استان را انتخاب کنید</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">آدرس کامل</label>
+                    <textarea id="checkoutAddressText" rows="3" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="خیابان، پلاک، واحد"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">کد پستی</label>
+                        <input id="checkoutAddressPostal" type="text" maxlength="10" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">شماره تماس</label>
+                        <input id="checkoutAddressPhone" type="tel" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="checkoutAddressDefault" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                    <label for="checkoutAddressDefault" class="text-sm">تنظیم به عنوان آدرس پیش‌فرض</label>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" id="checkoutCancelAddress" class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">انصراف</button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">ذخیره آدرس</button>
+                </div>
+            </form>
         </div>
     `;
 }
@@ -377,13 +630,31 @@ function updateCheckoutDisplay() {
         checkoutItems.appendChild(itemEl);
     });
     
-    const shippingCost = total > 500000 ? 0 : 30000;
+    const shippingCost = getCheckoutShippingCost(total);
     const finalTotal = total + shippingCost;
-    
+
     checkoutTotal.textContent = formatPrice(total + totalDiscount);
     checkoutDiscount.textContent = formatPrice(totalDiscount);
     checkoutShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
     checkoutFinalTotal.textContent = formatPrice(finalTotal);
+}
+
+function getCheckoutShippingCost(orderTotal) {
+    if (typeof getShippingMethod !== 'function') {
+        return orderTotal > 500000 ? 0 : 30000;
+    }
+
+    const method = getShippingMethod(selectedShippingMethodId);
+    if (!method) {
+        return orderTotal > 500000 ? 0 : 30000;
+    }
+
+    let cost = method.price || 0;
+    if (method.freeThreshold && orderTotal >= method.freeThreshold) {
+        cost = 0;
+    }
+
+    return cost;
 }
 
 function setupCheckoutEvents() {
@@ -395,49 +666,108 @@ function setupCheckoutEvents() {
                 option.classList.remove('border-green-500', 'bg-green-50');
                 option.classList.add('border-gray-300');
             });
-            
+
             this.closest('.payment-option').classList.add('border-green-500', 'bg-green-50');
             this.closest('.payment-option').classList.remove('border-gray-300');
         });
     });
-    
+
+    const checkedPayment = $('input[name="payment"]:checked');
+    if (checkedPayment) {
+        checkedPayment.dispatchEvent(new Event('change'));
+    }
+
+    // Shipping method selection
+    const shippingRadios = $$('input[name="shipping"]');
+    if (shippingRadios.length > 0) {
+        const checkedShipping = $('input[name="shipping"]:checked');
+        if (checkedShipping) {
+            selectedShippingMethodId = checkedShipping.value;
+        }
+
+        const applyShippingStyles = () => {
+            $$('.shipping-option').forEach(option => {
+                const isSelected = option.getAttribute('data-id') === selectedShippingMethodId;
+                option.classList.toggle('border-blue-500', isSelected);
+                option.classList.toggle('bg-blue-50', isSelected);
+                option.classList.toggle('dark:bg-blue-500/10', isSelected);
+                option.classList.toggle('border-gray-300', !isSelected);
+            });
+        };
+
+        shippingRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                selectedShippingMethodId = this.value;
+                applyShippingStyles();
+                updateCheckoutDisplay();
+            });
+        });
+
+        applyShippingStyles();
+    }
+
     // Final checkout
     $('#finalCheckoutBtn').addEventListener('click', function() {
         if (cart.length === 0) {
             notify('سبد خرید شما خالی است', true);
             return;
         }
-        
-        const selectedPayment = $('input[name="payment"]:checked').value;
-        const address = addresses.find(addr => addr.userId === user.id && addr.isDefault);
-        
+
+        if (!user) {
+            notify('لطفا برای ثبت سفارش وارد حساب کاربری شوید', true);
+            location.hash = 'login';
+            return;
+        }
+
+        const paymentInput = $('input[name="payment"]:checked');
+        const selectedPayment = paymentInput ? paymentInput.value : 'online';
+        const address = addresses.find(addr => addr.userId === user.id && addr.id === selectedCheckoutAddressId);
+
         if (!address) {
             notify('لطفا یک آدرس برای ارسال انتخاب کنید', true);
             return;
         }
-        
-        // Create order
+
+        const totals = calculateCartTotal();
+        const shippingCost = getCheckoutShippingCost(totals.total);
+        const finalTotal = totals.total + shippingCost;
+        const shippingInfo = typeof getShippingMethod === 'function' ? getShippingMethod(selectedShippingMethodId) : null;
+
         const order = {
             id: uid('o'),
             userId: user.id,
-            items: [...cart],
-            total: calculateCartTotal().total,
+            items: cart.map(item => ({ ...item })),
+            total: finalTotal,
+            subtotal: totals.total,
+            discount: totals.totalDiscount || 0,
+            shippingCost,
             paymentMethod: selectedPayment,
-            address: address,
-            status: 'processing',
+            shippingMethod: shippingInfo ? shippingInfo.id : selectedShippingMethodId,
+            shippingTitle: shippingInfo ? shippingInfo.name : '',
+            address: {
+                id: address.id,
+                title: address.title,
+                province: address.province,
+                city: address.city,
+                fullAddress: address.fullAddress,
+                postalCode: address.postalCode,
+                phone: address.phone
+            },
+            status: 'در حال پردازش',
             date: new Date().toISOString()
         };
-        
+
         orders.push(order);
         LS.set('HDK_orders', orders);
-        
+
         // Clear cart
         cart = [];
         LS.set('HDK_cart', cart);
         updateCartBadge();
-        
+        updateCheckoutDisplay();
+
         notify('سفارش شما با موفقیت ثبت شد!');
-        location.hash = 'orders';
+        location.hash = `order-success:${order.id}`;
     });
 }
 

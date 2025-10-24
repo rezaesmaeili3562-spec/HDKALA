@@ -198,6 +198,37 @@ function createPaymentOptions(selectedMethod = 'online') {
     `;
 }
 
+function createShippingOptions(selectedMethod = (shippingMethods[0]?.id || 'standard')) {
+    return `
+        <div class="space-y-3">
+            ${shippingMethods.map(method => `
+                <label class="shipping-option flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedMethod === method.id
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                    : 'border-gray-300 hover:border-primary/50'
+                }" data-id="${method.id}">
+                    <input type="radio" name="shipping" value="${method.id}" ${selectedMethod === method.id ? 'checked' : ''}
+                           class="text-primary hidden">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                            selectedMethod === method.id ? 'border-primary bg-primary text-white' : 'border-gray-400 text-gray-500'
+                        }">
+                            <iconify-icon icon="${method.icon}" width="18"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium flex items-center justify-between gap-3">
+                                <span>${method.name}</span>
+                                <span class="text-sm text-gray-500">${method.price === 0 ? 'رایگان' : formatPrice(method.price)}</span>
+                            </div>
+                            <div class="text-sm text-gray-500">${method.description}</div>
+                        </div>
+                    </div>
+                </label>
+            `).join('')}
+        </div>
+    `;
+}
+
 // کامپوننت محصول برای مقایسه
 function createCompareProduct(product) {
     const finalPrice = product.discount > 0 ? 
