@@ -1,11 +1,74 @@
 /* ---------- Dynamic Content Router ---------- */
-function navigate(hash){
-    const parts = hash.split(':');
-    const page = parts[0] || 'home';
+const DEFAULT_ROUTE = 'home';
+let currentRouteParams = [];
 
-    currentPage = page;
-    currentProductId = page === 'product' ? (parts[1] || null) : null;
-    currentCategory = page === 'products' ? (parts[1] || null) : null;
+const ROUTE_HANDLERS = {
+    login: () => renderLoginPage(),
+    home: () => renderHomePage(),
+    products: () => renderProductsPage(),
+    product: ({ params }) => renderProductDetailPage(params[0]),
+    wishlist: () => renderWishlistPage(),
+    compare: () => renderComparePage(),
+    cart: () => renderCartPage(),
+    checkout: () => renderCheckoutPage(),
+    about: () => renderAboutPage(),
+    contact: () => renderContactPage(),
+    blog: ({ params }) => {
+        if (params[0] && typeof renderBlogDetailPage === 'function') {
+            renderBlogDetailPage(params[0]);
+        } else {
+            renderBlogPage();
+        }
+    },
+    profile: () => renderProfilePage(),
+    orders: () => renderOrdersPage(),
+    addresses: () => renderAddressesPage(),
+    admin: () => renderAdminPage()
+};
+
+function parseHash(hash) {
+    const normalized = (hash || '').replace(/^#/, '').trim();
+    if (!normalized) {
+        return { route: DEFAULT_ROUTE, params: [] };
+    }
+
+    const segments = normalized
+        .split(':')
+        .map(segment => segment.trim())
+        .filter(Boolean);
+
+    const [route = DEFAULT_ROUTE, ...params] = segments;
+    return { route, params };
+}
+
+function updateRouteState(route, params) {
+    currentPage = route;
+    currentProductId = route === 'product' ? (params[0] || null) : null;
+    currentCategory = route === 'products' ? (params[0] || null) : null;
+}
+
+function navigate(hash){
+    const { route, params } = parseHash(hash);
+    const handler = ROUTE_HANDLERS[route];
+
+    if (!handler) {
+        if (route !== DEFAULT_ROUTE) {
+            location.hash = `#${DEFAULT_ROUTE}`;
+        } else {
+            currentRouteParams = [];
+            updateRouteState(DEFAULT_ROUTE, currentRouteParams);
+            renderPage();
+        }
+        return;
+    }
+
+    if (route === 'product' && params.length === 0) {
+        location.hash = '#products';
+        return;
+    }
+
+    currentRouteParams = params;
+    updateRouteState(route, params);
 
     renderPage();
 }
@@ -15,57 +78,15 @@ window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home')
 
 function renderPage(){
     contentRoot.innerHTML = '';
-    
-    switch(currentPage) {
-        case 'login':
-            renderLoginPage();
-            break;
-        case 'home':
-            renderHomePage();
-            break;
-        case 'products':
-            renderProductsPage();
-            break;
-        case 'product':
-            renderProductDetailPage(currentProductId);
-            break;
-        case 'wishlist':
-            renderWishlistPage();
-            break;
-        case 'compare':
-            renderComparePage();
-            break;
-        case 'cart':
-            renderCartPage();
-            break;
-        case 'checkout':
-            renderCheckoutPage();
-            break;
-        case 'about':
-            renderAboutPage();
-            break;
-        case 'contact':
-            renderContactPage();
-            break;
-        case 'blog':
-            renderBlogPage();
-            break;
-        case 'profile':
-            renderProfilePage();
-            break;
-        case 'orders':
-            renderOrdersPage();
-            break;
-        case 'addresses':
-            renderAddressesPage();
-            break;
-        case 'admin':
-            renderAdminPage();
-            break;
-        default:
-            renderHomePage();
-    }
-    
+
+    const handler = ROUTE_HANDLERS[currentPage] || ROUTE_HANDLERS[DEFAULT_ROUTE];
+    const context = {
+        route: currentPage,
+        params: currentRouteParams.slice()
+    };
+
+    handler(context);
+
     mobileMenu.classList.add('hidden');
     userDropdown.classList.remove('open');
 }
