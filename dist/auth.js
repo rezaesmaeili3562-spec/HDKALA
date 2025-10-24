@@ -145,11 +145,11 @@ function renderLoginPage(initialMode = 'login') {
             const existingUser = LS.get('HDK_user');
             if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
                 if (!existingUser.password) {
-                    notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', true);
+                    notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', 'warning');
                     return;
                 }
                 if (existingUser.password !== password) {
-                    notify('رمز عبور وارد شده نادرست است', true);
+                    notify('رمز عبور وارد شده نادرست است', 'error');
                     return;
                 }
 
@@ -159,12 +159,12 @@ function renderLoginPage(initialMode = 'login') {
                 }
                 LS.set('HDK_user', user);
                 updateUserLabel();
-                notify('با موفقیت وارد شدید!');
+                notify('با موفقیت وارد شدید!', 'success');
                 navigate('home');
                 return;
             }
 
-            notify('حسابی با این مشخصات یافت نشد. لطفا ثبت‌نام کنید.', true);
+            notify('حسابی با این مشخصات یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
             return;
         }
 
@@ -243,7 +243,7 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
 
         if (code.length !== 4) {
             highlightOtpInputs(page, false);
-            notify('کد تأیید باید ۴ رقم باشد', true);
+            notify('کد تأیید باید ۴ رقم باشد', 'error');
             return;
         }
 
@@ -259,10 +259,10 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
                 }
                 LS.set('HDK_user', user);
                 updateUserLabel();
-                notify('با موفقیت وارد شدید!');
+                notify('با موفقیت وارد شدید!', 'success');
                 navigate('home');
             } else {
-                notify('حسابی با این شماره یافت نشد. لطفا ثبت‌نام کنید.', true);
+                notify('حسابی با این شماره یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
                 renderLoginPage('signup');
             }
         } else {
@@ -392,24 +392,24 @@ function renderUserInfoForm({ phone, email = '' }) {
 
         const nationalCode = $('#nationalCode').value.trim();
         if (!validateNationalCode(nationalCode)) {
-            notify('کد ملی نامعتبر است', true);
+            notify('کد ملی نامعتبر است', 'error');
             return;
         }
 
         const postalCode = $('#postalCode').value.trim();
         if (postalCode && !validatePostalCode(postalCode)) {
-            notify('کد پستی باید 10 رقمی باشد', true);
+            notify('کد پستی باید 10 رقمی باشد', 'error');
             return;
         }
 
         const passwordValue = $('#userPassword').value.trim();
         const passwordConfirm = $('#userPasswordConfirm').value.trim();
         if (passwordValue && passwordValue.length < 4) {
-            notify('رمز عبور باید حداقل ۴ کاراکتر باشد', true);
+            notify('رمز عبور باید حداقل ۴ کاراکتر باشد', 'error');
             return;
         }
         if (passwordValue && passwordValue !== passwordConfirm) {
-            notify('تکرار رمز عبور با رمز اصلی یکسان نیست', true);
+            notify('تکرار رمز عبور با رمز اصلی یکسان نیست', 'error');
             return;
         }
 
@@ -442,7 +442,7 @@ function renderUserInfoForm({ phone, email = '' }) {
 
         LS.set('HDK_user', user);
         updateUserLabel();
-        notify('ثبت‌نام با موفقیت انجام شد!');
+        notify('ثبت‌نام با موفقیت انجام شد!', 'success');
         navigate('home');
     });
 
@@ -509,7 +509,7 @@ document.addEventListener('click', (e) => {
             LS.set('HDK_user', null);
             user = null;
             updateUserLabel();
-            notify('خروج انجام شد');
+            notify('خروج انجام شد', 'info');
             location.hash = 'home';
         }
     }

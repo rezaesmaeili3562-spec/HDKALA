@@ -1,25 +1,162 @@
 /* ---------- UI Components ---------- */
 
 // اعلان‌ها
-const notificationElement = document.getElementById('notification');
-const notificationMessageElement = notificationElement
-    ? document.getElementById('notificationMessage')
-    : null;
+const TOAST_VARIANTS = {
+    success: {
+        icon: 'mdi:check-circle',
+        label: 'موفقیت',
+        className: 'toast--success',
+        duration: 4000
+    },
+    error: {
+        icon: 'mdi:alert-circle',
+        label: 'خطا',
+        className: 'toast--error',
+        duration: 5500
+    },
+    warning: {
+        icon: 'mdi:alert',
+        label: 'هشدار',
+        className: 'toast--warning',
+        duration: 5000
+    },
+    info: {
+        icon: 'mdi:information',
+        label: 'اطلاعیه',
+        className: 'toast--info',
+        duration: 4500
+    }
+};
 
-function notify(message, isError = false) {
-    if (!notificationElement || !notificationMessageElement) {
-        return;
+function ensureToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        container.setAttribute('role', 'region');
+        container.setAttribute('aria-live', 'polite');
+        container.setAttribute('aria-atomic', 'false');
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function notify(message, variant = 'info') {
+    if (!message) return;
+
+    if (typeof variant === 'boolean') {
+        variant = variant ? 'error' : 'success';
     }
 
-    notificationMessageElement.textContent = message;
-    notificationElement.classList.toggle('error', isError);
-    notificationElement.classList.add('show');
+    if (typeof variant !== 'string') {
+        variant = 'info';
+    }
 
-    clearTimeout(notificationElement._timeoutId);
-    notificationElement._timeoutId = setTimeout(() => {
-        notificationElement.classList.remove('show');
-        notificationElement.classList.remove('error');
-    }, 3500);
+    const config = TOAST_VARIANTS[variant] || TOAST_VARIANTS.info;
+    const container = ensureToastContainer();
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${config.className}`;
+    toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
+
+    const content = document.createElement('div');
+    content.className = 'toast__content';
+
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'toast__icon';
+    const icon = document.createElement('iconify-icon');
+    icon.setAttribute('icon', config.icon);
+    icon.setAttribute('width', '22');
+    iconWrapper.appendChild(icon);
+
+    const messageWrapper = document.createElement('div');
+    messageWrapper.className = 'toast__message';
+
+    const label = document.createElement('span');
+    label.className = 'toast__label';
+    label.textContent = config.label;
+
+    const text = document.createElement('div');
+    text.className = 'toast__text';
+    text.textContent = message;
+
+    messageWrapper.appendChild(label);
+    messageWrapper.appendChild(text);
+
+    content.appendChild(iconWrapper);
+    content.appendChild(messageWrapper);
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'toast__close';
+    closeButton.setAttribute('aria-label', 'بستن اعلان');
+    closeButton.appendChild(document.createTextNode('×'));
+
+    toast.appendChild(content);
+    toast.appendChild(closeButton);
+    container.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('toast--visible');
+    });
+
+    let autoHideTimeout;
+    let isClosing = false;
+
+    const clearAutoHide = () => {
+        if (autoHideTimeout) {
+            clearTimeout(autoHideTimeout);
+            autoHideTimeout = null;
+        }
+    };
+
+    const startAutoHide = () => {
+        clearAutoHide();
+        autoHideTimeout = setTimeout(() => dismissToast(), config.duration);
+    };
+
+    const dismissToast = () => {
+        if (isClosing) return;
+        isClosing = true;
+        clearAutoHide();
+        toast.classList.remove('toast--visible');
+        const removeToast = () => {
+            toast.removeEventListener('transitionend', removeToast);
+            if (toast.parentElement) {
+                toast.parentElement.removeChild(toast);
+            }
+        };
+        toast.addEventListener('transitionend', removeToast);
+        setTimeout(removeToast, 250);
+    };
+
+    startAutoHide();
+
+    toast.addEventListener('mouseenter', clearAutoHide);
+    toast.addEventListener('mouseleave', startAutoHide);
+    closeButton.addEventListener('click', dismissToast);
+}
+
+function lockBodyScroll() {
+    const body = document.body;
+    const currentCount = parseInt(body.dataset.scrollLockCount || '0', 10);
+    if (currentCount === 0) {
+        body.classList.add('is-scroll-locked');
+    }
+    body.dataset.scrollLockCount = String(currentCount + 1);
+}
+
+function unlockBodyScroll() {
+    const body = document.body;
+    const currentCount = parseInt(body.dataset.scrollLockCount || '0', 10);
+    if (!currentCount || currentCount <= 1) {
+        body.classList.remove('is-scroll-locked');
+        delete body.dataset.scrollLockCount;
+        return;
+    }
+    body.dataset.scrollLockCount = String(currentCount - 1);
 }
 
 // کامپوننت اسکرول بار سفارشی
@@ -329,17 +466,20 @@ function createNotifyMeModal(product) {
     const primaryImage = typeof getPrimaryProductImage === 'function'
         ? getPrimaryProductImage(product)
         : (product.img || '');
+    const modalId = uid('notify-modal-');
+    const titleId = `${modalId}-title`;
+    const descriptionId = `${modalId}-description`;
     return `
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6">
+        <div class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" data-modal-overlay aria-hidden="true">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6" data-modal-dialog role="dialog" aria-modal="true" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" tabindex="-1">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold">اطلاع‌رسانی هنگام موجود شدن</h3>
+                    <h3 class="text-lg font-semibold" id="${titleId}">اطلاع‌رسانی هنگام موجود شدن</h3>
                     <button class="close-notify-modal p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         <iconify-icon icon="mdi:close"></iconify-icon>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg" id="${descriptionId}">
                     <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
                         ${primaryImage ?
                             `<img src="${primaryImage}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :

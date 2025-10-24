@@ -186,7 +186,7 @@ function deleteProduct(productId) {
         products = products.filter(p => p.id !== productId);
         LS.set('HDK_products', products);
         renderAdminProducts();
-        notify('محصول با موفقیت حذف شد');
+        notify('محصول با موفقیت حذف شد', 'success');
         // Update main products view if on products page
         if (currentPage === 'home' || currentPage === 'products') {
             renderProducts(products);
@@ -207,17 +207,17 @@ function saveProduct() {
     const rating = parseInt($('#productRating').value) || 5;
     
     if (!name || !price) {
-        notify('لطفا نام و قیمت محصول را وارد کنید', true);
+        notify('لطفا نام و قیمت محصول را وارد کنید', 'error');
         return;
     }
     
     if (discount < 0 || discount > 100) {
-        notify('تخفیف باید بین 0 تا 100 باشد', true);
+        notify('تخفیف باید بین 0 تا 100 باشد', 'error');
         return;
     }
     
     if (stock < 0) {
-        notify('موجودی نمی‌تواند منفی باشد', true);
+        notify('موجودی نمی‌تواند منفی باشد', 'error');
         return;
     }
     
@@ -273,7 +273,7 @@ function saveProduct() {
     editingProductId = null;
     pendingProductImage = '';
     $('#imagePreview').innerHTML = '';
-    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
+    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد', 'success');
     
     // Update main products view if on products page
     if (currentPage === 'home' || currentPage === 'products') {
@@ -408,7 +408,7 @@ function saveBlog(blogId = null, formContainer) {
     
     LS.set('HDK_blogs', blogs);
     formContainer.remove();
-    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد');
+    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد', 'success');
     
     // Refresh blog management view
     if (currentPage === 'admin') {
@@ -427,7 +427,7 @@ function deleteBlog(blogId) {
     if (confirm('آیا از حذف این مقاله مطمئن هستید؟')) {
         blogs = blogs.filter(b => b.id !== blogId);
         LS.set('HDK_blogs', blogs);
-        notify('مقاله با موفقیت حذف شد');
+        notify('مقاله با موفقیت حذف شد', 'success');
         
         // Refresh blog management view
         if (currentPage === 'admin') {
@@ -445,14 +445,14 @@ function setupImageUpload() {
             if (file) {
                 // بررسی نوع فایل
                 if (!file.type.startsWith('image/')) {
-                    notify('لطفا فقط فایل تصویری انتخاب کنید', true);
+                    notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
                     e.target.value = '';
                     return;
                 }
                 
                 // بررسی سایز فایل (حداکثر 5MB)
                 if (file.size > 5 * 1024 * 1024) {
-                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', true);
+                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
                     e.target.value = '';
                     return;
                 }

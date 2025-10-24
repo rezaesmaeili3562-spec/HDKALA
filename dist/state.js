@@ -308,6 +308,7 @@ const root = document.documentElement;
 const cartBtn = $('#cartBtn');
 const cartSidebar = $('#cartSidebar');
 const closeCart = $('#closeCart');
+const cartOverlay = $('#cartOverlay');
 const cartItems = $('#cartItems');
 const cartTotal = $('#cartTotal');
 const cartDiscount = $('#cartDiscount');
