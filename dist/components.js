@@ -1,5 +1,27 @@
 /* ---------- UI Components ---------- */
 
+// اعلان‌ها
+const notificationElement = document.getElementById('notification');
+const notificationMessageElement = notificationElement
+    ? document.getElementById('notificationMessage')
+    : null;
+
+function notify(message, isError = false) {
+    if (!notificationElement || !notificationMessageElement) {
+        return;
+    }
+
+    notificationMessageElement.textContent = message;
+    notificationElement.classList.toggle('error', isError);
+    notificationElement.classList.add('show');
+
+    clearTimeout(notificationElement._timeoutId);
+    notificationElement._timeoutId = setTimeout(() => {
+        notificationElement.classList.remove('show');
+        notificationElement.classList.remove('error');
+    }, 3500);
+}
+
 // کامپوننت اسکرول بار سفارشی
 function setupCustomScrollbar() {
     const style = document.createElement('style');
@@ -54,6 +76,89 @@ function createSmallHero() {
             </div>
         </section>
     `;
+}
+
+// کارت محصول
+function createProductCard(product) {
+    const finalPrice = product.discount > 0
+        ? product.price * (1 - product.discount / 100)
+        : product.price;
+    const hasDiscount = product.discount > 0;
+    const inWishlist = Array.isArray(wishlist) && wishlist.includes(product.id);
+    const inCompare = Array.isArray(compareList) && compareList.includes(product.id);
+
+    const article = document.createElement('article');
+    article.className = 'product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20';
+    article.innerHTML = `
+        <div class="relative overflow-hidden">
+            <a href="#product:${product.id}">
+                <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    ${product.img
+                        ? `<img src="${product.img}" alt="${product.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />`
+                        : '<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>'}
+                </div>
+            </a>
+            <div class="absolute top-2 left-2 flex gap-2">
+                <button aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}" data-id="${product.id}"
+                        class="add-to-wishlist wishlist-button wishlist-button--compact bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm"
+                        data-wishlist-active="${inWishlist ? 'true' : 'false'}"
+                        data-label-active="حذف از علاقه‌مندی"
+                        data-label-inactive="افزودن به علاقه‌مندی">
+                    <span class="wishlist-icon-wrapper">
+                        <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                        <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                    </span>
+                    <span class="wishlist-tooltip"></span>
+                </button>
+                <button aria-label="مقایسه محصول" data-id="${product.id}"
+                        class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
+                    <iconify-icon icon="mdi:scale-balance" class="${inCompare ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
+                </button>
+            </div>
+            <div class="absolute top-2 right-2 flex flex-col gap-2">
+                ${hasDiscount ? `<div class="badge badge-discount">${product.discount}%</div>` : ''}
+                ${product.status === 'new' ? '<div class="badge badge-new">جدید</div>' : ''}
+                ${product.status === 'hot' ? '<div class="badge badge-hot">فروش ویژه</div>' : ''}
+                ${product.status === 'bestseller' ? '<div class="badge bg-purple-500 text-white">پرفروش</div>' : ''}
+            </div>
+        </div>
+        <div class="p-4">
+            <h3 class="font-bold text-lg mb-1 dark:text-white line-clamp-2">${product.name}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${product.desc}</p>
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    ${hasDiscount ? `<div class="text-gray-500 line-through text-sm">${formatPrice(product.price)}</div>` : ''}
+                    <span class="text-primary font-extrabold">${formatPrice(finalPrice)}</span>
+                </div>
+                <div class="text-yellow-500 text-sm">${'★'.repeat(product.rating)}${product.rating < 5 ? '☆'.repeat(5 - product.rating) : ''}</div>
+            </div>
+            <div class="flex items-center justify-between mb-2 text-xs">
+                <div class="text-gray-500 dark:text-gray-400">
+                    موجودی: ${product.stock > 0
+                        ? `<span class="text-green-500">${product.stock}</span>`
+                        : '<span class="text-red-500">ناموجود</span>'}
+                </div>
+                <div class="text-gray-500 dark:text-gray-400">${product.brand || '---'}</div>
+            </div>
+            <div class="flex gap-2">
+                <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors"
+                        data-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>
+                    ${product.stock > 0 ? 'افزودن به سبد' : 'ناموجود'}
+                </button>
+                <a href="#product:${product.id}"
+                   class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                   aria-label="جزئیات">
+                    <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
+                </a>
+            </div>
+        </div>
+    `;
+
+    if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
+        window.refreshWishlistButtons(article);
+    }
+
+    return article;
 }
 
 // کامپوننت گزینه‌های پرداخت

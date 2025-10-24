@@ -1,22 +1,6 @@
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
-const notifyEl = document.getElementById('notification');
-const notifyMessageEl = notifyEl ? document.getElementById('notificationMessage') : null;
-
-function notify(msg, isError=false){
-    if (!notifyEl || !notifyMessageEl) return;
-
-    notifyMessageEl.textContent = msg;
-    notifyEl.classList.toggle('error', isError);
-    notifyEl.classList.add('show');
-    clearTimeout(notifyEl._timeoutId);
-    notifyEl._timeoutId = setTimeout(() => {
-        notifyEl.classList.remove('show');
-        notifyEl.classList.remove('error');
-    }, 3500);
-}
-
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
 function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
@@ -117,72 +101,13 @@ function renderProductsList(list, container){
         return; 
     }
     
-    list.forEach(p => {
-        const finalPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
-        const hasDiscount = p.discount > 0;
-        const inWishlist = wishlist.includes(p.id);
-        const inCompare = compareList.includes(p.id);
-        
-        const article = document.createElement('article');
-        article.className = 'product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20';
-        article.innerHTML = `
-            <div class="relative overflow-hidden">
-                <a href="#product:${p.id}">
-                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        ${p.img ? 
-                            `<img src="${p.img}" alt="${p.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />` :
-                            `<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>`
-                        }
-                    </div>
-                </a>
-                <div class="absolute top-2 left-2 flex gap-2">
-                    <button aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}" data-id="${p.id}"
-                            class="add-to-wishlist wishlist-button wishlist-button--compact bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm"
-                            data-wishlist-active="${inWishlist ? 'true' : 'false'}"
-                            data-label-active="حذف از علاقه‌مندی"
-                            data-label-inactive="افزودن به علاقه‌مندی">
-                        <span class="wishlist-icon-wrapper">
-                            <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
-                            <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
-                        </span>
-                        <span class="wishlist-tooltip"></span>
-                    </button>
-                    <button aria-label="مقایسه محصول" data-id="${p.id}" class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
-                        <iconify-icon icon="${inCompare ? 'mdi:scale-balance' : 'mdi:scale-balance'}" class="${inCompare ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
-                    </button>
-                </div>
-                <div class="absolute top-2 right-2 flex flex-col gap-2">
-                    ${hasDiscount ? `<div class="badge badge-discount">${p.discount}%</div>` : ''}
-                    ${p.status === 'new' ? `<div class="badge badge-new">جدید</div>` : ''}
-                    ${p.status === 'hot' ? `<div class="badge badge-hot">فروش ویژه</div>` : ''}
-                    ${p.status === 'bestseller' ? `<div class="badge bg-purple-500 text-white">پرفروش</div>` : ''}
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg mb-1 dark:text-white line-clamp-2">${p.name}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${p.desc}</p>
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        ${hasDiscount ? `<div class="text-gray-500 line-through text-sm">${formatPrice(p.price)}</div>` : ''}
-                        <span class="text-primary font-extrabold">${formatPrice(finalPrice)}</span>
-                    </div>
-                    <div class="text-yellow-500 text-sm">${'★'.repeat(p.rating)}${p.rating < 5 ? '☆'.repeat(5-p.rating) : ''}</div>
-                </div>
-                <div class="flex items-center justify-between mb-2 text-xs">
-                    <div class="text-gray-500 dark:text-gray-400">موجودی: ${p.stock > 0 ? `<span class="text-green-500">${p.stock}</span>` : `<span class="text-red-500">ناموجود</span>`}</div>
-                    <div class="text-gray-500 dark:text-gray-400">${p.brand || '---'}</div>
-                </div>
-                <div class="flex gap-2">
-                    <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>${p.stock > 0 ? 'افزودن به سبد' : 'ناموجود'}</button>
-                    <a href="#product:${p.id}" class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات">
-                        <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
-                    </a>
-                </div>
-            </div>
-        `;
-        container.appendChild(article);
-        if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
-            window.refreshWishlistButtons(article);
+    list.forEach(product => {
+        const card = typeof createProductCard === 'function'
+            ? createProductCard(product)
+            : null;
+
+        if (card) {
+            container.appendChild(card);
         }
     });
 }
