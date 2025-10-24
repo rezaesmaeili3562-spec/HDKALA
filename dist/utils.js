@@ -281,8 +281,51 @@ function setupResponsiveHandlers() {
             mobileMenu.classList.add('hidden');
         }
     }
-    
+
     window.addEventListener('resize', handleResize);
+}
+
+// بهبود و انیمیشن آیکون‌ها در سراسر پروژه
+function setupIconAnimations() {
+    const interactiveSelector = 'button, a, [role="button"], [data-icon-interactive-parent], .icon-action, .icon-button';
+
+    const markIcon = (icon) => {
+        if (!(icon instanceof HTMLElement)) return;
+
+        icon.classList.add('icon-animated');
+
+        const interactiveParent = icon.closest(interactiveSelector);
+        const hasPointerClass = icon.classList.contains('cursor-pointer') || icon.classList.contains('hover:text-primary');
+        const isInteractive = Boolean(interactiveParent) || hasPointerClass || icon.hasAttribute('data-icon-interactive');
+
+        icon.dataset.iconInteractive = isInteractive ? 'true' : 'false';
+    };
+
+    const enhanceTree = (root) => {
+        if (!root) return;
+
+        if (root.tagName === 'ICONIFY-ICON') {
+            markIcon(root);
+            return;
+        }
+
+        root.querySelectorAll?.('iconify-icon').forEach(markIcon);
+    };
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (!(node instanceof HTMLElement)) return;
+                enhanceTree(node);
+            });
+        });
+    });
+
+    enhanceTree(document);
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 }
 
 // Initialize all utilities
@@ -292,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSmoothScroll();
     setupLazyLoading();
     setupResponsiveHandlers();
+    setupIconAnimations();
 });
 
 // Export for use in other files
@@ -309,6 +353,7 @@ if (typeof module !== 'undefined' && module.exports) {
         searchProducts,
         sortProducts,
         calculateCartTotal,
-        checkProductStock
+        checkProductStock,
+        setupIconAnimations
     };
 }

@@ -9,11 +9,66 @@
 }
 
 /* Custom styles */
-.notification { 
-  position: fixed; 
-  right: 20px; 
-  bottom: 20px; 
-  padding: 12px 16px; 
+.icon-animated {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+  transform-origin: center;
+  transition: transform 0.25s ease, color 0.25s ease, opacity 0.25s ease;
+  animation: icon-pop 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.icon-animated[data-icon-interactive="true"] {
+  cursor: pointer;
+}
+
+button:hover iconify-icon.icon-animated,
+a:hover iconify-icon.icon-animated,
+.icon-animated[data-icon-interactive="true"]:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+button:focus-visible iconify-icon.icon-animated,
+a:focus-visible iconify-icon.icon-animated,
+.icon-animated[data-icon-interactive="true"]:focus-visible {
+  transform: translateY(-1px) scale(1.03);
+}
+
+button:active iconify-icon.icon-animated,
+a:active iconify-icon.icon-animated,
+.icon-animated[data-icon-interactive="true"]:active {
+  transform: scale(0.92);
+}
+
+@keyframes icon-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-animated {
+    animation: none;
+    transition: none;
+  }
+}
+
+.notification {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  padding: 12px 16px;
   border-radius: 10px;
   background:#10b981;
   color:white; 
