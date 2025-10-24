@@ -284,11 +284,87 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    const adminFeatures = [
+        {
+            title: 'مدیریت پروفایل کاربران',
+            points: [
+                'ساخت، ویرایش و غیرفعال‌سازی حساب‌های مدیران',
+                'تعیین نقش‌ها و سطح دسترسی هر کاربر',
+                'ردیابی فعالیت‌های حساس برای هر پروفایل'
+            ]
+        },
+        {
+            title: 'مدیریت محتوا',
+            points: [
+                'ایجاد، ویرایش و انتشار مطالب و صفحات',
+                'برنامه‌ریزی انتشار و پیش‌نمایش محتوا',
+                'برچسب‌گذاری و دسته‌بندی برای مدیریت بهتر'
+            ]
+        },
+        {
+            title: 'امنیت و مجوزها',
+            points: [
+                'پیاده‌سازی احراز هویت چندمرحله‌ای و یادآوری رمز',
+                'کنترل دقیق سطح دسترسی با ACL',
+                'مدیریت سشن‌ها و گزارش رخدادهای امنیتی'
+            ]
+        },
+        {
+            title: 'حسابرسی',
+            points: [
+                'ثبت کامل زمان، نوع فعالیت و کاربر',
+                'تهیه گزارش از فعالیت‌های حساس یا ناهنجاری‌ها',
+                'جست‌وجو و فیلتر سریع رویدادهای ثبت‌شده'
+            ]
+        },
+        {
+            title: 'تعامل و ارتباط با کاربران',
+            points: [
+                'سیستم پیام‌رسانی یا تیکتینگ برای پشتیبانی',
+                'ارسال اعلان‌ها و خبرنامه‌های هدفمند',
+                'اتصال به API برای ارتباط از طریق سرویس‌های خارجی'
+            ]
+        },
+        {
+            title: 'میزان بازدید و کاربران فعال',
+            points: [
+                'داشبورد آمار بازدید و کاربران فعال',
+                'نمودارهای لحظه‌ای و مقایسه‌ای',
+                'امکان خروجی گرفتن از داده‌ها برای تحلیل'
+            ]
+        },
+        {
+            title: 'تبلیغات و کمپین‌ها',
+            points: [
+                'مدیریت کمپین‌های تبلیغاتی و زمان‌بندی نمایش',
+                'نمایش عملکرد کمپین‌ها و نرخ تبدیل',
+                'تقسیم‌بندی مخاطبان برای تبلیغات هدفمند'
+            ]
+        },
+        {
+            title: 'نظرات و شکایات',
+            points: [
+                'مدیریت دیدگاه‌ها و پاسخ‌دهی سریع',
+                'پیگیری وضعیت شکایات تا حل نهایی',
+                'گزارش‌گیری از میزان رضایت کاربران'
+            ]
+        }
+    ];
+
+    const featuresHTML = adminFeatures.map(feature => `
+        <div class="bg-white/60 dark:bg-gray-900/60 border border-primary/10 rounded-2xl p-5 backdrop-blur">
+            <h4 class="text-lg font-semibold text-primary mb-3">${feature.title}</h4>
+            <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-sm leading-relaxed list-disc list-inside">
+                ${feature.points.map(point => `<li>${point}</li>`).join('')}
+            </ul>
+        </div>
+    `).join('');
+
     const page = document.createElement('div');
     page.innerHTML = `
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
             <h1 class="text-2xl font-bold mb-6">پنل مدیریت</h1>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-primary/10 p-4 rounded-lg text-center">
                     <div class="text-2xl font-bold text-primary">${products.length}</div>
@@ -321,9 +397,19 @@ function renderAdminPage() {
                     ${createBlogManagement()}
                 </div>
             </div>
+
+            <div class="mt-10">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">قابلیت‌های کلیدی پنل ادمین</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                    تمامی امکانات موردنیاز برای مدیریت حرفه‌ای فروشگاه در یک پنل گردآوری شده‌اند تا تیم شما بتواند کاربران، محتوا، امنیت و ارتباطات را با بیشترین کارایی کنترل کند.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    ${featuresHTML}
+                </div>
+            </div>
         </div>
     `;
-    
+
     contentRoot.appendChild(page);
     setupBlogManagement();
 }
