@@ -139,6 +139,7 @@ function clearSingleFilter(filterText) {
 
 /* ---------- Filter Sidebar helpers ---------- */
 let isFilterOpen = false;
+let filterKeydownHandlerAttached = false;
 
 function refreshFilterElements() {
     filterSidebar = $('#filterSidebar');
@@ -174,21 +175,31 @@ function setupPriceAccordion() {
 }
 
 function openFilterSidebar() {
-    if (!filterSidebar) return;
+    if (!filterSidebar || isFilterOpen) return;
     filterSidebar.classList.add('open');
+    filterSidebar.setAttribute('aria-hidden', 'false');
     if (filterOverlay) {
         filterOverlay.classList.remove('hidden');
+        filterOverlay.setAttribute('aria-hidden', 'false');
     }
+    lockBodyScroll();
+    filterSidebar.focus({ preventScroll: true });
     isFilterOpen = true;
 }
 
 function closeFilterSidebar() {
-    if (!filterSidebar) return;
+    if (!filterSidebar || !isFilterOpen) return;
     filterSidebar.classList.remove('open');
+    filterSidebar.setAttribute('aria-hidden', 'true');
     if (filterOverlay) {
         filterOverlay.classList.add('hidden');
+        filterOverlay.setAttribute('aria-hidden', 'true');
     }
+    unlockBodyScroll();
     isFilterOpen = false;
+    if (filterBtn && typeof filterBtn.focus === 'function') {
+        filterBtn.focus();
+    }
 }
 
 /* ---------- Improved Filter Sidebar ---------- */
@@ -222,6 +233,16 @@ function setupFilterToggle() {
 
     if (collapseBtn) {
         collapseBtn.addEventListener('click', closeFilterSidebar);
+    }
+
+    if (!filterKeydownHandlerAttached) {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && isFilterOpen) {
+                event.preventDefault();
+                closeFilterSidebar();
+            }
+        });
+        filterKeydownHandlerAttached = true;
     }
 }
 
@@ -316,7 +337,7 @@ function setupPriceValidation() {
             const max = parseInt(maxPrice.value);
 
             if (min && max && min > max) {
-                notify('حداقل قیمت نمی‌تواند از حداکثر قیمت بیشتر باشد', true);
+                notify('حداقل قیمت نمی‌تواند از حداکثر قیمت بیشتر باشد', 'error');
                 minPrice.value = '';
                 minPrice.focus();
             }
@@ -327,7 +348,7 @@ function setupPriceValidation() {
             const max = parseInt(maxPrice.value);
 
             if (min && max && max < min) {
-                notify('حداکثر قیمت نمی‌تواند از حداقل قیمت کمتر باشد', true);
+                notify('حداکثر قیمت نمی‌تواند از حداقل قیمت کمتر باشد', 'error');
                 maxPrice.value = '';
                 maxPrice.focus();
             }
@@ -357,7 +378,7 @@ function bindFilterEvents() {
             e.preventDefault();
             applyFilters();
             closeFilterSidebar();
-            notify('فیلترها اعمال شدند');
+            notify('فیلترها اعمال شدند', 'success');
         });
     }
 
@@ -376,7 +397,7 @@ function bindFilterEvents() {
 
             applyFilters();
             closeFilterSidebar();
-            notify('فیلترها بازنشانی شدند');
+            notify('فیلترها بازنشانی شدند', 'info');
         });
     }
 }

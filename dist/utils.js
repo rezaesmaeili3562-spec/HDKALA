@@ -16,7 +16,7 @@ function setupInputValidation() {
         if (input.type === 'tel' && input.hasAttribute('data-phone')) {
             if (input.value && !validatePhone(input.value)) {
                 input.classList.add('border-red-500');
-                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', true);
+                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -25,7 +25,7 @@ function setupInputValidation() {
         if (input.hasAttribute('data-postal')) {
             if (input.value && !validatePostalCode(input.value)) {
                 input.classList.add('border-red-500');
-                notify('کد پستی باید 10 رقمی باشد', true);
+                notify('کد پستی باید 10 رقمی باشد', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -34,7 +34,7 @@ function setupInputValidation() {
         if (input.hasAttribute('data-national')) {
             if (input.value && !validateNationalCode(input.value)) {
                 input.classList.add('border-red-500');
-                notify('کد ملی نامعتبر است', true);
+                notify('کد ملی نامعتبر است', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -43,7 +43,7 @@ function setupInputValidation() {
         if (input.type === 'email' && input.value) {
             if (!validateEmail(input.value)) {
                 input.classList.add('border-red-500');
-                notify('ایمیل وارد شده معتبر نیست', true);
+                notify('ایمیل وارد شده معتبر نیست', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }

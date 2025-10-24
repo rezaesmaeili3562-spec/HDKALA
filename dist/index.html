@@ -15,15 +15,16 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
   <!-- Notification Container -->
-  <div id="notification" class="notification" role="alert" aria-live="assertive">
-    <span id="notificationMessage"></span>
-  </div>
-  
+  <div id="toastContainer" class="toast-container" role="region" aria-live="polite" aria-atomic="false"></div>
+
   <!-- Filter Overlay -->
-  <div id="filterOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+  <div id="filterOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden lg:hidden" aria-hidden="true"></div>
+
+  <!-- Cart Overlay -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden" aria-hidden="true"></div>
 
   <!-- Filter Sidebar -->
-  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
     <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10">
       <div class="flex items-center justify-between p-4">
         <div class="flex items-center gap-2">
@@ -252,11 +253,11 @@
   </div>
 
   <!-- Compare Modal -->
-  <div id="compareModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+  <div id="compareModal" class="modal-overlay fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" aria-hidden="true">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto" data-modal-dialog role="dialog" aria-modal="true" aria-labelledby="compareModalTitle" tabindex="-1">
       <div class="p-6 border-b border-primary/20">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-primary">مقایسه محصولات</h2>
+          <h2 class="text-xl font-bold text-primary" id="compareModalTitle">مقایسه محصولات</h2>
           <button id="closeCompareModal" class="text-gray-500 hover:text-primary">
             <iconify-icon icon="mdi:close" width="24"></iconify-icon>
           </button>
@@ -271,7 +272,7 @@
   </div>
 
   <!-- Cart Sidebar -->
-  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
     <div class="p-4 border-b border-primary/20">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold text-primary">سبد خرید</h2>

@@ -642,7 +642,7 @@ function renderSearchPage(params = []){
 /* ---------- New Pages ---------- */
 function renderAddressesPage() {
     if (!user) {
-        notify('لطفا ابتدا وارد حساب کاربری خود شوید', true);
+        notify('لطفا ابتدا وارد حساب کاربری خود شوید', 'warning');
         location.hash = 'login';
         return;
     }

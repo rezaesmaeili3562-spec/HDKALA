@@ -472,7 +472,7 @@ function setupProductDetailEvents(page, product) {
         const addBtn = e.target.closest('.add-to-cart');
         if(addBtn){
             if (isOutOfStock) {
-                notify('این محصول در حال حاضر موجود نیست', true);
+                notify('این محصول در حال حاضر موجود نیست', 'warning');
                 return;
             }
             addToCart(addBtn.getAttribute('data-id'), quantity);
@@ -500,7 +500,7 @@ function setupProductDetailEvents(page, product) {
         const buyBtn = e.target.closest('.buy-now');
         if(buyBtn){
             if (isOutOfStock) {
-                notify('این محصول در حال حاضر موجود نیست', true);
+                notify('این محصول در حال حاضر موجود نیست', 'warning');
                 return;
             }
             addToCart(buyBtn.getAttribute('data-id'), quantity);
@@ -546,31 +546,92 @@ function setupProductDetailEvents(page, product) {
 
 function showNotifyMeModal(product) {
     const modalHTML = createNotifyMeModal(product);
-    const modalContainer = document.createElement('div');
-    modalContainer.innerHTML = modalHTML;
-    document.body.appendChild(modalContainer);
-    
-    // Event listeners for modal
-    $('.close-notify-modal', modalContainer).addEventListener('click', () => {
-        modalContainer.remove();
-    });
-    
-    $('#notifyMeForm', modalContainer).addEventListener('submit', (e) => {
+    const template = document.createElement('div');
+    template.innerHTML = modalHTML.trim();
+    const modalOverlay = template.firstElementChild;
+    if (!modalOverlay) return;
+
+    const dialog = modalOverlay.querySelector('[data-modal-dialog]');
+    const closeButtons = modalOverlay.querySelectorAll('.close-notify-modal');
+    const form = modalOverlay.querySelector('#notifyMeForm');
+    const previouslyFocused = document.activeElement;
+
+    let isClosing = false;
+
+    const handleKeydown = (event) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeModal();
+        }
+    };
+
+    const handleOverlayClick = (event) => {
+        if (event.target === modalOverlay) {
+            closeModal();
+        }
+    };
+
+    const closeModal = () => {
+        if (isClosing) return;
+        isClosing = true;
+        modalOverlay.setAttribute('aria-hidden', 'true');
+        modalOverlay.classList.remove('modal-visible');
+        modalOverlay.classList.add('modal-closing');
+        unlockBodyScroll();
+        document.removeEventListener('keydown', handleKeydown);
+        modalOverlay.removeEventListener('click', handleOverlayClick);
+        closeButtons.forEach(btn => btn.removeEventListener('click', handleCloseButton));
+
+        const removeModal = () => {
+            modalOverlay.removeEventListener('transitionend', removeModal);
+            if (modalOverlay.parentElement) {
+                modalOverlay.parentElement.removeChild(modalOverlay);
+            }
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
+        };
+
+        modalOverlay.addEventListener('transitionend', removeModal);
+        setTimeout(removeModal, 220);
+    };
+
+    const handleCloseButton = (event) => {
+        event.preventDefault();
+        closeModal();
+    };
+
+    closeButtons.forEach(btn => btn.addEventListener('click', handleCloseButton));
+
+    modalOverlay.addEventListener('click', handleOverlayClick);
+    document.addEventListener('keydown', handleKeydown);
+
+    document.body.appendChild(modalOverlay);
+    modalOverlay.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+    requestAnimationFrame(() => modalOverlay.classList.add('modal-visible'));
+
+    if (dialog) {
+        dialog.focus({ preventScroll: true });
+    }
+
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const form = e.target;
         const email = form.querySelector('input[type="email"]').value;
         const phone = form.querySelector('input[type="tel"]').value;
-        
+
         if (!validateEmail(email)) {
-            notify('ایمیل وارد شده معتبر نیست', true);
+            notify('ایمیل وارد شده معتبر نیست', 'error');
             return;
         }
-        
+
         if (!validatePhone(phone)) {
-            notify('شماره تلفن معتبر نیست', true);
+            notify('شماره تلفن معتبر نیست', 'error');
             return;
         }
-        
+
         // Save notification request
         const notification = {
             id: uid('n'),
@@ -584,9 +645,9 @@ function showNotifyMeModal(product) {
         
         notifications.push(notification);
         LS.set('HDK_notifications', notifications);
-        
-        modalContainer.remove();
-        notify('درخواست شما ثبت شد. هنگام موجود شدن محصول به شما اطلاع داده خواهد شد.');
+
+        closeModal();
+        notify('درخواست شما ثبت شد. هنگام موجود شدن محصول به شما اطلاع داده خواهد شد.', 'success');
     });
 }
 
@@ -635,7 +696,7 @@ function renderCartPage(){
 /* ---------- Address Management ---------- */
 function renderAddressesPage() {
     if (!user) {
-        notify('لطفا ابتدا وارد حساب کاربری خود شوید', true);
+        notify('لطفا ابتدا وارد حساب کاربری خود شوید', 'warning');
         location.hash = 'login';
         return;
     }
@@ -744,12 +805,12 @@ function saveAddress(addressId = null) {
     
     // Validation
     if (!validatePostalCode(formData.postalCode)) {
-        notify('کد پستی باید 10 رقمی باشد', true);
+        notify('کد پستی باید 10 رقمی باشد', 'error');
         return;
     }
-    
+
     if (!validatePhone(formData.phone)) {
-        notify('شماره تلفن معتبر نیست', true);
+        notify('شماره تلفن معتبر نیست', 'error');
         return;
     }
     
@@ -779,7 +840,7 @@ function saveAddress(addressId = null) {
     
     LS.set('HDK_addresses', addresses);
     $('#addressFormContainer').classList.add('hidden');
-    notify(addressId ? 'آدرس با موفقیت ویرایش شد' : 'آدرس جدید با موفقیت اضافه شد');
+    notify(addressId ? 'آدرس با موفقیت ویرایش شد' : 'آدرس جدید با موفقیت اضافه شد', 'success');
     
     // Refresh addresses page
     if (currentPage === 'addresses') {
@@ -791,7 +852,7 @@ function deleteAddress(addressId) {
     if (confirm('آیا از حذف این آدرس مطمئن هستید؟')) {
         addresses = addresses.filter(addr => addr.id !== addressId);
         LS.set('HDK_addresses', addresses);
-        notify('آدرس با موفقیت حذف شد');
+        notify('آدرس با موفقیت حذف شد', 'success');
         
         // Refresh addresses page
         if (currentPage === 'addresses') {
@@ -808,7 +869,7 @@ function setDefaultAddress(addressId) {
     });
     
     LS.set('HDK_addresses', addresses);
-    notify('آدرس پیش‌فرض تغییر کرد');
+    notify('آدرس پیش‌فرض تغییر کرد', 'success');
     
     // Refresh addresses page
     if (currentPage === 'addresses') {
