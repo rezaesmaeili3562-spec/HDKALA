@@ -390,7 +390,7 @@ function renderOrdersPage(){
             <div class="text-center py-12">
                 <iconify-icon icon="mdi:package-variant-remove" width="64" class="text-gray-400 mb-4"></iconify-icon>
                 <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">هنوز سفارشی ثبت نکرده‌اید</p>
-                <a href="#products" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
+                <a href="${pageLink('products')}" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
             </div>
         ` : `
             <div class="space-y-4">

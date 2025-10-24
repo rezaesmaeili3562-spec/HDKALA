@@ -6,10 +6,10 @@ function updateUserDropdown() {
                 <div class="font-medium text-primary">${user.name}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">${user.phone}</div>
             </div>
-            <a href="#profile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">پروفایل من</a>
-            <a href="#orders" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">سفارش‌های من</a>
-            <a href="#wishlist" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">لیست علاقه‌مندی‌ها</a>
-            <a href="#addresses" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">آدرس‌های من</a>
+            <a href="${pageLink('profile')}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">پروفایل من</a>
+            <a href="${pageLink('orders')}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">سفارش‌های من</a>
+            <a href="${pageLink('wishlist')}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">لیست علاقه‌مندی‌ها</a>
+            <a href="${pageLink('addresses')}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">آدرس‌های من</a>
             <button id="logoutBtn" class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500 transition-colors">خروج</button>
         `;
     } else {
@@ -29,7 +29,7 @@ function renderLoginPage() {
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
             <div>
                 <div class="flex justify-center">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                    <a href="${pageLink('home')}" class="text-2xl font-extrabold text-primary flex items-center gap-2">
                         <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
                         HDKALA
                     </a>
@@ -136,7 +136,7 @@ function renderVerifyPage(phone) {
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
             <div>
                 <div class="flex justify-center">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                    <a href="${pageLink('home')}" class="text-2xl font-extrabold text-primary flex items-center gap-2">
                         <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
                         HDKALA
                     </a>
@@ -222,7 +222,7 @@ function renderUserInfoForm(phone, email = '') {
         <div class="max-w-2xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-primary/30 p-8">
                 <div class="flex justify-center mb-6">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                    <a href="${pageLink('home')}" class="text-2xl font-extrabold text-primary flex items-center gap-2">
                         <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
                         HDKALA
                     </a>

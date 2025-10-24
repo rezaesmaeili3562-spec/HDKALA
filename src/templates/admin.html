@@ -7,13 +7,14 @@
   <meta name="keywords" content="فروشگاه آنلاین, خرید اینترنتی, الکترونیک, مد و پوشاک, خانه و آشپزخانه">
   <title>HDKALA — فروشگاه آنلاین</title>
   <!-- Tailwind CSS -->
-  <link href="./output.css" rel="stylesheet" />
+  <link href="./static/css/output.css" rel="stylesheet" />
   <!-- Vazirmatn Font -->
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Iconify -->
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white" data-page="admin">
+  <!-- PAGE_INITIALIZER -->
   <!-- Notification Container -->
   <div id="notification" class="fixed top-4 left-4 right-4 z-50 transition-all duration-300 transform -translate-y-full">
     <div class="bg-green-500 text-white p-4 rounded-lg shadow-lg mx-auto max-w-md text-center">
@@ -304,17 +305,17 @@
     <!-- Header -->
     <header class="flex items-center justify-between mb-6 relative">
       <div class="flex items-center gap-3">
-        <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2" id="homeLink">
+        <a href="./index.html" class="text-2xl font-extrabold text-primary flex items-center gap-2" id="homeLink">
           <iconify-icon icon="mdi:cart" width="26"></iconify-icon> 
           HDKALA
         </a>
         <div class="hidden md:flex items-center gap-4">
-          <a href="#products" class="text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
-          <a href="#about" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
-          <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
-          <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-          <a href="#addresses" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
-          <a href="#admin-login" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
+          <a href="./products.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+          <a href="./about.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+          <a href="./contact.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+          <a href="./blog.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+          <a href="./addresses.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+          <a href="./admin-login.html" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -347,7 +348,7 @@
           <span id="cartCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
         </button>
         <!-- Admin -->
-        <a href="#admin-login" class="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-primary/30 text-gray-700 dark:text-white hover:bg-primary hover:text-white transition-colors">ورود مدیر</a>
+        <a href="./admin-login.html" class="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-primary/30 text-gray-700 dark:text-white hover:bg-primary hover:text-white transition-colors">ورود مدیر</a>
         <!-- User -->
         <div class="relative">
           <button id="userButton" class="flex items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
@@ -370,11 +371,11 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="md:hidden hidden mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-primary/30">
       <div class="flex flex-col gap-3">
-        <a href="#products" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
-        <a href="#about" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
-        <a href="#contact" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
-        <a href="#blog" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-        <a href="#addresses" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+        <a href="./products.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+        <a href="./about.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+        <a href="./contact.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+        <a href="./blog.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+        <a href="./addresses.html" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
       </div>
     </div>
     <!-- Main Content -->
@@ -393,19 +394,19 @@
         <div>
           <h4 class="font-semibold mb-4">دسترسی سریع</h4>
           <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <li><a href="#products" class="hover:text-primary transition-colors">محصولات</a></li>
-            <li><a href="#about" class="hover:text-primary transition-colors">درباره ما</a></li>
-            <li><a href="#contact" class="hover:text-primary transition-colors">تماس با ما</a></li>
-            <li><a href="#blog" class="hover:text-primary transition-colors">بلاگ</a></li>
+            <li><a href="./products.html" class="hover:text-primary transition-colors">محصولات</a></li>
+            <li><a href="./about.html" class="hover:text-primary transition-colors">درباره ما</a></li>
+            <li><a href="./contact.html" class="hover:text-primary transition-colors">تماس با ما</a></li>
+            <li><a href="./blog.html" class="hover:text-primary transition-colors">بلاگ</a></li>
           </ul>
         </div>
         <div>
           <h4 class="font-semibold mb-4">خدمات مشتریان</h4>
           <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <li><a href="#shipping" class="hover:text-primary transition-colors">ارسال و بازگشت</a></li>
-            <li><a href="#terms" class="hover:text-primary transition-colors">قوانین و مقررات</a></li>
-            <li><a href="#privacy" class="hover:text-primary transition-colors">حریم خصوصی</a></li>
-            <li><a href="#faq" class="hover:text-primary transition-colors">سوالات متداول</a></li>
+            <li><a href="./about.html#shipping" class="hover:text-primary transition-colors">ارسال و بازگشت</a></li>
+            <li><a href="./about.html#terms" class="hover:text-primary transition-colors">قوانین و مقررات</a></li>
+            <li><a href="./about.html#privacy" class="hover:text-primary transition-colors">حریم خصوصی</a></li>
+            <li><a href="./about.html#faq" class="hover:text-primary transition-colors">سوالات متداول</a></li>
           </ul>
         </div>
         <div>
@@ -433,18 +434,18 @@
   </div>
 
   <!-- Main JavaScript Files -->
-  <script src="./core.js"></script>
-  <script src="./storage.js"></script>
-  <script src="./router.js"></script>
-  <script src="./admin.js"></script>
-  <script src="./cart.js"></script>
-  <script src="./auth.js"></script>
-  <script src="./filters.js"></script>
-  <script src="./pages.js"></script>
-  <script src="./ui.js"></script>
-  <script src="./validation.js"></script>
-  <script src="./components.js"></script>
-  <script src="./utils.js"></script>
-  <script src="./constants.js"></script>
+  <script src="./static/js/core.js"></script>
+  <script src="./static/js/storage.js"></script>
+  <script src="./static/js/router.js"></script>
+  <script src="./static/js/admin.js"></script>
+  <script src="./static/js/cart.js"></script>
+  <script src="./static/js/auth.js"></script>
+  <script src="./static/js/filters.js"></script>
+  <script src="./static/js/pages.js"></script>
+  <script src="./static/js/ui.js"></script>
+  <script src="./static/js/validation.js"></script>
+  <script src="./static/js/components.js"></script>
+  <script src="./static/js/utils.js"></script>
+  <script src="./static/js/constants.js"></script>
 </body>
 </html>
