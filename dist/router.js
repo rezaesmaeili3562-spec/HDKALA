@@ -13,6 +13,7 @@ const ROUTE_HANDLERS = {
     checkout: () => renderCheckoutPage(),
     about: () => renderAboutPage(),
     contact: () => renderContactPage(),
+    search: ({ params }) => renderSearchPage(params),
     blog: ({ params }) => {
         if (params[0] && typeof renderBlogDetailPage === 'function') {
             renderBlogDetailPage(params[0]);
@@ -23,14 +24,24 @@ const ROUTE_HANDLERS = {
     profile: () => renderProfilePage(),
     orders: () => renderOrdersPage(),
     addresses: () => renderAddressesPage(),
-    admin: () => renderAdminPage()
+    shipping: () => renderShippingPage(),
+    terms: () => renderTermsPage(),
+    privacy: () => renderPrivacyPage(),
+    faq: () => renderFaqPage(),
+    admin: () => renderAdminPage(),
+    'not-found': () => renderNotFoundPage()
 };
 
 const DEFAULT_DOCUMENT_TITLE = 'HDKALA — فروشگاه آنلاین';
+const DEFAULT_META_DESCRIPTION = 'فروشگاه اینترنتی HDKALA - بهترین تجربه خرید آنلاین با تنوع بی‌نظیر محصولات و قیمت‌های استثنایی.';
+const metaDescriptionTag = document.querySelector('meta[name="description"]');
 
 // متادیتای مسیرها برای تعیین عنوان صفحه
 const ROUTE_META = {
-    home: { title: DEFAULT_DOCUMENT_TITLE },
+    home: {
+        title: DEFAULT_DOCUMENT_TITLE,
+        description: DEFAULT_META_DESCRIPTION
+    },
     products: {
         title: (params = []) => {
             if (!params[0] || typeof getCategoryName !== 'function') {
@@ -38,6 +49,13 @@ const ROUTE_META = {
             }
             const categoryName = getCategoryName(params[0]);
             return `محصولات ${categoryName} | HDKALA`;
+        },
+        description: (params = []) => {
+            if (!params[0] || typeof getCategoryName !== 'function') {
+                return 'لیست کامل محصولات HDKALA با قابلیت فیلتر و مرتب‌سازی.';
+            }
+            const categoryName = getCategoryName(params[0]);
+            return `محصولات دسته ${categoryName} در فروشگاه HDKALA را با فیلترهای پیشرفته مشاهده کنید.`;
         }
     },
     product: {
@@ -48,18 +66,56 @@ const ROUTE_META = {
             }
             const product = getProductById(productId);
             return product ? `${product.name} | HDKALA` : 'جزئیات محصول | HDKALA';
+        },
+        description: (params = []) => {
+            const productId = params[0];
+            if (!productId || typeof getProductById !== 'function') {
+                return 'مشاهده مشخصات، تصاویر و اطلاعات فنی محصولات در HDKALA.';
+            }
+            const product = getProductById(productId);
+            return product ? `مشخصات کامل ${product.name} همراه با تصاویر، قیمت و نقد و بررسی در HDKALA.` : 'مشاهده مشخصات، تصاویر و اطلاعات فنی محصولات در HDKALA.';
         }
     },
-    wishlist: { title: 'علاقه‌مندی‌های من | HDKALA' },
-    compare: { title: 'مقایسه محصولات | HDKALA' },
-    cart: { title: 'سبد خرید شما | HDKALA' },
-    checkout: { title: 'تسویه حساب | HDKALA' },
-    login: { title: 'ورود یا ثبت‌نام | HDKALA' },
-    profile: { title: 'پروفایل کاربری | HDKALA' },
-    orders: { title: 'سفارش‌های من | HDKALA' },
-    addresses: { title: 'آدرس‌های من | HDKALA' },
-    about: { title: 'درباره HDKALA' },
-    contact: { title: 'تماس با HDKALA' },
+    wishlist: {
+        title: 'علاقه‌مندی‌های من | HDKALA',
+        description: 'مدیریت لیست علاقه‌مندی‌ها و دسترسی سریع به محصولات محبوب شما.'
+    },
+    compare: {
+        title: 'مقایسه محصولات | HDKALA',
+        description: 'محصولات انتخابی خود را از نظر قیمت، مشخصات و ویژگی‌ها در HDKALA مقایسه کنید.'
+    },
+    cart: {
+        title: 'سبد خرید شما | HDKALA',
+        description: 'مشاهده و مدیریت اقلام موجود در سبد خرید پیش از تکمیل سفارش.'
+    },
+    checkout: {
+        title: 'تسویه حساب | HDKALA',
+        description: 'تکمیل فرآیند خرید با وارد کردن اطلاعات ارسال و پرداخت مطمئن در HDKALA.'
+    },
+    login: {
+        title: 'ورود یا ثبت‌نام | HDKALA',
+        description: 'ورود به حساب کاربری یا ایجاد حساب جدید برای استفاده از امکانات HDKALA.'
+    },
+    profile: {
+        title: 'پروفایل کاربری | HDKALA',
+        description: 'ویرایش اطلاعات شخصی و مدیریت حساب کاربری در HDKALA.'
+    },
+    orders: {
+        title: 'سفارش‌های من | HDKALA',
+        description: 'پیگیری وضعیت سفارش‌ها و مشاهده تاریخچه خرید شما در HDKALA.'
+    },
+    addresses: {
+        title: 'آدرس‌های من | HDKALA',
+        description: 'مدیریت و ذخیره آدرس‌های ارسال کالا برای خرید سریع‌تر.'
+    },
+    about: {
+        title: 'درباره HDKALA',
+        description: 'آشنایی با داستان، ماموریت و ارزش‌های فروشگاه اینترنتی HDKALA.'
+    },
+    contact: {
+        title: 'تماس با HDKALA',
+        description: 'راه‌های ارتباط با تیم پشتیبانی HDKALA و ارسال پیام برای ما.'
+    },
     blog: {
         title: (params = []) => {
             const blogId = params[0];
@@ -68,15 +124,57 @@ const ROUTE_META = {
             }
             const blog = blogs.find(item => item.id === blogId);
             return blog ? `${blog.title} | مجله HDKALA` : 'مجله HDKALA';
+        },
+        description: (params = []) => {
+            const blogId = params[0];
+            if (!blogId || !Array.isArray(blogs)) {
+                return 'جدیدترین مقالات، راهنماها و اخبار فناوری را در مجله HDKALA مطالعه کنید.';
+            }
+            const blog = blogs.find(item => item.id === blogId);
+            return blog ? `مطالعه مقاله «${blog.title}» در مجله تخصصی HDKALA.` : 'جدیدترین مقالات، راهنماها و اخبار فناوری را در مجله HDKALA مطالعه کنید.';
         }
     },
-    admin: { title: 'مدیریت فروشگاه | HDKALA' }
+    search: {
+        title: (params = []) => {
+            const query = (params[0] || '').trim();
+            return query ? `نتایج جستجو برای "${query}" | HDKALA` : 'جستجوی محصولات | HDKALA';
+        },
+        description: (params = []) => {
+            const query = (params[0] || '').trim();
+            return query ? `نتایج مرتبط با "${query}" را در میان محصولات HDKALA مشاهده کنید.` : 'جستجوی سریع محصولات و برندها در فروشگاه HDKALA.';
+        }
+    },
+    shipping: {
+        title: 'ارسال و بازگشت کالا | HDKALA',
+        description: 'اطلاعات کامل درباره روش‌های ارسال، مدت زمان تحویل و سیاست بازگشت کالا در HDKALA.'
+    },
+    terms: {
+        title: 'قوانین و مقررات | HDKALA',
+        description: 'شرایط و ضوابط استفاده از خدمات و خرید از فروشگاه اینترنتی HDKALA.'
+    },
+    privacy: {
+        title: 'حریم خصوصی | HDKALA',
+        description: 'اطلاع از نحوه جمع‌آوری و نگهداری اطلاعات شخصی کاربران در HDKALA.'
+    },
+    faq: {
+        title: 'سوالات متداول | HDKALA',
+        description: 'پاسخ به رایج‌ترین سوالات کاربران درباره سفارش، ارسال و خدمات HDKALA.'
+    },
+    admin: {
+        title: 'مدیریت فروشگاه | HDKALA',
+        description: 'دسترسی به ابزارهای مدیریتی برای کنترل محصولات، کاربران و محتوا در HDKALA.'
+    },
+    'not-found': {
+        title: 'صفحه مورد نظر یافت نشد | HDKALA',
+        description: 'متاسفانه صفحه‌ای که به دنبال آن هستید در HDKALA پیدا نشد. از سایر بخش‌های سایت بازدید کنید.'
+    }
 };
 
-// تابعی برای بروزرسانی عنوان صفحه با توجه به مسیر فعال
-function updateDocumentTitle(route, params = []) {
+// تابعی برای بروزرسانی متادیتای صفحه با توجه به مسیر فعال
+function updateDocumentMetadata(route, params = []) {
     const meta = ROUTE_META[route];
     let resolvedTitle = DEFAULT_DOCUMENT_TITLE;
+    let resolvedDescription = DEFAULT_META_DESCRIPTION;
 
     if (meta && meta.title) {
         if (typeof meta.title === 'function') {
@@ -89,7 +187,21 @@ function updateDocumentTitle(route, params = []) {
         }
     }
 
+    if (meta && meta.description) {
+        if (typeof meta.description === 'function') {
+            const descriptionValue = meta.description(params);
+            if (descriptionValue && typeof descriptionValue === 'string') {
+                resolvedDescription = descriptionValue;
+            }
+        } else if (typeof meta.description === 'string' && meta.description.trim()) {
+            resolvedDescription = meta.description;
+        }
+    }
+
     document.title = resolvedTitle;
+    if (metaDescriptionTag) {
+        metaDescriptionTag.setAttribute('content', resolvedDescription);
+    }
 }
 
 function parseHash(hash) {
@@ -100,7 +212,17 @@ function parseHash(hash) {
 
     const segments = normalized
         .split(':')
-        .map(segment => segment.trim())
+        .map(segment => {
+            const trimmed = segment.trim();
+            if (!trimmed) {
+                return '';
+            }
+            try {
+                return decodeURIComponent(trimmed.replace(/\+/g, ' '));
+            } catch (error) {
+                return trimmed.replace(/\+/g, ' ');
+            }
+        })
         .filter(Boolean);
 
     const [route = DEFAULT_ROUTE, ...params] = segments;
@@ -118,12 +240,8 @@ function navigate(hash){
     const handler = ROUTE_HANDLERS[route];
 
     if (!handler) {
-        if (route !== DEFAULT_ROUTE) {
-            location.hash = `#${DEFAULT_ROUTE}`;
-        } else {
-            currentRouteParams = [];
-            updateRouteState(DEFAULT_ROUTE, currentRouteParams);
-            renderPage();
+        if (route !== 'not-found') {
+            location.hash = '#not-found';
         }
         return;
     }
@@ -157,10 +275,12 @@ function renderPage(){
         setActiveNavigation(currentPage);
     }
 
-    updateDocumentTitle(currentPage, currentRouteParams);
+    updateDocumentMetadata(currentPage, currentRouteParams);
 
     mobileMenu.classList.add('hidden');
     userDropdown.classList.remove('open');
+
+    window.scrollTo(0, 0);
 }
 
 /* ---------- Home Page ---------- */
@@ -337,6 +457,111 @@ function renderProductsPage(){
     });
 }
 
+function renderSearchPage(params = []){
+    const page = document.createElement('div');
+    const rawQuery = Array.isArray(params) ? (params[0] || '') : '';
+    const query = rawQuery.trim();
+    const hasQuery = query.length > 0;
+    const escapeHtml = (value) => value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    const safeQuery = hasQuery ? escapeHtml(query) : '';
+    const heading = hasQuery ? `نتایج جستجو برای "${safeQuery}"` : 'جستجوی محصولات';
+
+    page.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold mb-2">${heading}</h1>
+                <p id="searchResultsSummary" class="text-gray-600 dark:text-gray-400"></p>
+            </div>
+            <div class="flex gap-2">
+                <button id="searchBackToProducts" class="px-4 py-2 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-colors">مشاهده همه محصولات</button>
+                <button id="searchClear" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">پاک کردن جستجو</button>
+            </div>
+        </div>
+        <div id="searchResultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite"></div>
+    `;
+
+    contentRoot.appendChild(page);
+
+    const resultsGrid = $('#searchResultsGrid', page);
+    const summary = $('#searchResultsSummary', page);
+    const backBtn = $('#searchBackToProducts', page);
+    const clearBtn = $('#searchClear', page);
+
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            location.hash = '#products';
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            location.hash = '#search';
+        });
+    }
+
+    if (searchInput) {
+        searchInput.value = query;
+    }
+
+    if (!hasQuery) {
+        if (summary) {
+            summary.textContent = 'برای شروع جستجو، عبارت مورد نظر خود را در نوار جستجو وارد کنید.';
+        }
+        if (resultsGrid) {
+            resultsGrid.innerHTML = `
+            <div class="col-span-full bg-white dark:bg-gray-800 border border-dashed border-primary/30 rounded-xl p-8 text-center">
+                <iconify-icon icon="mdi:magnify" width="48" class="text-primary mb-3"></iconify-icon>
+                <p class="text-gray-600 dark:text-gray-400">برای مشاهده نتایج، ابتدا عبارتی را جستجو کنید.</p>
+            </div>
+            `;
+        }
+        return;
+    }
+
+    let results = [];
+    if (typeof searchProducts === 'function') {
+        results = searchProducts(products, query);
+    } else {
+        const searchTerm = query.toLowerCase();
+        results = products.filter(product =>
+            product.name.toLowerCase().includes(searchTerm) ||
+            product.desc.toLowerCase().includes(searchTerm) ||
+            product.brand.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (results.length === 0) {
+        if (summary) {
+            summary.textContent = `نتیجه‌ای برای "${query}" یافت نشد.`;
+        }
+        if (resultsGrid) {
+            resultsGrid.innerHTML = `
+                <div class="col-span-full bg-white dark:bg-gray-800 border border-red-200 dark:border-red-500/30 rounded-xl p-8 text-center">
+                    <iconify-icon icon="mdi:emoticon-sad-outline" width="48" class="text-red-500 mb-3"></iconify-icon>
+                <p class="text-gray-600 dark:text-gray-400">محصولی مطابق با جستجوی شما پیدا نشد. از کلمات کلیدی عمومی‌تر استفاده کنید.</p>
+            </div>
+            `;
+        }
+        return;
+    }
+
+    if (summary) {
+        summary.textContent = `${results.length} نتیجه برای "${query}" پیدا شد.`;
+    }
+    if (resultsGrid) {
+        renderProductsList(results, resultsGrid);
+        resultsGrid.addEventListener('click', handleProductActions);
+    }
+}
+
 /* ---------- New Pages ---------- */
 function renderAddressesPage() {
     if (!user) {
@@ -505,6 +730,158 @@ function renderAdminPage() {
 
     contentRoot.appendChild(page);
     setupBlogManagement();
+}
+
+function renderShippingPage() {
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20 space-y-8">
+            <div>
+                <h1 class="text-3xl font-bold text-primary mb-4">ارسال و بازگشت کالا</h1>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">در HDKALA تلاش می‌کنیم سفارش شما را در کوتاه‌ترین زمان ممکن و با بهترین کیفیت بسته‌بندی به دستتان برسانیم.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 border border-primary/20 rounded-xl bg-primary/5">
+                    <h2 class="text-xl font-bold mb-3">روش‌های ارسال</h2>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+                        <li>ارسال استاندارد (۲ تا ۴ روز کاری) برای تمام استان‌ها</li>
+                        <li>ارسال اکسپرس (روز بعد) ویژه شهرهای تهران و کرج</li>
+                        <li>تحویل حضوری در مراکز منتخب HDKALA</li>
+                    </ul>
+                </div>
+                <div class="p-6 border border-primary/20 rounded-xl bg-green-500/5">
+                    <h2 class="text-xl font-bold mb-3">هزینه ارسال</h2>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+                        <li>ارسال رایگان برای سفارش‌های بالای ۵۰۰ هزار تومان</li>
+                        <li>محاسبه خودکار هزینه ارسال بر اساس مقصد و وزن سفارش</li>
+                        <li>امکان پیگیری لحظه‌ای بسته با کد رهگیری</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-6 border border-dashed border-primary/30 rounded-xl">
+                <h2 class="text-xl font-bold mb-3">سیاست بازگشت کالا</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-3">اگر از خرید خود رضایت ندارید، تا ۷ روز فرصت دارید کالا را مطابق شرایط زیر بازگردانید:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>عدم استفاده از کالا و سالم بودن بسته‌بندی</li>
+                    <li>ارائه فاکتور یا کد سفارش هنگام مرجوعی</li>
+                    <li>استرداد وجه پس از بررسی کیفیت کالا ظرف ۴۸ ساعت</li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
+}
+
+function renderTermsPage() {
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20 space-y-6">
+            <h1 class="text-3xl font-bold text-primary">قوانین و مقررات</h1>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">مطالعه دقیق قوانین به شما کمک می‌کند تا تجربه خریدی مطمئن‌تر در HDKALA داشته باشید.</p>
+            <section>
+                <h2 class="text-xl font-semibold mb-3">شرایط استفاده از خدمات</h2>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>کاربران متعهد می‌شوند اطلاعات صحیح و کامل در اختیار HDKALA قرار دهند.</li>
+                    <li>استفاده از محتوای سایت تنها با ذکر منبع مجاز است.</li>
+                    <li>هرگونه سوءاستفاده از خدمات HDKALA موجب مسدود شدن حساب کاربری خواهد شد.</li>
+                </ul>
+            </section>
+            <section>
+                <h2 class="text-xl font-semibold mb-3">شرایط فروش و ارسال</h2>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>قیمت‌های درج شده شامل مالیات بر ارزش افزوده می‌شوند.</li>
+                    <li>ارسال سفارش‌ها مطابق زمان‌بندی اعلام شده صورت می‌گیرد.</li>
+                    <li>در صورت تاخیر غیرمتعارف، تیم پشتیبانی با مشتری تماس خواهد گرفت.</li>
+                </ul>
+            </section>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
+}
+
+function renderPrivacyPage() {
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20 space-y-6">
+            <h1 class="text-3xl font-bold text-primary">سیاست حفظ حریم خصوصی</h1>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">حفظ اطلاعات شخصی کاربران برای HDKALA در اولویت است و مطابق استانداردهای امنیتی نگهداری می‌شود.</p>
+            <section>
+                <h2 class="text-xl font-semibold mb-3">اطلاعات جمع‌آوری شده</h2>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>اطلاعات حساب کاربری شامل نام، شماره تماس و آدرس‌های ثبت شده</li>
+                    <li>سوابق سفارش‌ها و تراکنش‌های مالی برای بهبود خدمات</li>
+                    <li>داده‌های تحلیلی ناشناس برای بهینه‌سازی تجربه کاربری</li>
+                </ul>
+            </section>
+            <section>
+                <h2 class="text-xl font-semibold mb-3">نحوه استفاده از اطلاعات</h2>
+                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                    <li>ارسال اطلاع‌رسانی‌ها، فاکتورها و وضعیت سفارش‌ها</li>
+                    <li>پیشنهادات شخصی‌سازی شده بر اساس علایق کاربر</li>
+                    <li>رعایت الزامات قانونی و پاسخگویی به مراجع ذی‌صلاح</li>
+                </ul>
+            </section>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
+}
+
+function renderFaqPage() {
+    const faqItems = [
+        {
+            question: 'چگونه می‌توانم سفارش خود را پیگیری کنم؟',
+            answer: 'پس از ورود به حساب کاربری، از بخش «سفارش‌های من» می‌توانید وضعیت لحظه‌ای سفارش را مشاهده کنید.'
+        },
+        {
+            question: 'آیا امکان لغو سفارش وجود دارد؟',
+            answer: 'تا پیش از ارسال، می‌توانید با تیم پشتیبانی تماس گرفته و درخواست لغو سفارش دهید.'
+        },
+        {
+            question: 'روش‌های پرداخت در HDKALA چیست؟',
+            answer: 'پرداخت آنلاین از طریق درگاه بانکی امن و همچنین پرداخت در محل برای برخی شهرها فعال است.'
+        },
+        {
+            question: 'در صورت دریافت کالای معیوب چه باید کرد؟',
+            answer: 'تا ۲۴ ساعت پس از دریافت کالا با پشتیبانی تماس بگیرید تا فرآیند تعویض یا بازگشت آغاز شود.'
+        }
+    ];
+
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20">
+            <h1 class="text-3xl font-bold text-primary mb-6">سوالات متداول</h1>
+            <div class="space-y-4">
+                ${faqItems.map(item => `
+                    <div class="border border-primary/20 rounded-xl p-5 bg-primary/5">
+                        <h2 class="text-lg font-semibold mb-2">${item.question}</h2>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">${item.answer}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
+}
+
+function renderNotFoundPage() {
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-500/30 rounded-2xl p-10 text-center">
+            <iconify-icon icon="mdi:alert-circle-outline" width="64" class="text-red-500 mb-4"></iconify-icon>
+            <h1 class="text-3xl font-bold mb-3">صفحه مورد نظر یافت نشد</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">آدرس وارد شده معتبر نیست یا صفحه جابجا شده است. می‌توانید از لینک‌های زیر برای ادامه استفاده کنید.</p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="#home" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">بازگشت به صفحه اصلی</a>
+                <a href="#products" class="px-4 py-2 border border-primary/30 rounded-lg text-primary hover:bg-primary/10 transition-colors">مشاهده محصولات</a>
+            </div>
+        </div>
+    `;
+
+    contentRoot.appendChild(page);
 }
 
 /* ---------- Render products ---------- */

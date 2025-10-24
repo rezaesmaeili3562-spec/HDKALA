@@ -228,15 +228,37 @@ function setupFilterToggle() {
 /* ---------- Search Functionality ---------- */
 function setupSearch() {
     let searchTimeout;
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                applyFilters();
+                if (typeof applyFilters === 'function' && currentPage === 'products') {
+                    applyFilters();
+                }
             }, 500);
         });
-        
+
+        const triggerSearchNavigation = () => {
+            const value = searchInput.value.trim();
+            const newHash = value ? `#search:${encodeURIComponent(value)}` : '#search';
+
+            if (location.hash === newHash && typeof navigate === 'function') {
+                navigate(newHash.slice(1));
+            } else {
+                location.hash = newHash;
+            }
+        };
+
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                triggerSearchNavigation();
+            }
+        });
+
+        searchInput.addEventListener('search', triggerSearchNavigation);
+
         // دکمه پاک کردن جستجو
         const searchContainer = searchInput.parentElement;
         const clearSearch = document.createElement('button');
@@ -257,7 +279,10 @@ function setupSearch() {
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
             clearSearch.classList.add('hidden');
-            applyFilters();
+            if (typeof applyFilters === 'function' && currentPage === 'products') {
+                applyFilters();
+            }
+            triggerSearchNavigation();
             searchInput.focus();
         });
     }
