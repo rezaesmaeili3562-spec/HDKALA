@@ -8,7 +8,15 @@ function navigate(hash){
 }
 
 window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
-window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home'));
+window.addEventListener('load', () => {
+    const hash = location.hash.slice(1);
+    if(hash){
+        navigate(hash);
+        return;
+    }
+    const initial = document.body?.dataset?.page || 'home';
+    navigate(initial);
+});
 
 function renderPage(){
     contentRoot.innerHTML = '';
@@ -107,7 +115,7 @@ function renderHomePage(){
         <section class="mb-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">محصولات ویژه</h2>
-                <a href="#products" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
+                <a href="${pageLink('products')}" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
             </div>
             <div id="featuredProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
@@ -116,7 +124,7 @@ function renderHomePage(){
         <section class="mb-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">آخرین مقالات</h2>
-                <a href="#blog" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
+                <a href="${pageLink('blog')}" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 ${blogs.slice(0, 3).map(blog => `
@@ -360,7 +368,7 @@ function renderAdminLoginPage() {
     page.innerHTML = `
         <div class="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
             <div class="text-center">
-                <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2 justify-center">
+                <a href="${pageLink('home')}" class="text-2xl font-extrabold text-primary flex items-center gap-2 justify-center">
                     <iconify-icon icon="mdi:shield-account" width="28"></iconify-icon>
                     HDKALA Admin
                 </a>
