@@ -261,16 +261,24 @@ function checkProductStock(productId, quantity = 1) {
     return product.stock >= (currentQty + quantity);
 }
 
-// تابع برای مدیریت اسکرول
+// تابع برای مدیریت اسکرول بدون اختلال در مسیریاب
 function setupSmoothScroll() {
     document.addEventListener('click', (e) => {
-        if (e.target.matches('a[href^="#"]')) {
-            e.preventDefault();
-            const target = $(e.target.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
+        const link = e.target.closest('a[href^="#"]');
+        if (!link) return;
+
+        if (link.hasAttribute('data-route-link')) {
+            return;
         }
+
+        const hash = link.getAttribute('href');
+        if (!hash || hash.length <= 1) return;
+
+        const target = document.querySelector(hash);
+        if (!target) return;
+
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
