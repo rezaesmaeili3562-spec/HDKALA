@@ -231,16 +231,33 @@ function setupInputValidation() {
 // تابع برای مدیریت مربع‌های کد تأیید
 function setupOtpInputs(container) {
     const inputs = $$('.otp-input', container);
-    
+
     inputs.forEach((input, index) => {
+        input.setAttribute('dir', 'ltr');
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('pattern', '[0-9]*');
+        input.type = 'tel';
+
+        input.addEventListener('focus', () => {
+            input.select();
+        });
+
         input.addEventListener('input', (e) => {
+            const value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value.slice(0, 1);
+
+            e.target.classList.remove('border-red-500', 'border-green-500');
+            if (!e.target.classList.contains('border-gray-300')) {
+                e.target.classList.add('border-gray-300');
+            }
+
             if (e.target.value.length === 1) {
                 if (index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
             }
         });
-        
+
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && e.target.value === '') {
                 if (index > 0) {
@@ -249,6 +266,10 @@ function setupOtpInputs(container) {
             }
         });
     });
+
+    if (inputs[0]) {
+        inputs[0].focus();
+    }
 }
 
 // تابع برای جمع‌آوری کد از مربع‌ها
@@ -262,7 +283,10 @@ function resetOtpInputs(container) {
     const inputs = $$('.otp-input', container);
     inputs.forEach(input => {
         input.value = '';
-        input.classList.remove('border-primary', 'border-red-500');
+        input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
+        if (!input.classList.contains('border-gray-300')) {
+            input.classList.add('border-gray-300');
+        }
     });
     if (inputs[0]) inputs[0].focus();
 }

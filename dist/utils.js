@@ -54,18 +54,28 @@ function setupInputValidation() {
 // تابع برای مدیریت مربع‌های کد تأیید
 function setupOtpInputs(container) {
     const inputs = $$('.otp-input', container);
-    
+
     inputs.forEach((input, index) => {
+        input.setAttribute('dir', 'ltr');
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('pattern', '[0-9]*');
+        input.type = 'tel';
+
+        input.addEventListener('focus', () => {
+            input.select();
+        });
+
         input.addEventListener('input', (e) => {
-            const value = e.target.value;
-            
-            // فقط اعداد مجاز
-            if (!/^\d*$/.test(value)) {
-                e.target.value = '';
-                return;
+            const value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value.slice(0, 1);
+
+            e.target.classList.remove('border-red-500', 'border-green-500');
+            if (!e.target.classList.contains('border-gray-300')) {
+                e.target.classList.add('border-gray-300');
             }
-            
-            if (value.length === 1) {
+
+            // فقط اعداد مجاز
+            if (e.target.value.length === 1) {
                 if (index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
@@ -92,18 +102,26 @@ function setupOtpInputs(container) {
             e.preventDefault();
             const pasteData = e.clipboardData.getData('text');
             const numbers = pasteData.replace(/[^\d]/g, '').split('');
-            
+
             numbers.forEach((num, i) => {
                 if (inputs[i]) {
                     inputs[i].value = num;
+                    inputs[i].classList.remove('border-red-500', 'border-green-500');
+                    if (!inputs[i].classList.contains('border-gray-300')) {
+                        inputs[i].classList.add('border-gray-300');
+                    }
                 }
             });
-            
+
             if (inputs[numbers.length]) {
                 inputs[numbers.length].focus();
             }
         });
     });
+
+    if (inputs[0]) {
+        inputs[0].focus();
+    }
 }
 
 // تابع برای جمع‌آوری کد از مربع‌ها
