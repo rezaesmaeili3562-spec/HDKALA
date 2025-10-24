@@ -382,6 +382,30 @@ function renderProfilePage(){
 }
 
 /* ---------- Orders Page ---------- */
+function formatOrderDate(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+        return date.toLocaleString('fa-IR');
+    }
+    return value;
+}
+
+function getOrderStatusInfo(status) {
+    const normalized = (status || '').toString().trim();
+    const map = {
+        'processing': { label: 'در حال پردازش', className: 'bg-yellow-500/10 text-yellow-500' },
+        'در حال پردازش': { label: 'در حال پردازش', className: 'bg-yellow-500/10 text-yellow-500' },
+        'shipped': { label: 'ارسال شده', className: 'bg-blue-500/10 text-blue-500' },
+        'ارسال شده': { label: 'ارسال شده', className: 'bg-blue-500/10 text-blue-500' },
+        'delivered': { label: 'تحویل شده', className: 'bg-green-500/10 text-green-500' },
+        'تحویل شده': { label: 'تحویل شده', className: 'bg-green-500/10 text-green-500' },
+        'cancelled': { label: 'لغو شده', className: 'bg-red-500/10 text-red-500' },
+        'لغو شده': { label: 'لغو شده', className: 'bg-red-500/10 text-red-500' }
+    };
+    return map[normalized] || { label: normalized || 'نامشخص', className: 'bg-gray-500/10 text-gray-500' };
+}
+
 function renderOrdersPage(){
     const page = document.createElement('div');
     page.innerHTML = `
@@ -394,58 +418,228 @@ function renderOrdersPage(){
             </div>
         ` : `
             <div class="space-y-4">
-                ${orders.map(order => `
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg">سفارش #${order.id}</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm">${order.date}</p>
-                            </div>
-                            <span class="px-3 py-1 rounded-full text-sm ${
-                                order.status === 'delivered' ? 'bg-green-500/10 text-green-500' :
-                                order.status === 'shipped' ? 'bg-blue-500/10 text-blue-500' :
-                                order.status === 'processing' ? 'bg-yellow-500/10 text-yellow-500' :
-                                'bg-gray-500/10 text-gray-500'
-                            }">
-                                ${
-                                    order.status === 'delivered' ? 'تحویل شده' :
-                                    order.status === 'shipped' ? 'ارسال شده' :
-                                    order.status === 'processing' ? 'در حال پردازش' :
-                                    'لغو شده'
-                                }
-                            </span>
-                        </div>
-                        <div class="space-y-3 mb-4">
-                            ${order.items.map(item => {
-                                const product = getProductById(item.productId);
-                                if (!product) return '';
-                                return `
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                                ${product.img ? 
-                                                    `<img src="${product.img}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg" />` :
-                                                    `<iconify-icon icon="mdi:package" width="20" class="text-gray-400"></iconify-icon>`
-                                                }
-                                            </div>
-                                            <div>
-                                                <div class="font-medium">${product.name}</div>
-                                                <div class="text-gray-500 text-sm">${item.qty} عدد</div>
-                                            </div>
-                                        </div>
-                                        <div class="font-medium">${formatPrice((product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price) * item.qty)}</div>
+                ${orders.map(order => {
+                    const statusInfo = getOrderStatusInfo(order.status);
+                    const paymentInfo = typeof getPaymentMethod === 'function' ? getPaymentMethod(order.paymentMethod) : null;
+                    const shippingInfo = typeof getShippingMethod === 'function' ? getShippingMethod(order.shippingMethod) : null;
+                    const shippingName = order.shippingTitle || (shippingInfo ? shippingInfo.name : '');
+                    const shippingCostValue = typeof order.shippingCost === 'number' ? order.shippingCost : null;
+                    const shippingCostLabel = shippingCostValue === null ? '—' : (shippingCostValue === 0 ? 'رایگان' : formatPrice(shippingCostValue));
+                    const subtotal = typeof order.subtotal === 'number' ? order.subtotal : (typeof order.total === 'number' ? order.total : 0);
+                    const discount = typeof order.discount === 'number' ? order.discount : 0;
+                    const totalValue = typeof order.total === 'number' ? order.total : subtotal + (shippingCostValue || 0);
+                    const items = Array.isArray(order.items) ? order.items : [];
+                    const address = order.address || null;
+
+                    const itemsMarkup = items.map(item => {
+                        const product = getProductById(item.productId);
+                        const itemName = product ? product.name : `محصول ${item.productId}`;
+                        const itemImage = product?.img;
+                        const itemQty = item.qty || 1;
+                        const itemPrice = product
+                            ? (product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price)
+                            : null;
+                        const lineTotal = itemPrice !== null ? formatPrice(itemPrice * itemQty) : '—';
+
+                        return `
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                        ${itemImage
+                                            ? `<img src=\"${itemImage}\" alt=\"${itemName}\" class=\"w-12 h-12 object-cover rounded-lg\" />`
+                                            : `<iconify-icon icon=\"mdi:package\" width=\"20\" class=\"text-gray-400\"></iconify-icon>`}
                                     </div>
-                                `;
-                            }).join('')}
+                                    <div>
+                                        <div class="font-medium">${itemName}</div>
+                                        <div class="text-gray-500 text-sm">${itemQty} عدد</div>
+                                    </div>
+                                </div>
+                                <div class="font-medium">${lineTotal}</div>
+                            </div>
+                        `;
+                    }).join('') || '<div class=\"text-sm text-gray-500\">آیتمی برای نمایش وجود ندارد</div>';
+
+                    return `
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg">سفارش #${order.id}</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">${formatOrderDate(order.date)}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-sm ${statusInfo.className}">${statusInfo.label}</span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                ${shippingName ? `<span class=\"flex items-center gap-2\"><iconify-icon icon=\"mdi:truck\"></iconify-icon><span>${shippingName}</span></span>` : ''}
+                                <span class="flex items-center gap-2"><iconify-icon icon="mdi:credit-card-outline"></iconify-icon><span>${paymentInfo ? paymentInfo.name : (order.paymentMethod || '---')}</span></span>
+                                <span class="flex items-center gap-2"><iconify-icon icon="mdi:cash"></iconify-icon><span>هزینه ارسال: ${shippingCostLabel}</span></span>
+                            </div>
+
+                            ${address ? `
+                                <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-sm text-gray-600 dark:text-gray-300 mb-4">
+                                    <div class="font-medium text-gray-700 dark:text-gray-200 mb-2">${address.title || 'آدرس ارسال'}</div>
+                                    <div>${[address.province, address.city].filter(Boolean).join('، ')}</div>
+                                    <div class="mt-1">${address.fullAddress || ''}</div>
+                                    <div class="mt-1">کد پستی: ${address.postalCode || '---'}</div>
+                                    <div class="mt-1">تلفن: ${address.phone || '---'}</div>
+                                </div>
+                            ` : ''}
+
+                            <div class="space-y-3 mb-4">
+                                ${itemsMarkup}
+                            </div>
+
+                            <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4">
+                                <div class="text-sm text-gray-500 dark:text-gray-400 flex flex-col gap-1">
+                                    <span>جمع جزء: ${formatPrice(subtotal)}</span>
+                                    ${discount > 0 ? `<span class="text-green-600 dark:text-green-400">تخفیف: ${formatPrice(discount)}</span>` : ''}
+                                    <span>ارسال: ${shippingCostLabel}</span>
+                                </div>
+                                <div class="text-lg font-bold">${formatPrice(totalValue)}</div>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4">
-                            <div class="text-lg font-bold">${formatPrice(order.total)}</div>
-                            <button class="text-primary hover:text-primary/80 transition-colors">مشاهده جزئیات</button>
-                        </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `}
     `;
+    contentRoot.appendChild(page);
+}
+
+function renderOrderSuccessPage(orderId){
+    const order = orders.find(item => item.id === orderId);
+    const page = document.createElement('div');
+
+    if (!order) {
+        page.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20 text-center">
+                <iconify-icon icon="mdi:alert-circle-outline" width="64" class="text-yellow-500 mb-4"></iconify-icon>
+                <h1 class="text-2xl font-bold mb-3">سفارشی با این مشخصات یافت نشد</h1>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">ممکن است شناسه سفارش را اشتباه وارد کرده باشید یا سفارش حذف شده باشد.</p>
+                <a href="#orders" class="inline-flex items-center justify-center bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition-colors">بازگشت به سفارش‌ها</a>
+            </div>
+        `;
+        contentRoot.appendChild(page);
+        return;
+    }
+
+    const statusInfo = getOrderStatusInfo(order.status);
+    const paymentInfo = typeof getPaymentMethod === 'function' ? getPaymentMethod(order.paymentMethod) : null;
+    const shippingInfo = typeof getShippingMethod === 'function' ? getShippingMethod(order.shippingMethod) : null;
+    const shippingName = order.shippingTitle || (shippingInfo ? shippingInfo.name : '');
+    const shippingCostValue = typeof order.shippingCost === 'number' ? order.shippingCost : 0;
+    const shippingCostLabel = shippingCostValue === 0 ? 'رایگان' : formatPrice(shippingCostValue);
+    const subtotal = typeof order.subtotal === 'number' ? order.subtotal : (typeof order.total === 'number' ? order.total - shippingCostValue : 0);
+    const discount = typeof order.discount === 'number' ? order.discount : 0;
+    const totalValue = typeof order.total === 'number' ? order.total : subtotal + shippingCostValue;
+    const address = order.address || null;
+    const items = Array.isArray(order.items) ? order.items : [];
+
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 text-green-500 mb-4">
+                    <iconify-icon icon="mdi:check-circle" width="48"></iconify-icon>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">سفارش شما با موفقیت ثبت شد!</h1>
+                <p class="text-gray-600 dark:text-gray-400">از خرید شما سپاسگزاریم. جزئیات سفارش در زیر آمده است.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">اطلاعات سفارش</h2>
+                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="flex justify-between">
+                            <span>شناسه سفارش:</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">${order.id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>تاریخ ثبت:</span>
+                            <span>${formatOrderDate(order.date)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>وضعیت:</span>
+                            <span class="px-3 py-1 rounded-full text-xs ${statusInfo.className}">${statusInfo.label}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>روش پرداخت:</span>
+                            <span>${paymentInfo ? paymentInfo.name : (order.paymentMethod || '---')}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>روش ارسال:</span>
+                            <span>${shippingName || '---'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 lg:col-span-2">
+                    <h2 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">آدرس تحویل</h2>
+                    ${address ? `
+                        <div class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                            <div>${[address.title, address.province, address.city].filter(Boolean).join('، ')}</div>
+                            <div>${address.fullAddress || ''}</div>
+                            <div>کد پستی: ${address.postalCode || '---'}</div>
+                            <div>تلفن: ${address.phone || '---'}</div>
+                        </div>
+                    ` : '<p class="text-sm text-gray-500">آدرس ثبت شده‌ای برای این سفارش وجود ندارد.</p>'}
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 mb-6">
+                <h2 class="font-semibold mb-4 text-gray-700 dark:text-gray-200">اقلام سفارش</h2>
+                <div class="space-y-4">
+                    ${items.map(item => {
+                        const product = getProductById(item.productId);
+                        const itemName = product ? product.name : `محصول ${item.productId}`;
+                        const itemImage = product?.img;
+                        const itemQty = item.qty || 1;
+                        const itemPrice = product
+                            ? (product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price)
+                            : null;
+                        const lineTotal = itemPrice !== null ? formatPrice(itemPrice * itemQty) : '—';
+
+                        return `
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                        ${itemImage
+                                            ? `<img src="${itemImage}" alt="${itemName}" class="w-14 h-14 object-cover" />`
+                                            : `<iconify-icon icon="mdi:package" width="24" class="text-gray-400"></iconify-icon>`}
+                                    </div>
+                                    <div>
+                                        <div class="font-medium">${itemName}</div>
+                                        <div class="text-gray-500 text-sm">${itemQty} عدد</div>
+                                    </div>
+                                </div>
+                                <div class="font-medium">${lineTotal}</div>
+                            </div>
+                        `;
+                    }).join('') || '<div class="text-sm text-gray-500">آیتمی برای نمایش وجود ندارد</div>'}
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <span>جمع جزء:</span>
+                    <span>${formatPrice(subtotal)}</span>
+                </div>
+                ${discount > 0 ? `<div class="flex justify-between text-sm text-green-600 dark:text-green-400 mb-2"><span>تخفیف:</span><span>${formatPrice(discount)}</span></div>` : ''}
+                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <span>هزینه ارسال:</span>
+                    <span>${shippingCostLabel}</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                    <span class="font-semibold text-lg">مبلغ قابل پرداخت:</span>
+                    <span class="text-2xl font-bold text-primary">${formatPrice(totalValue)}</span>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-wrap gap-3 justify-center">
+                <a href="#orders" class="bg-primary text-white px-5 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده سفارش‌ها</a>
+                <a href="#products" class="border border-primary text-primary px-5 py-2 rounded-lg hover:bg-primary/10 transition-colors">ادامه خرید</a>
+            </div>
+        </div>
+    `;
+
     contentRoot.appendChild(page);
 }

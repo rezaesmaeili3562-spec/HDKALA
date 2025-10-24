@@ -166,6 +166,31 @@ const paymentMethods = [
     }
 ];
 
+const shippingMethods = [
+    {
+        id: 'standard',
+        name: 'ارسال عادی',
+        icon: 'mdi:truck-delivery-outline',
+        description: 'تحویل ۳ تا ۵ روز کاری',
+        price: 30000,
+        freeThreshold: 500000
+    },
+    {
+        id: 'express',
+        name: 'ارسال سریع',
+        icon: 'mdi:truck-fast-outline',
+        description: 'تحویل ۱ تا ۲ روز کاری',
+        price: 70000
+    },
+    {
+        id: 'pickup',
+        name: 'تحویل حضوری',
+        icon: 'mdi:storefront',
+        description: 'تحویل از فروشگاه مرکزی',
+        price: 0
+    }
+];
+
 const operatorLogos = {
     'irancell': {
         name: 'ایرانسل',
@@ -248,4 +273,8 @@ function getOperatorInfo(phone) {
 
 function getPaymentMethod(id) {
     return paymentMethods.find(method => method.id === id) || paymentMethods[0];
+}
+
+function getShippingMethod(id) {
+    return shippingMethods.find(method => method.id === id) || shippingMethods[0];
 }

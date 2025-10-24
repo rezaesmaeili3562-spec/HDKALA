@@ -23,6 +23,7 @@ const ROUTE_HANDLERS = {
     },
     profile: () => renderProfilePage(),
     orders: () => renderOrdersPage(),
+    'order-success': ({ params }) => renderOrderSuccessPage(params[0]),
     addresses: () => renderAddressesPage(),
     shipping: () => renderShippingPage(),
     terms: () => renderTermsPage(),
@@ -103,6 +104,10 @@ const ROUTE_META = {
     orders: {
         title: 'سفارش‌های من | HDKALA',
         description: 'پیگیری وضعیت سفارش‌ها و مشاهده تاریخچه خرید شما در HDKALA.'
+    },
+    'order-success': {
+        title: 'ثبت موفق سفارش | HDKALA',
+        description: 'جزئیات سفارش ثبت‌شده شما در HDKALA.'
     },
     addresses: {
         title: 'آدرس‌های من | HDKALA',
