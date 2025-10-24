@@ -249,8 +249,9 @@ const mobileMenuBtn = $('#mobileMenuBtn');
 const mobileMenu = $('#mobileMenu');
 const searchInput = $('#searchInput');
 const filterBtn = $('#filterBtn');
-const filterSidebar = $('#filterSidebar');
-const closeFilters = $('#closeFilters');
+let filterSidebar = $('#filterSidebar');
+let closeFilters = $('#closeFilters');
+let filterOverlay = $('#filterOverlay');
 const userButton = $('#userButton');
 const userDropdown = $('#userDropdown');
 const userDropdownContent = $('#userDropdownContent');
@@ -286,17 +287,17 @@ const adminDiscountCount = $('#adminDiscountCount');
 const adminOrderCount = $('#adminOrderCount');
 
 /* ---------- Filter Elements ---------- */
-const sortSelect = $('#sortSelect');
-const minPrice = $('#minPrice');
-const maxPrice = $('#maxPrice');
-const categoryFilter = $('#categoryFilter');
-const discountFilter = $('#discountFilter');
-const brandFilter = $('#brandFilter');
-const stockFilter = $('#stockFilter');
-const ratingFilter = $('#ratingFilter');
-const priceRange = $('#priceRange');
-const applyFilterBtn = $('#applyFilter');
-const clearFilterBtn = $('#clearFilter');
+let sortSelect = $('#sortSelect');
+let minPrice = $('#minPrice');
+let maxPrice = $('#maxPrice');
+let categoryFilter = $('#categoryFilter');
+let discountFilter = $('#discountFilter');
+let brandFilter = $('#brandFilter');
+let stockFilter = $('#stockFilter');
+let ratingFilter = $('#ratingFilter');
+let priceRange = $('#priceRange');
+let applyFilterBtn = $('#applyFilter');
+let clearFilterBtn = $('#clearFilter');
 
 /* ---------- utils ---------- */
 function getProductById(id){ return products.find(p=>p.id === id); }

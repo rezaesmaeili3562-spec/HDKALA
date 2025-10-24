@@ -19,13 +19,21 @@
     <span id="notificationMessage"></span>
   </div>
   
+  <!-- Filter Overlay -->
+  <div id="filterOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
   <!-- Filter Sidebar -->
   <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
-    <div class="p-4 border-b border-primary/20">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-primary">فیلترها</h2>
-        <button id="closeFilters" class="text-gray-500 hover:text-primary">
-          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+    <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10">
+      <div class="flex items-center justify-between p-4">
+        <div class="flex items-center gap-2">
+          <button id="filterCollapse" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="جمع کردن فیلترها">
+            <iconify-icon icon="mdi:chevron-left" width="22"></iconify-icon>
+          </button>
+          <h2 class="text-lg font-bold text-primary">فیلترها</h2>
+        </div>
+        <button id="closeFilters" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="بستن فیلترها">
+          <iconify-icon icon="mdi:close" width="22"></iconify-icon>
         </button>
       </div>
     </div>
@@ -42,14 +50,21 @@
         </select>
       </div>
       <!-- Price Filter -->
-      <div>
-        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر قیمت</label>
-        <div class="flex gap-2">
-          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-        </div>
-        <div class="mt-2">
-          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full" />
+      <div class="border border-primary/20 rounded-xl">
+        <button id="togglePriceFilter" class="w-full flex items-center justify-between px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary/5 transition-colors" type="button">
+          <span>محدوده قیمت</span>
+          <iconify-icon icon="mdi:chevron-down" width="20" class="transition-transform" id="priceFilterIcon"></iconify-icon>
+        </button>
+        <div id="priceFilterFields" class="px-4 pb-4 space-y-3 hidden">
+          <div class="space-y-2">
+            <label for="minPrice" class="block text-xs text-gray-500 dark:text-gray-400">حداقل قیمت (تومان)</label>
+            <input id="minPrice" type="number" placeholder="مثلاً 500000" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          </div>
+          <div class="space-y-2">
+            <label for="maxPrice" class="block text-xs text-gray-500 dark:text-gray-400">حداکثر قیمت (تومان)</label>
+            <input id="maxPrice" type="number" placeholder="مثلاً 5000000" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          </div>
+          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full">
         </div>
       </div>
       <!-- Category Filter -->
@@ -105,7 +120,7 @@
         <button id="applyFilter" class="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
           اعمال فیلترها
         </button>
-        <button id="clearFilter" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+        <button id="clearFilter" class="flex-1 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
           پاک‌سازی
         </button>
       </div>
