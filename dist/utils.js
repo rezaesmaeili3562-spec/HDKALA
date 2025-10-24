@@ -328,6 +328,91 @@ function setupIconAnimations() {
     }
 }
 
+function setupWishlistButtonInteractions() {
+    const DEFAULT_ACTIVE_TEXT = 'حذف از علاقه‌مندی';
+    const DEFAULT_INACTIVE_TEXT = 'افزودن به علاقه‌مندی';
+
+    const getButtons = (root = document) => {
+        if (!root || !root.querySelectorAll) return [];
+        return Array.from(root.querySelectorAll('.wishlist-button'));
+    };
+
+    const updateButtonState = (button) => {
+        if (!(button instanceof HTMLElement)) return;
+
+        const productId = button.getAttribute('data-id');
+        if (!productId) return;
+
+        const wishlistState = (typeof wishlist !== 'undefined' && Array.isArray(wishlist)) ? wishlist : [];
+        const isActive = wishlistState.includes(productId);
+        button.dataset.wishlistActive = isActive ? 'true' : 'false';
+
+        const currentIcon = button.querySelector('.wishlist-icon-current');
+        const previewIcon = button.querySelector('.wishlist-icon-preview');
+        const tooltip = button.querySelector('.wishlist-tooltip');
+
+        if (currentIcon) {
+            currentIcon.setAttribute('icon', isActive ? 'mdi:heart' : 'mdi:heart-outline');
+        }
+
+        if (previewIcon) {
+            previewIcon.setAttribute('icon', isActive ? 'mdi:heart-off' : 'mdi:heart-plus');
+        }
+
+        const activeText = button.getAttribute('data-label-active') || DEFAULT_ACTIVE_TEXT;
+        const inactiveText = button.getAttribute('data-label-inactive') || DEFAULT_INACTIVE_TEXT;
+        const tooltipText = isActive ? activeText : inactiveText;
+        if (tooltip) {
+            tooltip.textContent = tooltipText;
+        }
+
+        const textLabel = button.querySelector('.wishlist-label-text');
+        if (textLabel) {
+            textLabel.textContent = isActive ? 'حذف علاقه‌مندی' : 'علاقه‌مندی';
+        }
+
+        const ariaLabel = isActive ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها';
+        button.setAttribute('aria-label', ariaLabel);
+    };
+
+    const updateAll = (root) => {
+        getButtons(root).forEach(updateButtonState);
+    };
+
+    updateAll(document);
+
+    document.addEventListener('mouseenter', (event) => {
+        const button = event.target.closest?.('.wishlist-button');
+        if (!button) return;
+        updateButtonState(button);
+    }, true);
+
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest?.('.wishlist-button');
+        if (!button) return;
+        requestAnimationFrame(() => updateButtonState(button));
+        setTimeout(() => updateAll(document), 160);
+    });
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (!(node instanceof HTMLElement)) return;
+                if (node.matches?.('.wishlist-button')) {
+                    updateButtonState(node);
+                }
+                updateAll(node);
+            });
+        });
+    });
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    window.refreshWishlistButtons = updateAll;
+}
+
 // Initialize all utilities
 document.addEventListener('DOMContentLoaded', () => {
     setupAutoClearInputs();
@@ -335,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSmoothScroll();
     setupLazyLoading();
     setupResponsiveHandlers();
+    setupWishlistButtonInteractions();
     setupIconAnimations();
 });
 
