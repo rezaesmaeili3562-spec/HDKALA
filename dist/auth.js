@@ -111,16 +111,14 @@ function renderVerifyPage(phone) {
                         کد ۴ رقمی ارسال شده به ${phone} را وارد کنید
                     </p>
                 </div>
-                <p class="mt-2 text-center text-xs text-primary bg-primary/10 p-2 rounded-lg">
-                    💡 در این نسخه آزمایشی، کد <strong>0315</strong> را وارد کنید
-                </p>
             </div>
             <form class="mt-8 space-y-6" id="verifyForm">
-                <div class="flex justify-center gap-2">
+                <div class="flex justify-center gap-2" dir="ltr">
                     ${[0,1,2,3].map(i => `
-                        <input type="text" 
-                               maxlength="1" 
-                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors"
+                        <input type="tel"
+                               maxlength="1"
+                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white"
+                               dir="ltr"
                                inputmode="numeric"
                                pattern="[0-9]"
                                autocomplete="one-time-code">
@@ -148,23 +146,27 @@ function renderVerifyPage(phone) {
     $('#verifyForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const code = getOtpCode(page);
-        if (code === '0315') {
-            // Check if user exists (login) or new (signup)
-            const existingUser = LS.get('HDK_user');
-            if (existingUser && existingUser.phone === phone) {
-                // Login
-                user = existingUser;
-                LS.set('HDK_user', user);
-                updateUserLabel();
-                notify('با موفقیت وارد شدید!');
-                navigate('home');
-            } else {
-                // Signup - show user info form
-                renderUserInfoForm(phone);
-            }
+
+        if (code.length !== 4) {
+            highlightOtpInputs(page, false);
+            notify('کد تأیید باید ۴ رقم باشد', true);
+            return;
+        }
+
+        highlightOtpInputs(page, true);
+
+        // Check if user exists (login) or new (signup)
+        const existingUser = LS.get('HDK_user');
+        if (existingUser && existingUser.phone === phone) {
+            // Login
+            user = existingUser;
+            LS.set('HDK_user', user);
+            updateUserLabel();
+            notify('با موفقیت وارد شدید!');
+            navigate('home');
         } else {
-            notify('کد تأیید نادرست است. لطفا کد 0315 را وارد کنید.', true);
-            resetOtpInputs(page);
+            // Signup - show user info form
+            renderUserInfoForm(phone);
         }
     });
     
