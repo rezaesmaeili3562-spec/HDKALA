@@ -2,6 +2,9 @@
 let pendingProductImage = '';
 
 function openAdminPanel() {
+    if (!ensureAdminAccess()) {
+        return;
+    }
     adminModal.classList.remove('hidden');
     renderAdminProducts();
     setupAdminInputHandlers();

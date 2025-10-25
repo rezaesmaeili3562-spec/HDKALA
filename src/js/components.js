@@ -1,144 +1,5 @@
 /* ---------- UI Components ---------- */
 
-// اعلان‌ها
-const TOAST_VARIANTS = {
-    success: {
-        icon: 'mdi:check-circle',
-        label: 'موفقیت',
-        className: 'toast--success',
-        duration: 4000
-    },
-    error: {
-        icon: 'mdi:alert-circle',
-        label: 'خطا',
-        className: 'toast--error',
-        duration: 5500
-    },
-    warning: {
-        icon: 'mdi:alert',
-        label: 'هشدار',
-        className: 'toast--warning',
-        duration: 5000
-    },
-    info: {
-        icon: 'mdi:information',
-        label: 'اطلاعیه',
-        className: 'toast--info',
-        duration: 4500
-    }
-};
-
-function ensureToastContainer() {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        container.setAttribute('role', 'region');
-        container.setAttribute('aria-live', 'polite');
-        container.setAttribute('aria-atomic', 'false');
-        document.body.appendChild(container);
-    }
-    return container;
-}
-
-function notify(message, variant = 'info') {
-    if (!message) return;
-
-    if (typeof variant === 'boolean') {
-        variant = variant ? 'error' : 'success';
-    }
-
-    if (typeof variant !== 'string') {
-        variant = 'info';
-    }
-
-    const config = TOAST_VARIANTS[variant] || TOAST_VARIANTS.info;
-    const container = ensureToastContainer();
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${config.className}`;
-    toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
-
-    const content = document.createElement('div');
-    content.className = 'toast__content';
-
-    const iconWrapper = document.createElement('div');
-    iconWrapper.className = 'toast__icon';
-    const icon = document.createElement('iconify-icon');
-    icon.setAttribute('icon', config.icon);
-    icon.setAttribute('width', '22');
-    iconWrapper.appendChild(icon);
-
-    const messageWrapper = document.createElement('div');
-    messageWrapper.className = 'toast__message';
-
-    const label = document.createElement('span');
-    label.className = 'toast__label';
-    label.textContent = config.label;
-
-    const text = document.createElement('div');
-    text.className = 'toast__text';
-    text.textContent = message;
-
-    messageWrapper.appendChild(label);
-    messageWrapper.appendChild(text);
-
-    content.appendChild(iconWrapper);
-    content.appendChild(messageWrapper);
-
-    const closeButton = document.createElement('button');
-    closeButton.type = 'button';
-    closeButton.className = 'toast__close';
-    closeButton.setAttribute('aria-label', 'بستن اعلان');
-    closeButton.appendChild(document.createTextNode('×'));
-
-    toast.appendChild(content);
-    toast.appendChild(closeButton);
-    container.appendChild(toast);
-
-    // Trigger animation
-    requestAnimationFrame(() => {
-        toast.classList.add('toast--visible');
-    });
-
-    let autoHideTimeout;
-    let isClosing = false;
-
-    const clearAutoHide = () => {
-        if (autoHideTimeout) {
-            clearTimeout(autoHideTimeout);
-            autoHideTimeout = null;
-        }
-    };
-
-    const startAutoHide = () => {
-        clearAutoHide();
-        autoHideTimeout = setTimeout(() => dismissToast(), config.duration);
-    };
-
-    const dismissToast = () => {
-        if (isClosing) return;
-        isClosing = true;
-        clearAutoHide();
-        toast.classList.remove('toast--visible');
-        const removeToast = () => {
-            toast.removeEventListener('transitionend', removeToast);
-            if (toast.parentElement) {
-                toast.parentElement.removeChild(toast);
-            }
-        };
-        toast.addEventListener('transitionend', removeToast);
-        setTimeout(removeToast, 250);
-    };
-
-    startAutoHide();
-
-    toast.addEventListener('mouseenter', clearAutoHide);
-    toast.addEventListener('mouseleave', startAutoHide);
-    closeButton.addEventListener('click', dismissToast);
-}
-
 function lockBodyScroll() {
     const body = document.body;
     const currentCount = parseInt(body.dataset.scrollLockCount || '0', 10);
@@ -287,7 +148,9 @@ function createProductCard(product) {
             </div>
             <div class="flex gap-2">
                 <button type="button" class="${addToCartClasses}"
-                        data-id="${product.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                        data-id="${product.id}"
+                        data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                        ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
                     <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
                     ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد</span>'}
                 </button>
@@ -439,7 +302,9 @@ function createCompareProduct(product) {
 
             <div class="mt-4 space-y-2">
                 <button class="${addToCartClasses}"
-                        data-id="${product.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                        data-id="${product.id}"
+                        data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                        ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
                     <iconify-icon icon="${addToCartIcon}" width="18"></iconify-icon>
                     ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد خرید</span>'}
                 </button>

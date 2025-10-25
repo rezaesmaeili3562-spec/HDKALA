@@ -14,6 +14,7 @@ const sources = [
   'admin.js',
   'cart.js',
   'auth.js',
+  'toast.js',
   'filters.js',
   'pages.js',
   'ui.js',
