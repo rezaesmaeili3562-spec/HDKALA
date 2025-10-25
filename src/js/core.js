@@ -3,6 +3,15 @@ const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
+function on(element, eventName, handler, options){
+    if(!element || typeof element.addEventListener !== 'function'){
+        return () => {};
+    }
+
+    element.addEventListener(eventName, handler, options);
+    return () => element.removeEventListener(eventName, handler, options);
+}
+
 function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
 
 function getProductImages(product) {

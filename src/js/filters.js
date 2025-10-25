@@ -402,44 +402,107 @@ function bindFilterEvents() {
     }
 }
 
-mobileMenuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('hidden'));
+on(mobileMenuBtn, 'click', () => {
+    if (mobileMenu) {
+        mobileMenu.classList.toggle('hidden');
+    }
+});
 
-$('#wishlistBtn').addEventListener('click', () => location.hash = 'wishlist');
-$('#homeLink').addEventListener('click', () => location.hash = 'home');
+const wishlistBtn = $('#wishlistBtn');
+const homeLink = $('#homeLink');
 
-$$('a[href="#products"]').forEach(el => el.addEventListener('click', (e) => {
-    e.preventDefault();
-    location.hash = 'products';
-}));
+on(wishlistBtn, 'click', () => {
+    location.hash = 'wishlist';
+});
 
-$$('a[href="#about"]').forEach(el => el.addEventListener('click', (e) => {
-    e.preventDefault();
-    location.hash = 'about';
-}));
+on(homeLink, 'click', () => {
+    location.hash = 'home';
+});
 
-$$('a[href="#contact"]').forEach(el => el.addEventListener('click', (e) => {
-    e.preventDefault();
-    location.hash = 'contact';
-}));
-
-$$('a[href="#blog"]').forEach(el => el.addEventListener('click', (e) => {
-    e.preventDefault();
-    location.hash = 'blog';
-}));
-
-/* ---------- Theme toggle ---------- */
-if(localStorage.getItem('hdk_dark') === 'true'){
-    root.classList.add('dark'); 
-    themeIcon.setAttribute('icon','ph:sun-duotone');
-} else {
-    themeIcon.setAttribute('icon','ph:moon-duotone');
+function bindHashNavigation(selector, targetHash) {
+    $$(selector).forEach(link => {
+        on(link, 'click', (event) => {
+            event.preventDefault();
+            location.hash = targetHash;
+        });
+    });
 }
 
-themeToggle.addEventListener('click', ()=> { 
-    root.classList.toggle('dark'); 
-    const isDark = root.classList.contains('dark'); 
-    localStorage.setItem('hdk_dark', String(isDark)); 
-    themeIcon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone'); 
+bindHashNavigation('a[href="#products"]', 'products');
+bindHashNavigation('a[href="#about"]', 'about');
+bindHashNavigation('a[href="#contact"]', 'contact');
+bindHashNavigation('a[href="#blog"]', 'blog');
+
+/* ---------- Theme toggle ---------- */
+const THEME_STORAGE_KEY = 'hdk_dark';
+
+function readStoredThemePreference() {
+    try {
+        const value = localStorage.getItem(THEME_STORAGE_KEY);
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+    } catch (error) {
+        // localStorage may be unavailable (private mode, etc.)
+    }
+    return null;
+}
+
+function persistThemePreference(isDark) {
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, String(Boolean(isDark)));
+    } catch (error) {
+        // Ignore write failures (storage disabled or full)
+    }
+}
+
+function getSystemThemePreference() {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+}
+
+function applyThemePreference(isDark) {
+    const enabled = Boolean(isDark);
+
+    if (root) {
+        root.classList.toggle('dark', enabled);
+    }
+
+    if (themeIcon) {
+        themeIcon.setAttribute('icon', enabled ? 'ph:sun-duotone' : 'ph:moon-duotone');
+    }
+
+    if (themeToggle) {
+        themeToggle.setAttribute('aria-pressed', String(enabled));
+        themeToggle.setAttribute('data-theme', enabled ? 'dark' : 'light');
+    }
+}
+
+let userSelectedTheme = readStoredThemePreference();
+const systemPrefersDark = getSystemThemePreference();
+
+applyThemePreference(userSelectedTheme ?? systemPrefersDark);
+
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = (event) => {
+        if (userSelectedTheme !== null) return;
+        applyThemePreference(event.matches);
+    };
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', handleMediaChange);
+    } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(handleMediaChange);
+    }
+}
+
+on(themeToggle, 'click', () => {
+    const nextIsDark = !root.classList.contains('dark');
+    userSelectedTheme = nextIsDark;
+    applyThemePreference(nextIsDark);
+    persistThemePreference(nextIsDark);
 });
 
 /* ---------- Initialize Filters ---------- */
