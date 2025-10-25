@@ -490,7 +490,22 @@ function setupImageUpload() {
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
+if (adminBtn) {
+    adminBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (isAdminUser()) {
+            openAdminPanel();
+            return;
+        }
+
+        if (typeof navigate === 'function') {
+            navigate('admin-login');
+        } else {
+            location.hash = 'admin-login';
+        }
+    });
+}
 closeAdminModal.addEventListener('click', closeAdminPanel);
 addProductBtn.addEventListener('click', () => {
     editingProductId = null;

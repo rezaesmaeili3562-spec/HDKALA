@@ -268,9 +268,19 @@ Object.entries(storageDefaults).forEach(([key, fallback]) => {
     }
 });
 
+const ADMIN_CREDENTIALS = Object.freeze([
+    {
+        id: 'admin-1',
+        name: 'مدیر سیستم',
+        phone: '09120000000',
+        email: 'admin@hdkala.com',
+        password: 'Admin@123'
+    }
+]);
+
 const ADMIN_ACCESS = Object.freeze({
-    phones: ['09120000000'],
-    emails: ['admin@hdkala.com']
+    phones: ADMIN_CREDENTIALS.map(credential => credential.phone),
+    emails: ADMIN_CREDENTIALS.map(credential => credential.email.toLowerCase())
 });
 
 const ADMIN_PERMISSIONS = Object.freeze([
@@ -287,6 +297,21 @@ function hasAdminIdentifier(record) {
     const email = (record.email || '').trim().toLowerCase();
     return (phone && ADMIN_ACCESS.phones.includes(phone)) ||
         (email && ADMIN_ACCESS.emails.includes(email));
+}
+
+function findAdminCredential({ phone, email, password }) {
+    if (!phone || !email || !password) {
+        return null;
+    }
+
+    const normalizedPhone = phone.replace(/\s+/g, '');
+    const normalizedEmail = email.trim().toLowerCase();
+
+    return ADMIN_CREDENTIALS.find(credential =>
+        credential.phone === normalizedPhone &&
+        credential.email.toLowerCase() === normalizedEmail &&
+        credential.password === password
+    ) || null;
 }
 
 function normalizeUser(record) {
@@ -451,26 +476,27 @@ function updateAdminVisibility() {
     const isAdmin = isAdminUser();
 
     if (adminBtn) {
-        adminBtn.classList.toggle('hidden', !isAdmin);
-        adminBtn.toggleAttribute('aria-hidden', !isAdmin);
-        adminBtn.disabled = !isAdmin;
+        adminBtn.classList.remove('hidden');
+        adminBtn.removeAttribute('aria-hidden');
+        adminBtn.disabled = false;
+        if (adminBtn.dataset) {
+            adminBtn.dataset.adminState = isAdmin ? 'authorized' : 'locked';
+        }
     }
 
     const nav = $('nav .hidden.md\\:flex');
     if (nav) {
         let link = nav.querySelector('[data-nav-admin]');
-        if (isAdmin) {
-            if (!link) {
-                link = document.createElement('a');
-                link.href = '#admin';
-                link.textContent = 'پنل مدیریت';
-                link.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
-                link.setAttribute('data-nav-admin', 'true');
-                nav.insertBefore(link, nav.firstChild);
-            }
-        } else if (link) {
-            link.remove();
+        if (!link) {
+            link = document.createElement('a');
+            link.textContent = 'پنل مدیریت';
+            link.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
+            link.setAttribute('data-nav-admin', 'true');
+            nav.insertBefore(link, nav.firstChild);
         }
+
+        link.href = isAdmin ? '#admin' : '#admin-login';
+        link.dataset.adminState = isAdmin ? 'authorized' : 'locked';
     }
 }
 
@@ -495,7 +521,7 @@ function ensureAdminAccess({ showToast = true, redirect = true } = {}) {
     }
 
     if (redirect && typeof navigate === 'function') {
-        navigate(user ? 'home' : 'login');
+        navigate('admin-login');
     }
 
     return false;

@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-25T14:08:56.757Z */
+/* HDKALA bundle generated: 2025-10-25T14:38:00.934Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -480,9 +480,19 @@ Object.entries(storageDefaults).forEach(([key, fallback]) => {
     }
 });
 
+const ADMIN_CREDENTIALS = Object.freeze([
+    {
+        id: 'admin-1',
+        name: 'مدیر سیستم',
+        phone: '09120000000',
+        email: 'admin@hdkala.com',
+        password: 'Admin@123'
+    }
+]);
+
 const ADMIN_ACCESS = Object.freeze({
-    phones: ['09120000000'],
-    emails: ['admin@hdkala.com']
+    phones: ADMIN_CREDENTIALS.map(credential => credential.phone),
+    emails: ADMIN_CREDENTIALS.map(credential => credential.email.toLowerCase())
 });
 
 const ADMIN_PERMISSIONS = Object.freeze([
@@ -499,6 +509,21 @@ function hasAdminIdentifier(record) {
     const email = (record.email || '').trim().toLowerCase();
     return (phone && ADMIN_ACCESS.phones.includes(phone)) ||
         (email && ADMIN_ACCESS.emails.includes(email));
+}
+
+function findAdminCredential({ phone, email, password }) {
+    if (!phone || !email || !password) {
+        return null;
+    }
+
+    const normalizedPhone = phone.replace(/\s+/g, '');
+    const normalizedEmail = email.trim().toLowerCase();
+
+    return ADMIN_CREDENTIALS.find(credential =>
+        credential.phone === normalizedPhone &&
+        credential.email.toLowerCase() === normalizedEmail &&
+        credential.password === password
+    ) || null;
 }
 
 function normalizeUser(record) {
@@ -663,26 +688,27 @@ function updateAdminVisibility() {
     const isAdmin = isAdminUser();
 
     if (adminBtn) {
-        adminBtn.classList.toggle('hidden', !isAdmin);
-        adminBtn.toggleAttribute('aria-hidden', !isAdmin);
-        adminBtn.disabled = !isAdmin;
+        adminBtn.classList.remove('hidden');
+        adminBtn.removeAttribute('aria-hidden');
+        adminBtn.disabled = false;
+        if (adminBtn.dataset) {
+            adminBtn.dataset.adminState = isAdmin ? 'authorized' : 'locked';
+        }
     }
 
     const nav = $('nav .hidden.md\\:flex');
     if (nav) {
         let link = nav.querySelector('[data-nav-admin]');
-        if (isAdmin) {
-            if (!link) {
-                link = document.createElement('a');
-                link.href = '#admin';
-                link.textContent = 'پنل مدیریت';
-                link.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
-                link.setAttribute('data-nav-admin', 'true');
-                nav.insertBefore(link, nav.firstChild);
-            }
-        } else if (link) {
-            link.remove();
+        if (!link) {
+            link = document.createElement('a');
+            link.textContent = 'پنل مدیریت';
+            link.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
+            link.setAttribute('data-nav-admin', 'true');
+            nav.insertBefore(link, nav.firstChild);
         }
+
+        link.href = isAdmin ? '#admin' : '#admin-login';
+        link.dataset.adminState = isAdmin ? 'authorized' : 'locked';
     }
 }
 
@@ -707,7 +733,7 @@ function ensureAdminAccess({ showToast = true, redirect = true } = {}) {
     }
 
     if (redirect && typeof navigate === 'function') {
-        navigate(user ? 'home' : 'login');
+        navigate('admin-login');
     }
 
     return false;
@@ -735,6 +761,7 @@ let pageRenderTimeout = null;
 
 const ROUTE_HANDLERS = {
     login: () => renderLoginPage(),
+    'admin-login': () => renderAdminLoginPage(),
     home: () => renderHomePage(),
     products: () => renderProductsPage(),
     product: ({ params }) => renderProductDetailPage(params[0]),
@@ -777,6 +804,7 @@ const ROUTE_LABELS = {
     cart: 'سبد خرید',
     checkout: 'تسویه حساب',
     login: 'ورود',
+    'admin-login': 'ورود مدیران',
     profile: 'پروفایل کاربری',
     orders: 'سفارش‌ها',
     'order-success': 'ثبت موفق سفارش',
@@ -897,6 +925,10 @@ const ROUTE_META = {
     login: {
         title: 'ورود یا ثبت‌نام | HDKALA',
         description: 'ورود به حساب کاربری یا ایجاد حساب جدید برای استفاده از امکانات HDKALA.'
+    },
+    'admin-login': {
+        title: 'ورود مدیران | HDKALA',
+        description: 'ورود ایمن مدیران برای دسترسی به داشبورد و امکانات مدیریتی فروشگاه HDKALA.'
     },
     profile: {
         title: 'پروفایل کاربری | HDKALA',
@@ -1689,6 +1721,10 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    if (!ensureAdminAccess()) {
+        return;
+    }
+
     const adminFeatures = [
         {
             title: 'مدیریت پروفایل کاربران',
@@ -2476,7 +2512,22 @@ function setupImageUpload() {
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
+if (adminBtn) {
+    adminBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (isAdminUser()) {
+            openAdminPanel();
+            return;
+        }
+
+        if (typeof navigate === 'function') {
+            navigate('admin-login');
+        } else {
+            location.hash = 'admin-login';
+        }
+    });
+}
 closeAdminModal.addEventListener('click', closeAdminPanel);
 addProductBtn.addEventListener('click', () => {
     editingProductId = null;
@@ -3579,7 +3630,172 @@ function renderLoginPage(initialMode = 'login') {
     phoneInput.focus();
 }
 
-function renderVerifyPage({ phone, mode = 'login', email = '' }) {
+function renderAdminLoginPage() {
+    const page = document.createElement('div');
+    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    page.innerHTML = `
+        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div class="space-y-4 text-center">
+                <a href="#home" class="text-2xl font-extrabold text-primary flex items-center justify-center gap-2">
+                    <iconify-icon icon="mdi:shield-account" width="30"></iconify-icon>
+                    ورود مدیر سیستم
+                </a>
+                <div class="space-y-2">
+                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">پنل مدیریت HDKALA</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">برای ورود به داشبورد مدیریتی، اطلاعات امنیتی خود را وارد کنید</p>
+                </div>
+            </div>
+
+            <form class="space-y-5" id="adminLoginForm" novalidate>
+                <div>
+                    <label for="adminPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس مدیر <span class="text-red-500">*</span></label>
+                    <input id="adminPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="09120000000">
+                </div>
+
+                <div>
+                    <label for="adminEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل سازمانی <span class="text-red-500">*</span></label>
+                    <input id="adminEmail" type="email" required
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="admin@hdkala.com">
+                </div>
+
+                <div>
+                    <label for="adminPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رمز عبور امنیتی <span class="text-red-500">*</span></label>
+                    <input id="adminPassword" type="password" required minlength="6"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="••••••">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">رمز عبور باید حداقل ۶ کاراکتر باشد.</p>
+                </div>
+
+                <div id="adminLoginError" class="hidden text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    ارسال کد ورود
+                </button>
+            </form>
+
+            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+                با وارد کردن اطلاعات فوق، یک کد تأیید یکبار مصرف برای شما ارسال می‌شود.
+            </div>
+
+            <div class="text-center">
+                <button type="button" id="backToHome" class="text-sm text-primary hover:text-primary/80 transition-colors">
+                    بازگشت به صفحه اصلی
+                </button>
+            </div>
+        </div>
+    `;
+
+    contentRoot.innerHTML = '';
+    contentRoot.appendChild(page);
+
+    const form = $('#adminLoginForm', page);
+    const phoneInput = $('#adminPhone', page);
+    const emailInput = $('#adminEmail', page);
+    const passwordInput = $('#adminPassword', page);
+    const errorBox = $('#adminLoginError', page);
+
+    const clearError = () => {
+        if (!errorBox) return;
+        errorBox.textContent = '';
+        errorBox.classList.add('hidden');
+    };
+
+    const showError = (message) => {
+        if (!errorBox) return;
+        errorBox.textContent = message;
+        errorBox.classList.remove('hidden');
+    };
+
+    [phoneInput, emailInput, passwordInput].forEach(input => {
+        if (!input) return;
+        input.addEventListener('input', clearError);
+    });
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        clearError();
+
+        const phone = phoneInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!validatePhone(phone)) {
+            showError('شماره تماس مدیر باید با 09 شروع شده و 11 رقم باشد.');
+            phoneInput.focus();
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            showError('ایمیل وارد شده معتبر نیست.');
+            emailInput.focus();
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            showError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+            passwordInput.focus();
+            return;
+        }
+
+        const credential = typeof findAdminCredential === 'function'
+            ? findAdminCredential({ phone, email, password })
+            : null;
+
+        if (!credential) {
+            showError('اطلاعات وارد شده با مدیر ثبت‌شده مطابقت ندارد.');
+            return;
+        }
+
+        renderVerifyPage({
+            phone: credential.phone,
+            email: credential.email,
+            mode: 'admin',
+            title: 'تأیید ورود مدیر سیستم',
+            subtitle: `کد ۴ رقمی ارسال شده به ${credential.phone} را وارد کنید`,
+            onSuccess: () => {
+                const adminUser = normalizeUser({
+                    ...credential,
+                    role: 'admin',
+                    isAdmin: true,
+                    permissions: Array.isArray(ADMIN_PERMISSIONS) ? ADMIN_PERMISSIONS.slice() : ['products.manage']
+                });
+                user = syncUserSession(adminUser);
+                notify('ورود مدیر با موفقیت انجام شد', 'success');
+
+                if (typeof navigate === 'function') {
+                    navigate('admin');
+                } else {
+                    location.hash = 'admin';
+                }
+
+                setTimeout(() => {
+                    if (typeof openAdminPanel === 'function') {
+                        openAdminPanel();
+                    }
+                }, 0);
+            }
+        });
+    });
+
+    $('#backToHome', page).addEventListener('click', () => {
+        if (typeof navigate === 'function') {
+            navigate('home');
+        } else {
+            location.hash = 'home';
+        }
+    });
+
+    phoneInput.focus();
+}
+
+function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null, title: customTitle = '', subtitle: customSubtitle = '' }) {
     const operator = getOperatorLogo(phone);
     const operatorLogos = {
         'irancell': '<iconify-icon icon="mdi:signal" class="text-blue-500"></iconify-icon>',
@@ -3587,10 +3803,12 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
         'rightel': '<iconify-icon icon="mdi:wifi" class="text-red-500"></iconify-icon>',
         'unknown': '<iconify-icon icon="mdi:phone" class="text-gray-500"></iconify-icon>'
     };
-    
+
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
     const isSignup = mode === 'signup';
+    const pageTitle = customTitle || (isSignup ? 'تأیید شماره برای ثبت‌نام' : 'تأیید شماره تلفن');
+    const pageSubtitle = customSubtitle || `کد ۴ رقمی ارسال شده به ${phone} را وارد کنید`;
 
     page.innerHTML = `
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
@@ -3602,12 +3820,12 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
                     </a>
                 </div>
                 <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    ${isSignup ? 'تأیید شماره برای ثبت‌نام' : 'تأیید شماره تلفن'}
+                    ${pageTitle}
                 </h2>
                 <div class="flex items-center justify-center gap-2 mt-2">
                     ${operatorLogos[operator]}
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        کد ۴ رقمی ارسال شده به ${phone} را وارد کنید
+                        ${pageSubtitle}
                     </p>
                 </div>
             </div>
@@ -3654,6 +3872,11 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
 
         highlightOtpInputs(page, true);
 
+        if (typeof onSuccess === 'function') {
+            onSuccess({ phone, email, code, mode });
+            return;
+        }
+
         // Check if user exists (login) or new (signup)
         const existingUser = normalizeUser(LS.get('HDK_user'));
         if (mode === 'login') {
@@ -3674,7 +3897,13 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
         }
     });
 
-    $('#backToLogin').addEventListener('click', () => renderLoginPage(mode));
+    $('#backToLogin').addEventListener('click', () => {
+        if (mode === 'admin') {
+            renderAdminLoginPage();
+            return;
+        }
+        renderLoginPage(mode);
+    });
 }
 
 function renderUserInfoForm({ phone, email = '' }) {

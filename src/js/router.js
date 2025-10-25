@@ -6,6 +6,7 @@ let pageRenderTimeout = null;
 
 const ROUTE_HANDLERS = {
     login: () => renderLoginPage(),
+    'admin-login': () => renderAdminLoginPage(),
     home: () => renderHomePage(),
     products: () => renderProductsPage(),
     product: ({ params }) => renderProductDetailPage(params[0]),
@@ -48,6 +49,7 @@ const ROUTE_LABELS = {
     cart: 'سبد خرید',
     checkout: 'تسویه حساب',
     login: 'ورود',
+    'admin-login': 'ورود مدیران',
     profile: 'پروفایل کاربری',
     orders: 'سفارش‌ها',
     'order-success': 'ثبت موفق سفارش',
@@ -168,6 +170,10 @@ const ROUTE_META = {
     login: {
         title: 'ورود یا ثبت‌نام | HDKALA',
         description: 'ورود به حساب کاربری یا ایجاد حساب جدید برای استفاده از امکانات HDKALA.'
+    },
+    'admin-login': {
+        title: 'ورود مدیران | HDKALA',
+        description: 'ورود ایمن مدیران برای دسترسی به داشبورد و امکانات مدیریتی فروشگاه HDKALA.'
     },
     profile: {
         title: 'پروفایل کاربری | HDKALA',
@@ -960,6 +966,10 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    if (!ensureAdminAccess()) {
+        return;
+    }
+
     const adminFeatures = [
         {
             title: 'مدیریت پروفایل کاربران',
