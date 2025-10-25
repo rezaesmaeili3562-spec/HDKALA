@@ -4,6 +4,7 @@ const path = require('path');
 const projectRoot = path.resolve(__dirname, '..');
 const srcDir = path.join(projectRoot, 'src', 'js');
 const distDir = path.join(projectRoot, 'dist');
+const distJsDir = path.join(distDir, 'js');
 const outputFile = path.join(distDir, 'app.bundle.js');
 
 const sources = [
@@ -47,4 +48,18 @@ function buildBundle() {
   console.log(`Bundled ${sources.length} files into ${path.relative(projectRoot, outputFile)}`);
 }
 
+function copySourceFiles() {
+  fs.mkdirSync(distJsDir, { recursive: true });
+
+  sources.forEach((file) => {
+    const sourcePath = path.join(srcDir, file);
+    const destinationPath = path.join(distJsDir, file);
+    ensureFileExists(sourcePath);
+    fs.copyFileSync(sourcePath, destinationPath);
+  });
+
+  console.log(`Copied source files to ${path.relative(projectRoot, distJsDir)}`);
+}
+
 buildBundle();
+copySourceFiles();
