@@ -38,6 +38,76 @@ const DEFAULT_DOCUMENT_TITLE = 'HDKALA — فروشگاه آنلاین';
 const DEFAULT_META_DESCRIPTION = 'فروشگاه اینترنتی HDKALA - بهترین تجربه خرید آنلاین با تنوع بی‌نظیر محصولات و قیمت‌های استثنایی.';
 const metaDescriptionTag = document.querySelector('meta[name="description"]');
 
+const ROUTE_LABELS = {
+    home: 'خانه',
+    products: 'محصولات',
+    product: 'جزئیات محصول',
+    wishlist: 'علاقه‌مندی‌ها',
+    compare: 'مقایسه محصولات',
+    cart: 'سبد خرید',
+    checkout: 'تسویه حساب',
+    login: 'ورود',
+    profile: 'پروفایل کاربری',
+    orders: 'سفارش‌ها',
+    'order-success': 'ثبت موفق سفارش',
+    addresses: 'آدرس‌ها',
+    about: 'درباره HDKALA',
+    contact: 'تماس با HDKALA',
+    search: 'جستجو',
+    blog: 'مجله HDKALA',
+    shipping: 'ارسال و بازگشت کالا',
+    terms: 'قوانین و مقررات',
+    privacy: 'حریم خصوصی',
+    faq: 'سوالات متداول',
+    admin: 'مدیریت فروشگاه',
+    'not-found': 'صفحه یافت نشد'
+};
+
+function normalizeRouteSegment(segment) {
+    if (!segment) return '';
+    return segment
+        .toString()
+        .replace(/[-_]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function resolveRouteLabel(route) {
+    if (!route) {
+        return ROUTE_LABELS.home || 'HDKALA';
+    }
+    if (ROUTE_LABELS[route]) {
+        return ROUTE_LABELS[route];
+    }
+
+    const normalized = normalizeRouteSegment(route);
+    if (!normalized) {
+        return 'HDKALA';
+    }
+
+    return normalized
+        .split(' ')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function buildFallbackMetadata(route) {
+    if (!route || route === DEFAULT_ROUTE) {
+        return {
+            title: DEFAULT_DOCUMENT_TITLE,
+            description: DEFAULT_META_DESCRIPTION
+        };
+    }
+
+    const label = resolveRouteLabel(route);
+    const normalizedLabel = label || 'HDKALA';
+
+    return {
+        title: `${normalizedLabel} | HDKALA`,
+        description: `مشاهده صفحه ${normalizedLabel} در فروشگاه اینترنتی HDKALA.`
+    };
+}
+
 // متادیتای مسیرها برای تعیین عنوان صفحه
 const ROUTE_META = {
     home: {
@@ -179,8 +249,9 @@ const ROUTE_META = {
 // تابعی برای بروزرسانی متادیتای صفحه با توجه به مسیر فعال
 function updateDocumentMetadata(route, params = []) {
     const meta = ROUTE_META[route];
-    let resolvedTitle = DEFAULT_DOCUMENT_TITLE;
-    let resolvedDescription = DEFAULT_META_DESCRIPTION;
+    const fallback = buildFallbackMetadata(route);
+    let resolvedTitle = fallback.title || DEFAULT_DOCUMENT_TITLE;
+    let resolvedDescription = fallback.description || DEFAULT_META_DESCRIPTION;
 
     if (meta && meta.title) {
         if (typeof meta.title === 'function') {
@@ -204,9 +275,9 @@ function updateDocumentMetadata(route, params = []) {
         }
     }
 
-    document.title = resolvedTitle;
+    document.title = resolvedTitle || DEFAULT_DOCUMENT_TITLE;
     if (metaDescriptionTag) {
-        metaDescriptionTag.setAttribute('content', resolvedDescription);
+        metaDescriptionTag.setAttribute('content', resolvedDescription || DEFAULT_META_DESCRIPTION);
     }
 }
 
