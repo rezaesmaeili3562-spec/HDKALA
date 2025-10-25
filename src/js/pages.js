@@ -182,7 +182,10 @@ function renderProductDetailPage(id){
                 </div>
 
                 <div class="flex gap-3 mb-6">
-                    <button class="${addToCartButtonClasses}" data-id="${p.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <button class="${addToCartButtonClasses}"
+                            data-id="${p.id}"
+                            data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                            ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
                         <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
                         ${addToCartLabelMarkup}
                     </button>

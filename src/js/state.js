@@ -268,11 +268,61 @@ Object.entries(storageDefaults).forEach(([key, fallback]) => {
     }
 });
 
+const ADMIN_ACCESS = Object.freeze({
+    phones: ['09120000000'],
+    emails: ['admin@hdkala.com']
+});
+
+const ADMIN_PERMISSIONS = Object.freeze([
+    'products.manage',
+    'orders.view',
+    'blogs.manage'
+]);
+
+function hasAdminIdentifier(record) {
+    if (!record) {
+        return false;
+    }
+    const phone = (record.phone || '').replace(/\s+/g, '');
+    const email = (record.email || '').trim().toLowerCase();
+    return (phone && ADMIN_ACCESS.phones.includes(phone)) ||
+        (email && ADMIN_ACCESS.emails.includes(email));
+}
+
+function normalizeUser(record) {
+    if (!record) {
+        return null;
+    }
+
+    const normalized = { ...record };
+    if (!normalized.name && (normalized.firstName || normalized.lastName)) {
+        normalized.name = `${normalized.firstName || ''} ${normalized.lastName || ''}`.trim();
+    }
+
+    const isAdmin = hasAdminIdentifier(normalized) || normalized.role === 'admin' || normalized.isAdmin === true;
+    normalized.role = isAdmin ? 'admin' : (normalized.role || 'customer');
+    normalized.isAdmin = normalized.role === 'admin';
+
+    let permissions = Array.isArray(normalized.permissions) ? normalized.permissions.slice() : [];
+    if (normalized.isAdmin) {
+        ADMIN_PERMISSIONS.forEach(permission => {
+            if (!permissions.includes(permission)) {
+                permissions.push(permission);
+            }
+        });
+    } else {
+        permissions = permissions.filter(permission => !ADMIN_PERMISSIONS.includes(permission));
+    }
+    normalized.permissions = permissions;
+
+    return normalized;
+}
+
 /* ---------- State ---------- */
 let products = LS.get('HDK_products', []);
 let cart = LS.get('HDK_cart', []);
 let orders = LS.get('HDK_orders', []);
-let user = LS.get('HDK_user', null);
+let user = normalizeUser(LS.get('HDK_user', null));
 let wishlist = LS.get('HDK_wishlist', []);
 let comments = LS.get('HDK_comments', {});
 let viewHistory = LS.get('HDK_viewHistory', []);
@@ -389,7 +439,77 @@ function updateCompareBadge() {
     }
 }
 
-function updateUserLabel(){ 
-    userLabel.textContent = (user && user.name) ? user.name : 'ورود / ثبت‌نام'; 
+function getActiveUser() {
+    return user;
+}
+
+function isAdminUser(candidate = user) {
+    return !!(candidate && candidate.isAdmin);
+}
+
+function updateAdminVisibility() {
+    const isAdmin = isAdminUser();
+
+    if (adminBtn) {
+        adminBtn.classList.toggle('hidden', !isAdmin);
+        adminBtn.toggleAttribute('aria-hidden', !isAdmin);
+        adminBtn.disabled = !isAdmin;
+    }
+
+    const nav = $('nav .hidden.md\\:flex');
+    if (nav) {
+        let link = nav.querySelector('[data-nav-admin]');
+        if (isAdmin) {
+            if (!link) {
+                link = document.createElement('a');
+                link.href = '#admin';
+                link.textContent = 'پنل مدیریت';
+                link.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
+                link.setAttribute('data-nav-admin', 'true');
+                nav.insertBefore(link, nav.firstChild);
+            }
+        } else if (link) {
+            link.remove();
+        }
+    }
+}
+
+function syncUserSession(nextUser) {
+    user = nextUser ? normalizeUser(nextUser) : null;
+    LS.set('HDK_user', user);
+    updateUserLabel();
+    return user;
+}
+
+function clearUserSession() {
+    return syncUserSession(null);
+}
+
+function ensureAdminAccess({ showToast = true, redirect = true } = {}) {
+    if (isAdminUser()) {
+        return true;
+    }
+
+    if (showToast && typeof notify === 'function') {
+        notify('دسترسی فقط برای مدیران مجاز است', 'error', { allowDuplicates: false });
+    }
+
+    if (redirect && typeof navigate === 'function') {
+        navigate(user ? 'home' : 'login');
+    }
+
+    return false;
+}
+
+function updateUserLabel(){
+    if (userLabel) {
+        userLabel.textContent = (user && user.name) ? user.name : 'ورود / ثبت‌نام';
+        if (userLabel.dataset) {
+            userLabel.dataset.userRole = user?.role || 'guest';
+        }
+    }
+    updateAdminVisibility();
     updateUserDropdown();
 }
+
+updateAdminVisibility();

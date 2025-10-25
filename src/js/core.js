@@ -101,12 +101,18 @@ function setActiveNavigation(route) {
 
 function handleProductActions(e) {
     const addBtn = e.target.closest('.add-to-cart');
-    if(addBtn){ 
-        addToCart(addBtn.getAttribute('data-id'), 1); 
-        return; 
+    if(addBtn){
+        if (addBtn.disabled || addBtn.getAttribute('aria-disabled') === 'true') {
+            if (addBtn.dataset.outOfStock === 'true') {
+                notify('این محصول در حال حاضر موجود نیست', 'warning', { allowDuplicates: false });
+            }
+            return;
+        }
+        addToCart(addBtn.getAttribute('data-id'), 1);
+        return;
     }
     const viewBtn = e.target.closest('.view-detail');
-    if(viewBtn){ 
+    if(viewBtn){
         location.hash = `product:${viewBtn.getAttribute('data-id')}`; 
         return; 
     }
@@ -154,4 +160,21 @@ function getOperatorLogo(phone) {
     if (phone.startsWith('091') || phone.startsWith('0990')) return 'mci';
     if (phone.startsWith('093')) return 'rightel';
     return 'unknown';
+}
+
+function quickAddDemoProduct() {
+    const availableProduct = Array.isArray(products)
+        ? products.find(product => product && product.stock > 0)
+        : null;
+
+    if (!availableProduct) {
+        notify('محصولی برای افزودن سریع موجود نیست', 'warning', { allowDuplicates: false });
+        return;
+    }
+
+    addToCart(availableProduct.id, 1);
+    notify(`«${availableProduct.name}» به سبد اضافه شد`, 'success', {
+        id: `quick-add-${availableProduct.id}`,
+        allowDuplicates: false
+    });
 }

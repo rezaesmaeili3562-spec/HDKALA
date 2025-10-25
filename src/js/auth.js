@@ -142,7 +142,7 @@ function renderLoginPage(initialMode = 'login') {
         phoneError.classList.add('hidden');
 
         if (currentMode === 'login' && password) {
-            const existingUser = LS.get('HDK_user');
+            const existingUser = normalizeUser(LS.get('HDK_user'));
             if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
                 if (!existingUser.password) {
                     notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', 'warning');
@@ -153,12 +153,11 @@ function renderLoginPage(initialMode = 'login') {
                     return;
                 }
 
-                user = { ...existingUser };
+                const nextUser = { ...existingUser };
                 if (email && email !== existingUser.email) {
-                    user.email = email;
+                    nextUser.email = email;
                 }
-                LS.set('HDK_user', user);
-                updateUserLabel();
+                user = syncUserSession(nextUser);
                 notify('با موفقیت وارد شدید!', 'success');
                 navigate('home');
                 return;
@@ -250,15 +249,14 @@ function renderVerifyPage({ phone, mode = 'login', email = '' }) {
         highlightOtpInputs(page, true);
 
         // Check if user exists (login) or new (signup)
-        const existingUser = LS.get('HDK_user');
+        const existingUser = normalizeUser(LS.get('HDK_user'));
         if (mode === 'login') {
             if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
-                user = { ...existingUser };
+                const nextUser = { ...existingUser };
                 if (email && email !== existingUser.email) {
-                    user.email = email;
+                    nextUser.email = email;
                 }
-                LS.set('HDK_user', user);
-                updateUserLabel();
+                user = syncUserSession(nextUser);
                 notify('با موفقیت وارد شدید!', 'success');
                 navigate('home');
             } else {
@@ -422,7 +420,7 @@ function renderUserInfoForm({ phone, email = '' }) {
         const birthDate = $('#birthDate').value.trim();
         const fatherName = $('#fatherName').value.trim();
 
-        user = {
+        const newUser = {
             id: uid('u'),
             name: `${firstName} ${lastName}`.trim(),
             firstName,
@@ -439,9 +437,7 @@ function renderUserInfoForm({ phone, email = '' }) {
             password: passwordValue || null,
             created: new Date().toISOString()
         };
-
-        LS.set('HDK_user', user);
-        updateUserLabel();
+        user = syncUserSession(newUser);
         notify('ثبت‌نام با موفقیت انجام شد!', 'success');
         navigate('home');
     });
@@ -506,11 +502,9 @@ document.addEventListener('click', (e) => {
     }
     if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
         if (confirm('آیا از خروج مطمئن هستید؟')) {
-            LS.set('HDK_user', null);
-            user = null;
-            updateUserLabel();
+            clearUserSession();
             notify('خروج انجام شد', 'info');
-            location.hash = 'home';
+            navigate('home');
         }
     }
 });

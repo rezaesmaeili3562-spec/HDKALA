@@ -1,6 +1,7 @@
 /* ---------- Dynamic Content Router ---------- */
 const DEFAULT_ROUTE = 'home';
 let currentRouteParams = [];
+let currentRouteQuery = {};
 let pageRenderTimeout = null;
 
 const ROUTE_HANDLERS = {
@@ -115,14 +116,14 @@ const ROUTE_META = {
         description: DEFAULT_META_DESCRIPTION
     },
     products: {
-        title: (params = []) => {
+        title: (params = [], query = {}) => {
             if (!params[0] || typeof getCategoryName !== 'function') {
                 return 'محصولات HDKALA | دسته‌بندی‌ها';
             }
             const categoryName = getCategoryName(params[0]);
             return `محصولات ${categoryName} | HDKALA`;
         },
-        description: (params = []) => {
+        description: (params = [], query = {}) => {
             if (!params[0] || typeof getCategoryName !== 'function') {
                 return 'لیست کامل محصولات HDKALA با قابلیت فیلتر و مرتب‌سازی.';
             }
@@ -131,7 +132,7 @@ const ROUTE_META = {
         }
     },
     product: {
-        title: (params = []) => {
+        title: (params = [], query = {}) => {
             const productId = params[0];
             if (!productId || typeof getProductById !== 'function') {
                 return 'جزئیات محصول | HDKALA';
@@ -139,7 +140,7 @@ const ROUTE_META = {
             const product = getProductById(productId);
             return product ? `${product.name} | HDKALA` : 'جزئیات محصول | HDKALA';
         },
-        description: (params = []) => {
+        description: (params = [], query = {}) => {
             const productId = params[0];
             if (!productId || typeof getProductById !== 'function') {
                 return 'مشاهده مشخصات، تصاویر و اطلاعات فنی محصولات در HDKALA.';
@@ -193,7 +194,7 @@ const ROUTE_META = {
         description: 'راه‌های ارتباط با تیم پشتیبانی HDKALA و ارسال پیام برای ما.'
     },
     blog: {
-        title: (params = []) => {
+        title: (params = [], query = {}) => {
             const blogId = params[0];
             if (!blogId || !Array.isArray(blogs)) {
                 return 'مجله HDKALA';
@@ -201,7 +202,7 @@ const ROUTE_META = {
             const blog = blogs.find(item => item.id === blogId);
             return blog ? `${blog.title} | مجله HDKALA` : 'مجله HDKALA';
         },
-        description: (params = []) => {
+        description: (params = [], query = {}) => {
             const blogId = params[0];
             if (!blogId || !Array.isArray(blogs)) {
                 return 'جدیدترین مقالات، راهنماها و اخبار فناوری را در مجله HDKALA مطالعه کنید.';
@@ -211,13 +212,13 @@ const ROUTE_META = {
         }
     },
     search: {
-        title: (params = []) => {
-            const query = (params[0] || '').trim();
-            return query ? `نتایج جستجو برای "${query}" | HDKALA` : 'جستجوی محصولات | HDKALA';
+        title: (params = [], query = {}) => {
+            const value = (params[0] || query.q || '').trim();
+            return value ? `نتایج جستجو برای "${value}" | HDKALA` : 'جستجوی محصولات | HDKALA';
         },
-        description: (params = []) => {
-            const query = (params[0] || '').trim();
-            return query ? `نتایج مرتبط با "${query}" را در میان محصولات HDKALA مشاهده کنید.` : 'جستجوی سریع محصولات و برندها در فروشگاه HDKALA.';
+        description: (params = [], query = {}) => {
+            const value = (params[0] || query.q || '').trim();
+            return value ? `نتایج مرتبط با "${value}" را در میان محصولات HDKALA مشاهده کنید.` : 'جستجوی سریع محصولات و برندها در فروشگاه HDKALA.';
         }
     },
     shipping: {
@@ -246,8 +247,30 @@ const ROUTE_META = {
     }
 };
 
+const ROUTE_GUARDS = {
+    admin: () => {
+        if (isAdminUser && isAdminUser()) {
+            return true;
+        }
+
+        if (typeof notify === 'function') {
+            notify('دسترسی به این بخش تنها برای مدیران مجاز است', 'error', { allowDuplicates: false });
+        }
+
+        return {
+            redirect: user ? 'home' : 'login'
+        };
+    },
+    product: (state) => {
+        if (Array.isArray(state.params) && state.params[0]) {
+            return true;
+        }
+        return { redirect: 'products' };
+    }
+};
+
 // تابعی برای بروزرسانی متادیتای صفحه با توجه به مسیر فعال
-function updateDocumentMetadata(route, params = []) {
+function updateDocumentMetadata(route, params = [], query = {}) {
     const meta = ROUTE_META[route];
     const fallback = buildFallbackMetadata(route);
     let resolvedTitle = fallback.title || DEFAULT_DOCUMENT_TITLE;
@@ -255,7 +278,7 @@ function updateDocumentMetadata(route, params = []) {
 
     if (meta && meta.title) {
         if (typeof meta.title === 'function') {
-            const titleValue = meta.title(params);
+            const titleValue = meta.title(params, query);
             if (titleValue && typeof titleValue === 'string') {
                 resolvedTitle = titleValue;
             }
@@ -266,7 +289,7 @@ function updateDocumentMetadata(route, params = []) {
 
     if (meta && meta.description) {
         if (typeof meta.description === 'function') {
-            const descriptionValue = meta.description(params);
+            const descriptionValue = meta.description(params, query);
             if (descriptionValue && typeof descriptionValue === 'string') {
                 resolvedDescription = descriptionValue;
             }
@@ -281,61 +304,197 @@ function updateDocumentMetadata(route, params = []) {
     }
 }
 
-function parseHash(hash) {
-    const normalized = (hash || '').replace(/^#/, '').trim();
-    if (!normalized) {
-        return { route: DEFAULT_ROUTE, params: [] };
+class HashRouter {
+    constructor({ routes = [], defaultRoute = DEFAULT_ROUTE, fallbackRoute = 'not-found' }) {
+        this.routes = new Map();
+        routes.forEach(route => {
+            if (!route || !route.name) return;
+            this.routes.set(route.name, { ...route });
+        });
+        this.defaultRoute = defaultRoute;
+        this.fallbackRoute = fallbackRoute;
+        this.current = null;
+        this.onBeforeResolve = null;
+        this.onResolve = null;
+        this.onAfterResolve = null;
     }
 
-    const segments = normalized
-        .split(':')
-        .map(segment => {
-            const trimmed = segment.trim();
-            if (!trimmed) {
-                return '';
-            }
+    parse(hash) {
+        const normalized = (hash || '').replace(/^#/, '').trim();
+        const [pathPart = '', queryString = ''] = normalized.split('?');
+
+        const segments = pathPart
+            .split(/[/:]/)
+            .map(segment => {
+                const trimmed = segment.trim();
+                if (!trimmed) {
+                    return '';
+                }
+                try {
+                    return decodeURIComponent(trimmed.replace(/\+/g, ' '));
+                } catch (error) {
+                    return trimmed.replace(/\+/g, ' ');
+                }
+            })
+            .filter(Boolean);
+
+        const [name = this.defaultRoute, ...params] = segments;
+        const query = {};
+        if (queryString) {
             try {
-                return decodeURIComponent(trimmed.replace(/\+/g, ' '));
+                const searchParams = new URLSearchParams(queryString);
+                for (const [key, value] of searchParams.entries()) {
+                    query[key] = value;
+                }
             } catch (error) {
-                return trimmed.replace(/\+/g, ' ');
+                queryString.split('&').forEach(part => {
+                    if (!part) return;
+                    const [rawKey, rawValue = ''] = part.split('=');
+                    if (!rawKey) return;
+                    try {
+                        query[decodeURIComponent(rawKey)] = decodeURIComponent(rawValue);
+                    } catch (decodeError) {
+                        query[rawKey] = rawValue;
+                    }
+                });
             }
-        })
-        .filter(Boolean);
-
-    const [route = DEFAULT_ROUTE, ...params] = segments;
-    return { route, params };
-}
-
-function updateRouteState(route, params) {
-    currentPage = route;
-    currentProductId = route === 'product' ? (params[0] || null) : null;
-    currentCategory = route === 'products' ? (params[0] || null) : null;
-}
-
-function navigate(hash){
-    const { route, params } = parseHash(hash);
-    const handler = ROUTE_HANDLERS[route];
-
-    if (!handler) {
-        if (route !== 'not-found') {
-            location.hash = '#not-found';
         }
-        return;
+
+        return { name, params, query, hash: normalized };
     }
 
-    if (route === 'product' && params.length === 0) {
-        location.hash = '#products';
-        return;
+    resolve(name) {
+        if (this.routes.has(name)) {
+            return this.routes.get(name);
+        }
+        return this.routes.get(this.fallbackRoute) || null;
     }
 
-    currentRouteParams = params;
-    updateRouteState(route, params);
+    formatTarget(target) {
+        if (!target) {
+            return this.defaultRoute;
+        }
+        if (typeof target === 'string') {
+            return target.replace(/^#/, '') || this.defaultRoute;
+        }
 
-    renderPage();
+        const name = target.name || this.defaultRoute;
+        const params = Array.isArray(target.params) ? target.params : [];
+        const query = target.query || {};
+
+        const encodedParams = params
+            .map(param => {
+                if (param === undefined || param === null) {
+                    return '';
+                }
+                return encodeURIComponent(String(param).trim());
+            })
+            .filter(Boolean);
+
+        const path = [name, ...encodedParams].join(':');
+
+        const searchParams = new URLSearchParams();
+        Object.entries(query).forEach(([key, value]) => {
+            if (value === undefined || value === null || value === '') return;
+            searchParams.append(key, value);
+        });
+
+        const queryString = searchParams.toString();
+        return queryString ? `${path}?${queryString}` : path;
+    }
+
+    getCurrentHash() {
+        return (location.hash || '').replace(/^#/, '');
+    }
+
+    navigate(target, { replace = false } = {}) {
+        const formatted = this.formatTarget(target);
+
+        if (replace) {
+            const newUrl = `${location.origin}${location.pathname}${location.search}#${formatted}`;
+            history.replaceState(null, '', newUrl);
+            this.handle(formatted, { isReplacement: true });
+            return;
+        }
+
+        if (formatted === this.getCurrentHash()) {
+            this.handle(formatted);
+            return;
+        }
+
+        location.hash = `#${formatted}`;
+    }
+
+    handle(hash, options = {}) {
+        const state = this.parse(hash);
+        const definition = this.resolve(state.name);
+        if (!definition) {
+            return;
+        }
+
+        const guard = definition.guard;
+        if (typeof guard === 'function') {
+            const guardResult = guard(state, this.current);
+            if (guardResult === false) {
+                return;
+            }
+            if (guardResult && typeof guardResult === 'object') {
+                if (guardResult.redirect) {
+                    this.navigate(guardResult.redirect, { replace: guardResult.replace === true });
+                    return;
+                }
+                if (typeof guardResult.render === 'function') {
+                    guardResult.render(state);
+                    return;
+                }
+            }
+        }
+
+        const resolvedName = definition.name || state.name || this.defaultRoute;
+        const params = resolvedName === state.name ? state.params : [];
+        const resolved = {
+            name: resolvedName,
+            params,
+            query: state.query,
+            hash: state.hash,
+            definition
+        };
+
+        this.current = resolved;
+
+        if (typeof this.onBeforeResolve === 'function') {
+            this.onBeforeResolve(resolved, options);
+        }
+
+        if (typeof this.onResolve === 'function') {
+            this.onResolve(resolved, options);
+        } else if (typeof definition.handler === 'function') {
+            definition.handler({
+                route: resolved.name,
+                params: resolved.params,
+                query: resolved.query
+            });
+        }
+
+        if (typeof this.onAfterResolve === 'function') {
+            this.onAfterResolve(resolved, options);
+        }
+    }
+
+    start() {
+        window.addEventListener('hashchange', () => this.handle(this.getCurrentHash()));
+        const initial = this.getCurrentHash() || this.defaultRoute;
+        this.handle(initial, { isReplacement: true });
+    }
 }
 
-window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
-window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home'));
+function updateRouteState(route, params = [], query = {}) {
+    currentPage = route;
+    currentRouteParams = Array.isArray(params) ? params.slice() : [];
+    currentRouteQuery = { ...(query || {}) };
+    currentProductId = route === 'product' ? (currentRouteParams[0] || null) : null;
+    currentCategory = route === 'products' ? (currentRouteParams[0] || null) : null;
+}
 
 function renderPageSkeleton() {
     if (!contentRoot) return;
@@ -360,15 +519,20 @@ function renderPageSkeleton() {
     `;
 }
 
-function renderPage(){
-    if (!contentRoot) return;
+function renderResolvedRoute(handler, context) {
+    if (!contentRoot) {
+        updateDocumentMetadata(context.route, context.params, context.query);
+        return;
+    }
 
-    renderPageSkeleton();
-
-    const handler = ROUTE_HANDLERS[currentPage] || ROUTE_HANDLERS[DEFAULT_ROUTE];
-    const context = {
-        route: currentPage,
-        params: currentRouteParams.slice()
+    const effectiveHandler = typeof handler === 'function'
+        ? handler
+        : ROUTE_HANDLERS['not-found'];
+    const effectiveRoute = typeof handler === 'function' ? context.route : 'not-found';
+    const resolvedContext = {
+        route: effectiveRoute,
+        params: Array.isArray(context.params) ? context.params.slice() : [],
+        query: { ...(context.query || {}) }
     };
 
     clearTimeout(pageRenderTimeout);
@@ -378,7 +542,7 @@ function renderPage(){
 
         try {
             contentRoot.innerHTML = '';
-            handler(context);
+            effectiveHandler(resolvedContext);
         } catch (error) {
             renderError = error;
             console.error('HDKALA render error:', error);
@@ -391,10 +555,10 @@ function renderPage(){
             contentRoot.removeAttribute('aria-busy');
 
             if (typeof setActiveNavigation === 'function') {
-                setActiveNavigation(currentPage);
+                setActiveNavigation(resolvedContext.route);
             }
 
-            updateDocumentMetadata(currentPage, currentRouteParams);
+            updateDocumentMetadata(resolvedContext.route, resolvedContext.params, resolvedContext.query);
 
             if (mobileMenu) {
                 mobileMenu.classList.add('hidden');
@@ -407,8 +571,45 @@ function renderPage(){
         }
 
         return renderError;
-    }, 250);
+    }, 220);
 }
+
+const ROUTES = Object.keys(ROUTE_HANDLERS).map(name => ({
+    name,
+    handler: ROUTE_HANDLERS[name],
+    guard: ROUTE_GUARDS[name] || null
+}));
+
+const router = new HashRouter({
+    routes: ROUTES,
+    defaultRoute: DEFAULT_ROUTE,
+    fallbackRoute: 'not-found'
+});
+
+router.onBeforeResolve = (state) => {
+    updateRouteState(state.name, state.params, state.query);
+    renderPageSkeleton();
+};
+
+router.onResolve = (state) => {
+    const handler = state.definition?.handler || ROUTE_HANDLERS[state.name] || ROUTE_HANDLERS[DEFAULT_ROUTE];
+    renderResolvedRoute(handler, {
+        route: state.name,
+        params: state.params,
+        query: state.query
+    });
+};
+
+function navigate(target, options) {
+    router.navigate(target, options);
+}
+
+if (typeof window !== 'undefined') {
+    window.navigate = navigate;
+    window.router = router;
+}
+
+router.start();
 
 /* ---------- Home Page ---------- */
 function renderHomePage(){
@@ -507,12 +708,21 @@ function renderHomePage(){
     contentRoot.appendChild(page);
     const featuredProducts = $('#featuredProducts', page);
     const quickAddDemo = $('#quickAddDemo', page);
-    
+
     // Show featured products (products with discount or special status)
     const featured = products.filter(p => p.discount > 0 || p.status === 'hot' || p.status === 'new').slice(0, 8);
     renderProductsList(featured, featuredProducts);
     featuredProducts.addEventListener('click', handleProductActions);
-    quickAddDemo.addEventListener('click', quickAddDemoProduct);
+    if (quickAddDemo) {
+        const hasInventory = Array.isArray(products) && products.some(product => product.stock > 0);
+        if (!hasInventory) {
+            quickAddDemo.disabled = true;
+            quickAddDemo.setAttribute('aria-disabled', 'true');
+            quickAddDemo.classList.add('opacity-60', 'cursor-not-allowed');
+        } else {
+            quickAddDemo.addEventListener('click', quickAddDemoProduct);
+        }
+    }
 }
 
 /* ---------- Products Page ---------- */
@@ -1043,23 +1253,3 @@ function renderProducts(list) {
         productsGrid.addEventListener('click', handleProductActions);
     }
 }
-
-// اضافه کردن route جدید به navigation
-function setupAdminNavigation() {
-    // اضافه کردن لینک ادمین به navigation (فقط برای توسعه)
-    const adminLink = document.createElement('a');
-    adminLink.href = '#admin';
-    adminLink.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
-    adminLink.textContent = 'پنل مدیریت';
-    adminLink.style.marginRight = 'auto';
-    
-    const nav = $('nav .hidden.md\\:flex');
-    if (nav) {
-        nav.insertBefore(adminLink, nav.firstChild);
-    }
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    setupAdminNavigation();
-});
