@@ -173,10 +173,6 @@ function toggleCompare(productId) {
 let isCompareModalClosing = false;
 
 function openCompareModal() {
-    if (compareList.length === 0) {
-        notify('لطفا ابتدا محصولاتی برای مقایسه انتخاب کنید', 'warning');
-        return;
-    }
     if (!compareModal) return;
 
     isCompareModalClosing = false;
@@ -185,6 +181,10 @@ function openCompareModal() {
     lockBodyScroll();
     requestAnimationFrame(() => compareModal.classList.add('modal-visible'));
     renderCompareProducts();
+
+    if (compareList.length === 0) {
+        notify('برای مقایسه، ابتدا چند محصول را به لیست اضافه کنید', 'info', { allowDuplicates: false });
+    }
 
     const dialog = compareModal.querySelector('[data-modal-dialog]');
     if (dialog) {

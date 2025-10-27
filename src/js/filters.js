@@ -521,6 +521,10 @@ on(themeToggle, 'click', () => {
     userSelectedTheme = nextIsDark;
     applyThemePreference(nextIsDark);
     persistThemePreference(nextIsDark);
+    if (themeToggle) {
+        themeToggle.classList.add('theme-toggle-animate');
+        setTimeout(() => themeToggle.classList.remove('theme-toggle-animate'), 320);
+    }
 });
 
 /* ---------- Initialize Filters ---------- */

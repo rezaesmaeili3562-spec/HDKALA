@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-27T15:44:35.639Z */
+/* HDKALA bundle generated: 2025-10-27T17:25:52.869Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -209,251 +209,195 @@ const LS = {
     }
 };
 
+// ---- services.js ----
+/* ---------- Data Services & Event Bus ---------- */
+const DataService = (() => {
+    const manifest = Object.freeze({
+        products: 'data/products.json',
+        blogs: 'data/blogs.json',
+        categories: 'data/categories.json',
+        provinces: 'data/provinces.json'
+    });
+
+    const cache = new Map();
+    const eventTarget = typeof window !== 'undefined' && typeof window.EventTarget === 'function'
+        ? new EventTarget()
+        : { addEventListener() {}, removeEventListener() {}, dispatchEvent() {} };
+
+    let bootstrapPromise = null;
+
+    function isBrowser() {
+        return typeof window !== 'undefined' && typeof window.fetch === 'function';
+    }
+
+    function buildRequestUrl(path) {
+        if (!isBrowser()) {
+            return path;
+        }
+
+        if (/^https?:/.test(path)) {
+            return path;
+        }
+
+        const origin = window.location.origin && window.location.origin !== 'null'
+            ? window.location.origin
+            : `${window.location.protocol}//${window.location.host}`;
+        const base = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        return `${base}${normalized}`;
+    }
+
+    async function fetchJson(key) {
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+
+        const resourcePath = manifest[key];
+        if (!resourcePath || !isBrowser()) {
+            throw new Error(`Resource "${key}" is not registered`);
+        }
+
+        const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${resourcePath}: ${response.status}`);
+        }
+
+        const data = await response.json();
+        cache.set(key, data);
+        return data;
+    }
+
+    function subscribe(name, handler) {
+        if (typeof handler !== 'function' || !eventTarget.addEventListener) {
+            return () => {};
+        }
+
+        const listener = (event) => {
+            if (event?.detail?.name === name) {
+                handler(event.detail.data, event.detail);
+            }
+        };
+
+        eventTarget.addEventListener('data', listener);
+        return () => eventTarget.removeEventListener('data', listener);
+    }
+
+    function emit(name, data, meta = {}) {
+        if (!eventTarget.dispatchEvent) {
+            return;
+        }
+
+        eventTarget.dispatchEvent(new CustomEvent('data', {
+            detail: { name, data, ...meta }
+        }));
+    }
+
+    function primeCache(key, data) {
+        if (typeof key !== 'string' || typeof data === 'undefined') {
+            return;
+        }
+        cache.set(key, data);
+    }
+
+    function getCached(key) {
+        return cache.get(key);
+    }
+
+    async function bootstrap(overrides = {}) {
+        if (bootstrapPromise) {
+            return bootstrapPromise;
+        }
+
+        bootstrapPromise = (async () => {
+            const results = {};
+
+            for (const key of Object.keys(manifest)) {
+                const config = overrides[key] || {};
+                if (config.prime) {
+                    primeCache(key, config.prime);
+                }
+
+                try {
+                    const data = await fetchJson(key);
+                    results[key] = data;
+                    emit(key, data, { source: 'remote' });
+                } catch (error) {
+                    const fallback = typeof config.fallback !== 'undefined'
+                        ? config.fallback
+                        : null;
+
+                    if (fallback !== null) {
+                        primeCache(key, fallback);
+                        results[key] = fallback;
+                        emit(key, fallback, { source: 'fallback', error });
+                    } else {
+                        results[key] = null;
+                        emit(key, null, { source: 'error', error });
+                    }
+
+                    console.warn('[DataService]', error.message || error);
+                }
+            }
+
+            return results;
+        })();
+
+        return bootstrapPromise;
+    }
+
+    async function load(name, { fallback } = {}) {
+        try {
+            return await fetchJson(name);
+        } catch (error) {
+            if (typeof fallback !== 'undefined') {
+                primeCache(name, fallback);
+                emit(name, fallback, { source: 'fallback', error });
+                return fallback;
+            }
+            throw error;
+        }
+    }
+
+    return Object.freeze({
+        bootstrap,
+        subscribe,
+        load,
+        getCached,
+        primeCache
+    });
+})();
+
+const UIEventBus = (() => {
+    const target = typeof window !== 'undefined' && typeof window.EventTarget === 'function'
+        ? new EventTarget()
+        : { addEventListener() {}, removeEventListener() {}, dispatchEvent() {} };
+
+    function emit(name, detail) {
+        if (!target.dispatchEvent) {
+            return;
+        }
+        target.dispatchEvent(new CustomEvent(name, { detail }));
+    }
+
+    function on(name, handler) {
+        if (!target.addEventListener) {
+            return () => {};
+        }
+
+        target.addEventListener(name, handler);
+        return () => target.removeEventListener(name, handler);
+    }
+
+    return Object.freeze({ emit, on });
+})();
+
 // ---- state.js ----
 /* ---------- Sample Data ---------- */
-const defaultProducts = [
-    { 
-        id: 'p1', 
-        name: 'هدفون بی‌سیم Sony WH-1000XM4', 
-        price: 990000, 
-        desc:'هدفون بی‌سیم با نویزکنسلینگ پیشرفته و کیفیت صدای استثنایی. مناسب برای مسافرت و محیط‌های پرسر و صدا.',
-        images:[
-            'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1510074377623-8cf13fb90a81?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80',
-        rating: 5,
-        discount: 15,
-        category: 'electronics',
-        status: 'new',
-        stock: 50,
-        brand: 'Sony',
-        features: ['نویزکنسلینگ', 'باتری 30 ساعته', 'شارژ سریع', 'کنترل لمسی'],
-        colors: ['مشکی', 'نقره‌ای', 'آبی'],
-        sizes: [],
-        specifications: {
-            'نوع': 'بی‌سیم',
-            'باتری': '30 ساعت',
-            'وزن': '254 گرم',
-            'اتصال': 'بلوتوث 5.0'
-        }
-    },
-    { 
-        id: 'p2', 
-        name: 'گوشی هوشمند Samsung Galaxy S23', 
-        price: 25000000, 
-        desc:'گوشی هوشمند قدرتمند با دوربین 200 مگاپیکسلی و پردازنده اسنپدراگون 8 نسل 2. مناسب برای بازی و عکاسی حرفه‌ای.',
-        images:[
-            'https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80',
-        rating: 5,
-        discount: 0,
-        category: 'electronics',
-        status: 'hot',
-        stock: 12,
-        brand: 'Samsung',
-        features: ['دوربین 200MP', 'پردازنده اسنپدراگون', 'نمایشگر 120Hz', 'شارژ سریع 45W'],
-        colors: ['مشکی', 'سبز', 'بنفش'],
-        sizes: [],
-        specifications: {
-            'نمایشگر': '6.8 اینچ',
-            'رم': '12GB',
-            'حافظه': '256GB',
-            'باتری': '5000 mAh'
-        }
-    },
-    { 
-        id: 'p3', 
-        name: 'لپ‌تاپ Apple MacBook Pro 14', 
-        price: 85000000, 
-        desc:'لپ‌تاپ حرفه‌ای با تراشه M2 Pro، نمایشگر Liquid Retina XDR و باتری تمام‌روزه. مناسب برای طراحان و برنامه‌نویسان.',
-        images:[
-            'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1481277542470-605612bd2d61?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
-        rating: 5,
-        discount: 10,
-        category: 'electronics',
-        status: 'bestseller',
-        stock: 5,
-        brand: 'Apple',
-        features: ['تراشه M2 Pro', 'نمایشگر XDR', 'باتری 18 ساعته', '18GB رم'],
-        colors: ['نقره‌ای', 'Space Gray'],
-        sizes: [],
-        specifications: {
-            'پردازنده': 'Apple M2 Pro',
-            'رم': '18GB',
-            'ذخیره‌سازی': '1TB SSD',
-            'نمایشگر': '14.2 اینچ'
-        }
-    },
-    { 
-        id: 'p4', 
-        name: 'کتاب هفت عادت مردمان موثر', 
-        price: 85000, 
-        desc:'کتاب پرفروش استفان کاوی درباره هفت عادتی که زندگی شما را متحول خواهد کرد.',
-        images:[
-            'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80',
-        rating: 4,
-        discount: 20,
-        category: 'books',
-        status: '',
-        stock: 100,
-        brand: 'نشر پیکان',
-        features: ['جلد گالینگور', 'ترجمه روان', 'کیفیت چاپ بالا'],
-        colors: [],
-        sizes: [],
-        specifications: {
-            'نویسنده': 'استفان کاوی',
-            'مترجم': 'محمد رضا آل یاسین',
-            'تعداد صفحات': '400',
-            'ناشر': 'پیکان'
-        }
-    },
-    { 
-        id: 'p5', 
-        name: 'کفش ورزشی Nike Air Max', 
-        price: 4500000, 
-        desc:'کفش ورزشی با تکنولوژی Air Max برای راحتی و عملکرد بهتر در ورزش.',
-        images:[
-            'https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80',
-        rating: 4,
-        discount: 25,
-        category: 'sports',
-        status: 'hot',
-        stock: 30,
-        brand: 'Nike',
-        features: ['تکنولوژی Air Max', 'کفی اورتوپدی', 'مناسب دویدن', 'تنفس پذیری بالا'],
-        colors: ['سفید', 'مشکی', 'قرمز'],
-        sizes: ['39', '40', '41', '42', '43', '44'],
-        specifications: {
-            'جنس': 'مش و چرم',
-            'سایز': '39-45',
-            'کاربرد': 'ورزشی و روزمره',
-            'کف': 'لاستیک با دوام'
-        }
-    },
-    { 
-        id: 'p6', 
-        name: 'مبل راحتی 3 نفره', 
-        price: 35000000, 
-        desc:'مبل راحتی با پارچه مخمل و قابلیت تنظیم پشتی. مناسب برای اتاق پذیرایی.',
-        images:[
-            'https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80',
-        rating: 4,
-        discount: 15,
-        category: 'home',
-        status: '',
-        stock: 8,
-        brand: 'مبل ایران',
-        features: ['پارچه مخمل', 'قابلیت تنظیم پشتی', 'پر کوسن‌ها', 'قاب فلزی'],
-        colors: ['مشکی', 'خاکستری', 'آبی'],
-        sizes: ['دو نفره', 'سه نفره', 'L شکل'],
-        specifications: {
-            'ابعاد': '200x90x80 سانتی‌متر',
-            'جنس پارچه': 'مخمل',
-            'قاب': 'فلز',
-            'ظرفیت': '3 نفر'
-        }
-    },
-    { 
-        id: 'p7', 
-        name: 'دستگاه قهوه ساز Delonghi', 
-        price: 12500000, 
-        desc:'دستگاه قهوه ساز تمام اتوماتیک با قابلیت تهیه انواع قهوه اسپرسو، کاپوچینو و لاته.',
-        images:[
-            'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80',
-        rating: 5,
-        discount: 30,
-        category: 'home',
-        status: 'new',
-        stock: 15,
-        brand: 'Delonghi',
-        features: ['تمام اتوماتیک', 'ساخت کاپوچینو', 'پمپ 15 بار', 'سیستم گرمایش سریع'],
-        colors: ['مشکی', 'نقره‌ای'],
-        sizes: [],
-        specifications: {
-            'نوع': 'اسپرسو ساز',
-            'ظرفیت آب': '1.8 لیتر',
-            'قدرت': '1450 وات',
-            'ابعاد': '24x34x43 سانتی‌متر'
-        }
-    },
-    { 
-        id: 'p8', 
-        name: 'کاپشن زمستانی مردانه', 
-        price: 2800000, 
-        desc:'کاپشن زمستانی با پر طبیعی، مناسب برای هوای سرد. طراحی شیک و مدرن.',
-        images:[
-            'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80'
-        ],
-        img:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80',
-        rating: 4,
-        discount: 40,
-        category: 'fashion',
-        status: 'hot',
-        stock: 25,
-        brand: 'Zara',
-        features: ['پر طبیعی', 'ضد آب', 'جیب‌های متعدد', 'کاپوت جدا شونده'],
-        colors: ['مشکی', 'خاکستری', 'آبی دریایی'],
-        sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-        specifications: {
-            'جنس': 'نایلون و پر',
-            'سایز': 'S-XXL',
-            'کاربرد': 'زمستانی',
-            'شستشو': 'خشک شویی'
-        }
-    }
-];
+const defaultProducts = [];
 
-const defaultBlogs = [
-    {
-        id: 'b1',
-        title: '۱۰ نکته برای خرید هوشمندانه آنلاین',
-        excerpt: 'در این مقاله با نکات مهم برای خرید آنلاین ایمن و هوشمندانه آشنا می‌شوید.',
-        image: '',
-        date: '۱۴۰۲/۱۰/۱۵',
-        category: 'خرید آنلاین'
-    },
-    {
-        id: 'b2',
-        title: 'راهنمای انتخاب بهترین هدفون',
-        excerpt: 'چگونه بر اساس نیاز خود بهترین هدفون را انتخاب کنید؟',
-        image: '',
-        date: '۱۴۰۲/۱۰/۱۰',
-        category: 'الکترونیک'
-    },
-    {
-        id: 'b3',
-        title: 'مقایسه برندهای لوازم خانگی',
-        excerpt: 'بررسی و مقایسه برندهای مطرح لوازم خانگی در بازار ایران',
-        image: '',
-        date: '۱۴۰۲/۱۰/۰۵',
-        category: 'لوازم خانگی'
-    }
-];
+
+const defaultBlogs = [];
+
 
 // داده‌های جدید برای آدرس‌ها و اطلاع‌رسانی
 const defaultAddresses = [];
@@ -567,10 +511,39 @@ let compareList = LS.get('HDK_compare', []);
 let blogs = LS.get('HDK_blogs', []);
 let addresses = LS.get('HDK_addresses', []);
 let notifications = LS.get('HDK_notifications', []);
+const initialProductCount = Array.isArray(products) ? products.length : 0;
+const initialBlogCount = Array.isArray(blogs) ? blogs.length : 0;
 let currentPage = 'home';
 let currentProductId = null;
 let currentCategory = null;
 let editingProductId = null;
+let filteredProductsCache = null;
+
+const loadingRegistry = new Set();
+
+function setDataLoading(key, loading) {
+    if (!key) return;
+    const normalized = String(key);
+    if (loading) {
+        loadingRegistry.add(normalized);
+    } else {
+        loadingRegistry.delete(normalized);
+    }
+    UIEventBus.emit('data:loading', { key: normalized, loading: !!loading });
+}
+
+function isDataLoading(key) {
+    if (!key) return false;
+    return loadingRegistry.has(String(key));
+}
+
+function setFilteredProductsCache(list) {
+    filteredProductsCache = Array.isArray(list) ? list.slice() : null;
+}
+
+function getFilteredProductsCache() {
+    return Array.isArray(filteredProductsCache) ? filteredProductsCache.slice() : null;
+}
 
 /* ---------- DOM refs ---------- */
 const contentRoot = $('#content');
@@ -603,9 +576,93 @@ const cartShipping = $('#cartShipping');
 const cartFinalTotal = $('#cartFinalTotal');
 const checkoutBtn = $('#checkoutBtn');
 const compareBtn = $('#compareBtn');
+const wishlistBtn = $('#wishlistBtn');
 const compareModal = $('#compareModal');
 const closeCompareModal = $('#closeCompareModal');
 const compareProducts = $('#compareProducts');
+
+function enhanceInteractiveButton(button, { pulse = false, shape = 'rounded' } = {}) {
+    if (!button || button.dataset.interactiveEnhanced === 'true') {
+        return;
+    }
+
+    button.dataset.interactiveEnhanced = 'true';
+
+    if (button.hasAttribute('disabled')) {
+        button.removeAttribute('disabled');
+    }
+    if (button.getAttribute('aria-disabled') === 'true') {
+        button.setAttribute('aria-disabled', 'false');
+    }
+
+    if (!button.hasAttribute('tabindex')) {
+        button.setAttribute('tabindex', '0');
+    }
+
+    button.classList.remove('cursor-not-allowed', 'opacity-50');
+    button.classList.add('interactive-trigger');
+
+    if (shape === 'circle') {
+        button.dataset.shape = 'circle';
+    }
+
+    if (pulse) {
+        button.dataset.animate = 'pulse';
+    }
+
+    const release = () => button.classList.remove('is-pressed');
+    const press = () => button.classList.add('is-pressed');
+
+    on(button, 'pointerdown', () => {
+        press();
+    });
+    on(button, 'pointerup', release);
+    on(button, 'pointerleave', release);
+    on(button, 'blur', release);
+
+    on(button, 'keydown', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            press();
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        }
+    });
+
+    on(button, 'keyup', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            release();
+            if (event.key === ' ') {
+                event.preventDefault();
+                button.click();
+            }
+        }
+    });
+}
+
+function triggerBadgeAnimation(badge) {
+    if (!badge) return;
+    badge.classList.remove('badge-pop');
+    // Trigger reflow to restart animation
+    void badge.offsetWidth;
+    badge.classList.add('badge-pop');
+    setTimeout(() => badge.classList.remove('badge-pop'), 450);
+}
+
+const interactiveButtons = [
+    { element: themeToggle, pulse: false, shape: 'circle' },
+    { element: filterBtn, pulse: true, shape: 'circle' },
+    { element: compareBtn, pulse: true, shape: 'circle' },
+    { element: wishlistBtn, pulse: true, shape: 'circle' },
+    { element: cartBtn, pulse: true, shape: 'circle' },
+    { element: userButton, pulse: false },
+    { element: adminBtn, pulse: false },
+    { element: checkoutBtn, pulse: false }
+];
+
+interactiveButtons.forEach(({ element, pulse, shape }) => {
+    enhanceInteractiveButton(element, { pulse, shape });
+});
 
 /* ---------- Admin Panel Elements ---------- */
 const adminModal = $('#adminModal');
@@ -647,24 +704,26 @@ function addViewedProduct(id) {
     LS.set('HDK_viewHistory', viewHistory);
 }
 
-function updateCartBadge(){ 
+function updateCartBadge(){
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
     if(totalItems === 0) {
-        cartCountEl.classList.add('hidden'); 
-    } else { 
-        cartCountEl.classList.remove('hidden'); 
-        cartCountEl.textContent = String(totalItems); 
-    } 
+        cartCountEl.classList.add('hidden');
+    } else {
+        cartCountEl.classList.remove('hidden');
+        cartCountEl.textContent = String(totalItems);
+        triggerBadgeAnimation(cartCountEl);
+    }
     updateCartDisplay();
 }
 
-function updateWishlistBadge(){ 
+function updateWishlistBadge(){
     if(wishlist.length === 0) {
-        wishlistCountEl.classList.add('hidden'); 
-    } else { 
-        wishlistCountEl.classList.remove('hidden'); 
-        wishlistCountEl.textContent = String(wishlist.length); 
-    } 
+        wishlistCountEl.classList.add('hidden');
+    } else {
+        wishlistCountEl.classList.remove('hidden');
+        wishlistCountEl.textContent = String(wishlist.length);
+        triggerBadgeAnimation(wishlistCountEl);
+    }
 }
 
 function updateCompareBadge() {
@@ -673,6 +732,7 @@ function updateCompareBadge() {
     } else {
         compareCountEl.classList.remove('hidden');
         compareCountEl.textContent = String(compareList.length);
+        triggerBadgeAnimation(compareCountEl);
     }
 }
 
@@ -751,6 +811,59 @@ function updateUserLabel(){
 }
 
 updateAdminVisibility();
+
+['products', 'blogs', 'categories', 'provinces'].forEach(key => setDataLoading(key, true));
+
+DataService.subscribe('products', (data, detail = {}) => {
+    setDataLoading('products', false);
+    if (!Array.isArray(data)) {
+        return;
+    }
+    products = data;
+    LS.set('HDK_products', products);
+    UIEventBus.emit('products:update', { products, detail });
+    if (typeof refreshCurrentRoute === 'function') {
+        refreshCurrentRoute({ preserveScroll: true });
+    }
+});
+
+DataService.subscribe('blogs', (data, detail = {}) => {
+    setDataLoading('blogs', false);
+    if (!Array.isArray(data)) {
+        return;
+    }
+    blogs = data;
+    LS.set('HDK_blogs', blogs);
+    UIEventBus.emit('blogs:update', { blogs, detail });
+});
+
+DataService.subscribe('categories', () => setDataLoading('categories', false));
+DataService.subscribe('provinces', () => setDataLoading('provinces', false));
+
+DataService.bootstrap({
+    products: {
+        fallback: initialProductCount ? products : defaultProducts,
+        prime: products
+    },
+    blogs: {
+        fallback: initialBlogCount ? blogs : defaultBlogs,
+        prime: blogs
+    },
+    categories: {
+        fallback: DataService.getCached('categories') || {}
+    },
+    provinces: {
+        fallback: DataService.getCached('provinces') || []
+    }
+}).catch(error => {
+    console.warn('Failed to bootstrap data', error);
+}).finally(() => {
+    ['products', 'blogs', 'categories', 'provinces'].forEach(key => {
+        if (loadingRegistry.has(key)) {
+            setDataLoading(key, false);
+        }
+    });
+});
 
 // ---- router.js ----
 /* ---------- Dynamic Content Router ---------- */
@@ -1280,6 +1393,103 @@ function renderPageSkeleton() {
     `;
 }
 
+function createProductSkeletonGrid(count = 9) {
+    return Array.from({ length: count }, () => `
+        <div class="rounded-2xl border border-primary/10 bg-white dark:bg-gray-800 p-4">
+            <div class="h-40 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4"></div>
+            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
+            <div class="flex items-center justify-between">
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderPaginationControls(container, { current = 1, total = 1, onNavigate = () => {}, disabled = false } = {}) {
+    if (!container) {
+        return;
+    }
+
+    if (!total || total <= 1) {
+        container.innerHTML = '';
+        container.setAttribute('aria-hidden', 'true');
+        return;
+    }
+
+    container.removeAttribute('aria-hidden');
+    container.innerHTML = '';
+
+    const createButton = (label, targetPage, { ariaLabel, isActive = false, isDisabled = false } = {}) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.className = [
+            'px-3 py-2 rounded-lg transition-colors text-sm font-medium',
+            isActive
+                ? 'bg-primary text-white shadow-sm'
+                : 'border border-primary/30 text-primary hover:bg-primary/10 dark:hover:bg-primary/20',
+            (isDisabled || disabled) ? 'opacity-60 cursor-not-allowed' : ''
+        ].join(' ').trim();
+        button.disabled = isDisabled || disabled;
+        if (ariaLabel) {
+            button.setAttribute('aria-label', ariaLabel);
+        }
+        if (isActive) {
+            button.setAttribute('aria-current', 'page');
+        }
+        if (!button.disabled) {
+            button.addEventListener('click', () => onNavigate(targetPage));
+        }
+        container.appendChild(button);
+    };
+
+    createButton('قبلی', Math.max(1, current - 1), {
+        ariaLabel: 'صفحه قبلی',
+        isDisabled: current <= 1
+    });
+
+    const windowSize = 5;
+    let start = Math.max(1, current - Math.floor(windowSize / 2));
+    let end = Math.min(total, start + windowSize - 1);
+    if (end - start + 1 < windowSize) {
+        start = Math.max(1, end - windowSize + 1);
+    }
+
+    if (start > 1) {
+        createButton('1', 1, { ariaLabel: 'صفحه ۱' });
+        if (start > 2) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.className = 'px-2 text-gray-400';
+            container.appendChild(dots);
+        }
+    }
+
+    for (let page = start; page <= end; page++) {
+        createButton(String(page), page, {
+            ariaLabel: `صفحه ${page}`,
+            isActive: page === current
+        });
+    }
+
+    if (end < total) {
+        if (end < total - 1) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.className = 'px-2 text-gray-400';
+            container.appendChild(dots);
+        }
+        createButton(String(total), total, { ariaLabel: `صفحه ${total}` });
+    }
+
+    createButton('بعدی', Math.min(total, current + 1), {
+        ariaLabel: 'صفحه بعدی',
+        isDisabled: current >= total
+    });
+}
+
 function renderResolvedRoute(handler, context) {
     if (!contentRoot) {
         updateDocumentMetadata(context.route, context.params, context.query);
@@ -1365,8 +1575,23 @@ function navigate(target, options) {
     router.navigate(target, options);
 }
 
+function refreshCurrentRoute({ preserveScroll = false } = {}) {
+    if (!router || !router.current) {
+        return;
+    }
+
+    if (!preserveScroll && contentRoot) {
+        contentRoot.setAttribute('aria-busy', 'true');
+    }
+
+    const { name, params, query } = router.current;
+    router.navigate({ name, params, query }, { replace: true });
+    UIEventBus.emit('route:refresh', { route: name, params, query });
+}
+
 if (typeof window !== 'undefined') {
     window.navigate = navigate;
+    window.refreshCurrentRoute = refreshCurrentRoute;
     window.router = router;
 }
 
@@ -1527,32 +1752,94 @@ function renderProductsPage(){
         
         <!-- Pagination -->
         <div class="flex justify-center mt-8">
-            <div class="flex gap-2">
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">قبلی</button>
-                <button class="px-3 py-2 bg-primary text-white rounded-lg">1</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">2</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">3</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">بعدی</button>
-            </div>
+            <div id="paginationControls" class="flex flex-wrap items-center gap-2" aria-label="صفحه‌بندی محصولات"></div>
         </div>
     `;
     
     contentRoot.appendChild(page);
     const productsGrid = $('#productsGrid', page);
     const productsCount = $('#productsCount', page);
+    const paginationControls = $('#paginationControls', page);
     const clearAllFilters = $('#clearAllFilters', page);
-    
-    // فیلتر کردن محصولات بر اساس دسته‌بندی
-    let filteredProducts = products;
-    if (currentCategory) {
-        filteredProducts = products.filter(p => p.category === currentCategory);
+
+    const waitingForProducts = typeof isDataLoading === 'function' && isDataLoading('products');
+    const allProducts = Array.isArray(products) ? products.slice() : [];
+
+    // فیلتر کردن محصولات با در نظر گرفتن وضعیت فیلترهای رابط کاربری
+    let filteredProducts = getFilteredProductsCache();
+    if (!filteredProducts) {
+        filteredProducts = typeof getFilteredProducts === 'function'
+            ? getFilteredProducts(allProducts)
+            : allProducts.slice();
     }
-    
-    // Render filtered products
-    renderProductsList(filteredProducts, productsGrid);
-    productsCount.textContent = `${filteredProducts.length} محصول`;
+
+    if (currentCategory) {
+        filteredProducts = filteredProducts.filter(p => p.category === currentCategory);
+    }
+
+    const totalItems = filteredProducts.length;
+    const pageSize = 9;
+    const requestedPage = parseInt((currentRouteQuery?.page || '1'), 10);
+    const currentIndex = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const totalPages = Math.max(1, Math.ceil(Math.max(totalItems, 1) / pageSize));
+    const activePage = Math.min(currentIndex, totalPages);
+    const pageStart = (activePage - 1) * pageSize;
+    const pageItems = filteredProducts.slice(pageStart, pageStart + pageSize);
+
+    const showSkeleton = waitingForProducts && allProducts.length === 0;
+
+    if (showSkeleton) {
+        productsCount.textContent = 'در حال بارگذاری محصولات...';
+        productsGrid.innerHTML = createProductSkeletonGrid(pageSize);
+        productsGrid.setAttribute('data-state', 'loading');
+    } else if (pageItems.length === 0) {
+        productsCount.textContent = totalItems === 0 ? 'محصولی یافت نشد' : `${totalItems} محصول`;
+        productsGrid.innerHTML = `
+            <div class="col-span-full">
+                ${createEmptyState({
+                    icon: 'mdi:shopping-off-outline',
+                    title: 'محصولی یافت نشد',
+                    description: currentCategory
+                        ? `هیچ محصولی در دسته‌بندی ${getCategoryName(currentCategory)} با فیلترهای فعلی موجود نیست.`
+                        : 'هیچ محصولی با فیلترهای فعلی مطابقت ندارد. فیلترها را تغییر دهید.'
+                })}
+            </div>
+        `;
+        productsGrid.setAttribute('data-state', 'empty');
+    } else {
+        renderProductsList(pageItems, productsGrid);
+        productsCount.textContent = `${totalItems} محصول`;
+        productsGrid.removeAttribute('data-state');
+    }
+
     productsGrid.addEventListener('click', handleProductActions);
-    
+
+    const navigateToPage = (pageNumber) => {
+        if (typeof navigate !== 'function') {
+            return;
+        }
+        const params = currentCategory ? [currentCategory] : [];
+        const nextQuery = { ...(currentRouteQuery || {}) };
+        if (pageNumber <= 1) {
+            delete nextQuery.page;
+        } else {
+            nextQuery.page = pageNumber;
+        }
+        navigate({ name: 'products', params, query: nextQuery });
+    };
+
+    renderPaginationControls(paginationControls, {
+        current: activePage,
+        total: totalPages,
+        disabled: showSkeleton,
+        onNavigate: navigateToPage
+    });
+
+    setFilteredProductsCache(filteredProducts);
+    if (typeof updateActiveFilters === 'function') {
+        updateActiveFilters();
+    }
+
     // Clear all filters
     clearAllFilters.addEventListener('click', () => {
         if (sortSelect) sortSelect.value = 'popular';
@@ -2721,10 +3008,6 @@ function toggleCompare(productId) {
 let isCompareModalClosing = false;
 
 function openCompareModal() {
-    if (compareList.length === 0) {
-        notify('لطفا ابتدا محصولاتی برای مقایسه انتخاب کنید', 'warning');
-        return;
-    }
     if (!compareModal) return;
 
     isCompareModalClosing = false;
@@ -2733,6 +3016,10 @@ function openCompareModal() {
     lockBodyScroll();
     requestAnimationFrame(() => compareModal.classList.add('modal-visible'));
     renderCompareProducts();
+
+    if (compareList.length === 0) {
+        notify('برای مقایسه، ابتدا چند محصول را به لیست اضافه کنید', 'info', { allowDuplicates: false });
+    }
 
     const dialog = compareModal.querySelector('[data-modal-dialog]');
     if (dialog) {
@@ -4418,41 +4705,59 @@ function updateBrandFilter() {
 }
 
 /* ---------- New Filter Functions ---------- */
-function applyFilters(){
-    let list = products.slice();
+function getFilteredProducts(source = products) {
+    let list = Array.isArray(source) ? source.slice() : [];
     const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
     if(q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q));
-    
+
     const mn = Number(minPrice ? minPrice.value || 0 : 0), mx = Number(maxPrice ? maxPrice.value || 0 : 0);
     if(mn>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) >= mn);
     if(mx>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) <= mx);
-    
+
     const cat = categoryFilter ? categoryFilter.value : '';
     if(cat) list = list.filter(p => p.category === cat);
-    
+
     const disc = discountFilter ? discountFilter.value : '';
     if(disc === 'has_discount') list = list.filter(p => p.discount > 0);
     if(disc === 'no_discount') list = list.filter(p => p.discount === 0);
     if(disc === 'high_discount') list = list.filter(p => p.discount >= 50);
-    
+
     const brand = brandFilter ? brandFilter.value : '';
     if(brand) list = list.filter(p => p.brand === brand);
-    
+
     const stock = stockFilter ? stockFilter.value : '';
     if(stock === 'in_stock') list = list.filter(p => p.stock > 0);
     if(stock === 'out_of_stock') list = list.filter(p => p.stock === 0);
-    
+
     const rating = ratingFilter ? ratingFilter.value : '';
     if(rating) list = list.filter(p => p.rating >= parseInt(rating));
-    
+
     const sort = sortSelect ? sortSelect.value : 'popular';
     if(sort==='price_asc') list.sort((a,b)=> (a.price*(1-a.discount/100)) - (b.price*(1-b.discount/100)));
     else if(sort==='price_desc') list.sort((a,b)=> (b.price*(1-b.discount/100)) - (a.price*(1-a.discount/100)));
     else if(sort==='discount') list.sort((a,b)=>b.discount - a.discount);
     else if(sort==='newest') list.sort((a,b)=> new Date(b.created || 0) - new Date(a.created || 0));
     else list.sort((a,b)=> (b.rating||0) - (a.rating||0));
-    
-    renderProducts(list);
+
+    return list;
+}
+
+function applyFilters(){
+    const filtered = getFilteredProducts(products);
+    setFilteredProductsCache(filtered);
+
+    const params = currentCategory ? [currentCategory] : [];
+    const nextQuery = { ...(currentRouteQuery || {}) };
+    delete nextQuery.page;
+
+    if (typeof navigate === 'function') {
+        navigate({ name: 'products', params, query: nextQuery }, { replace: true });
+    } else if (typeof refreshCurrentRoute === 'function') {
+        refreshCurrentRoute({ preserveScroll: true });
+    } else {
+        renderProducts(filtered);
+    }
+
     updateActiveFilters();
 }
 
@@ -4909,6 +5214,10 @@ on(themeToggle, 'click', () => {
     userSelectedTheme = nextIsDark;
     applyThemePreference(nextIsDark);
     persistThemePreference(nextIsDark);
+    if (themeToggle) {
+        themeToggle.classList.add('theme-toggle-animate');
+        setTimeout(() => themeToggle.classList.remove('theme-toggle-animate'), 320);
+    }
 });
 
 /* ---------- Initialize Filters ---------- */
@@ -7746,151 +8055,18 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // ---- constants.js ----
 /* ---------- Constants ---------- */
-const provinces = [
-    {
-        name: 'تهران',
-        cities: ['تهران', 'اسلامشهر', 'ری', 'شهریار', 'ورامین', 'قدس', 'پاکدشت', 'شمیرانات', 'رباط کریم']
-    },
-    {
-        name: 'اصفهان',
-        cities: ['اصفهان', 'کاشان', 'خمینی شهر', 'نجف آباد', 'شهرضا', 'اردستان', 'مبارکه', 'فلاورجان', 'گلپایگان']
-    },
-    {
-        name: 'فارس',
-        cities: ['شیراز', 'مرودشت', 'کازرون', 'فسا', 'لار', 'جهرم', 'داراب', 'آباده', 'اقلید']
-    },
-    {
-        name: 'خراسان رضوی',
-        cities: ['مشهد', 'نیشابور', 'سبزوار', 'تربت حیدریه', 'قوچان', 'کاشمر', 'گناباد', 'تایباد', 'خواف']
-    },
-    {
-        name: 'آذربایجان شرقی',
-        cities: ['تبریز', 'مراغه', 'مرند', 'اهر', 'میانه', 'اسکو', 'شبستر', 'هشترود', 'بناب']
-    },
-    {
-        name: 'آذربایجان غربی',
-        cities: ['ارومیه', 'خوی', 'مهاباد', 'میاندوآب', 'سلماس', 'پیرانشهر', 'اشنویه', 'بوکان', 'شاهین دژ']
-    },
-    {
-        name: 'کرمان',
-        cities: ['کرمان', 'رفسنجان', 'سیرجان', 'بم', 'جیرفت', 'زرند', 'کهنوج', 'انار', 'راور']
-    },
-    {
-        name: 'خوزستان',
-        cities: ['اهواز', 'آبادان', 'خرمشهر', 'دزفول', 'شوشتر', 'اندیمشک', 'مسجد سلیمان', 'بهبهان', 'شادگان']
-    },
-    {
-        name: 'گیلان',
-        cities: ['رشت', 'انزلی', 'لاهیجان', 'لنگرود', 'آستارا', 'آستانه اشرفیه', 'رودسر', 'صومعه سرا', 'فومن']
-    },
-    {
-        name: 'مازندران',
-        cities: ['ساری', 'بابل', 'آمل', 'قائم شهر', 'نور', 'نوشهر', 'چالوس', 'رامسر', 'بهشهر']
-    },
-    {
-        name: 'البرز',
-        cities: ['کرج', 'هشتگرد', 'نظرآباد', 'طالقان', 'اشتهارد', 'فردیس', 'ماهدشت', 'کمال شهر', 'محمودآباد']
-    },
-    {
-        name: 'قم',
-        cities: ['قم', 'جعفریه', 'کهک', 'دستجرد', 'سلفچگان']
-    },
-    {
-        name: 'کردستان',
-        cities: ['سنندج', 'سقز', 'مریوان', 'بانه', 'بیجار', 'قروه', 'کامیاران', 'دهگلان']
-    },
-    {
-        name: 'همدان',
-        cities: ['همدان', 'ملایر', 'نهاوند', 'تویسرکان', 'کبودرآهنگ', 'رزن', 'اسدآباد', 'بهار']
-    },
-    {
-        name: 'مرکزی',
-        cities: ['اراک', 'ساوه', 'خمین', 'محلات', 'تفرش', 'شازند', 'دلیجان', 'زرندیه']
-    },
-    {
-        name: 'لرستان',
-        cities: ['خرم آباد', 'بروجرد', 'دورود', 'کوهدشت', 'الیگودرز', 'نورآباد', 'پلدختر', 'ازنا']
-    },
-    {
-        name: 'هرمزگان',
-        cities: ['بندرعباس', 'قشم', 'میناب', 'بندر لنگه', 'رودان', 'حاجی آباد', 'بستک', 'خمیر']
-    },
-    {
-        name: 'یزد',
-        cities: ['یزد', 'میبد', 'اردکان', 'بافق', 'ابرکوه', 'تفت', 'مهریز', 'اشکذر']
-    },
-    {
-        name: 'زنجان',
-        cities: ['زنجان', 'ابهر', 'خرمدره', 'قیدار', 'خدابنده', 'ماهنشان', 'طارم', 'سلطانیه']
-    },
-    {
-        name: 'سیستان و بلوچستان',
-        cities: ['زاهدان', 'ایرانشهر', 'چابهار', 'خاش', 'زابل', 'سراوان', 'نیکشهر', 'کنارک']
-    },
-    {
-        name: 'کرمانشاه',
-        cities: ['کرمانشاه', 'اسلام آباد غرب', 'سنقر', 'هرسین', 'کنگاور', 'جوانرود', 'قصر شیرین', 'پاوه']
-    },
-    {
-        name: 'کهگیلویه و بویراحمد',
-        cities: ['یاسوج', 'گچساران', 'دهدشت', 'لیکک', 'سی سخت', 'چرام']
-    },
-    {
-        name: 'بوشهر',
-        cities: ['بوشهر', 'برازجان', 'گناوه', 'خورموج', 'عسلویه', 'جم', 'کنگان', 'دیر']
-    },
-    {
-        name: 'اردبیل',
-        cities: ['اردبیل', 'مشگین شهر', 'پارس آباد', 'خلخال', 'گرمی', 'نیر', 'نمین', 'بیله سوار']
-    },
-    {
-        name: 'ایلام',
-        cities: ['ایلام', 'دهلران', 'آبدانان', 'مهران', 'دره شهر', 'ایوان', 'سرابله']
-    },
-    {
-        name: 'سمنان',
-        cities: ['سمنان', 'شاهرود', 'دامغان', 'گرمسار', 'مهدی شهر', 'آرادان', 'میامی']
-    },
-    {
-        name: 'چهارمحال و بختیاری',
-        cities: ['شهرکرد', 'بروجن', 'فارسان', 'لردگان', 'اردل', 'سامان', 'بن', 'کیار']
-    },
-    {
-        name: 'خراسان شمالی',
-        cities: ['بجنورد', 'اسفراین', 'شیروان', 'آشخانه', 'جاجرم', 'فاروج', 'گرمه']
-    },
-    {
-        name: 'خراسان جنوبی',
-        cities: ['بیرجند', 'قائن', 'فردوس', 'نهبندان', 'سربیشه', 'درمیان', 'طبس']
-    },
-    {
-        name: 'گلستان',
-        cities: ['گرگان', 'گنبد کاووس', 'آق قلا', 'بندر گز', 'علی آباد', 'کردکوی', 'کلاله', 'مینودشت']
-    }
-];
+let provinces = DataService.getCached('provinces') || [];
+let categories = DataService.getCached('categories') || {};
 
-const categories = {
-    'electronics': {
-        name: 'الکترونیک',
-        subcategories: ['موبایل', 'لپ‌تاپ', 'هدفون', 'تبلت', 'دوربین', 'کنسول بازی']
-    },
-    'fashion': {
-        name: 'مد و پوشاک',
-        subcategories: ['لباس مردانه', 'لباس زنانه', 'کفش', 'اکسسوری', 'کیف', 'ساعت']
-    },
-    'home': {
-        name: 'خانه و آشپزخانه',
-        subcategories: ['مبلمان', 'لوازم آشپزخانه', 'دکوراسیون', 'لوازم برقی', 'سرویس خواب', 'فرش']
-    },
-    'books': {
-        name: 'کتاب',
-        subcategories: ['رمان', 'علمی', 'تاریخی', 'کودک', 'دانشگاهی', 'خارجی']
-    },
-    'sports': {
-        name: 'ورزشی',
-        subcategories: ['لباس ورزشی', 'کفش ورزشی', 'تجهیزات بدنسازی', 'توپ', 'کوهنوردی', 'شنا']
-    }
-};
+DataService.subscribe('provinces', (data) => {
+    provinces = Array.isArray(data) ? data : [];
+    UIEventBus.emit('provinces:update', { provinces });
+});
+
+DataService.subscribe('categories', (data) => {
+    categories = data && typeof data === 'object' ? data : {};
+    UIEventBus.emit('categories:update', { categories });
+});
 
 const paymentMethods = [
     {
