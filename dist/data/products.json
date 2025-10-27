@@ -1,0 +1,216 @@
+[
+  {
+    "id": "p1",
+    "name": "هدفون بی‌سیم Sony WH-1000XM4",
+    "price": 990000,
+    "desc": "هدفون بی‌سیم با نویزکنسلینگ پیشرفته و کیفیت صدای استثنایی. مناسب برای مسافرت و محیط‌های پر سر و صدا.",
+    "images": [
+      "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1510074377623-8cf13fb90a81?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80",
+    "rating": 5,
+    "discount": 15,
+    "category": "electronics",
+    "status": "new",
+    "stock": 50,
+    "brand": "Sony",
+    "features": ["نویزکنسلینگ", "باتری 30 ساعته", "شارژ سریع", "کنترل لمسی"],
+    "colors": ["مشکی", "نقره‌ای", "آبی"],
+    "sizes": [],
+    "specifications": {
+      "نوع": "بی‌سیم",
+      "باتری": "30 ساعت",
+      "وزن": "254 گرم",
+      "اتصال": "بلوتوث 5.0"
+    }
+  },
+  {
+    "id": "p2",
+    "name": "گوشی هوشمند Samsung Galaxy S23",
+    "price": 25000000,
+    "desc": "گوشی هوشمند قدرتمند با دوربین 200 مگاپیکسلی و پردازنده اسنپدراگون 8 نسل 2. مناسب برای بازی و عکاسی حرفه‌ای.",
+    "images": [
+      "https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80",
+    "rating": 5,
+    "discount": 0,
+    "category": "electronics",
+    "status": "hot",
+    "stock": 12,
+    "brand": "Samsung",
+    "features": ["دوربین 200MP", "پردازنده اسنپدراگون", "نمایشگر 120Hz", "شارژ سریع 45W"],
+    "colors": ["مشکی", "سبز", "بنفش"],
+    "sizes": [],
+    "specifications": {
+      "نمایشگر": "6.8 اینچ",
+      "رم": "12GB",
+      "حافظه": "256GB",
+      "باتری": "5000 mAh"
+    }
+  },
+  {
+    "id": "p3",
+    "name": "لپ‌تاپ Apple MacBook Pro 14",
+    "price": 85000000,
+    "desc": "لپ‌تاپ حرفه‌ای با تراشه M2 Pro، نمایشگر Liquid Retina XDR و باتری تمام‌روزه. مناسب برای طراحان و برنامه‌نویسان.",
+    "images": [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1481277542470-605612bd2d61?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    "rating": 5,
+    "discount": 10,
+    "category": "electronics",
+    "status": "bestseller",
+    "stock": 5,
+    "brand": "Apple",
+    "features": ["تراشه M2 Pro", "نمایشگر XDR", "باتری 18 ساعته", "18GB رم"],
+    "colors": ["نقره‌ای", "Space Gray"],
+    "sizes": [],
+    "specifications": {
+      "پردازنده": "Apple M2 Pro",
+      "رم": "18GB",
+      "ذخیره‌سازی": "1TB SSD",
+      "نمایشگر": "14.2 اینچ"
+    }
+  },
+  {
+    "id": "p4",
+    "name": "کتاب هفت عادت مردمان موثر",
+    "price": 85000,
+    "desc": "کتاب پرفروش استفان کاوی درباره هفت عادتی که زندگی شما را متحول خواهد کرد.",
+    "images": [
+      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
+    "rating": 4,
+    "discount": 20,
+    "category": "books",
+    "status": "",
+    "stock": 100,
+    "brand": "نشر پیکان",
+    "features": ["جلد گالینگور", "ترجمه روان", "کیفیت چاپ بالا"],
+    "colors": [],
+    "sizes": [],
+    "specifications": {
+      "نویسنده": "استفان کاوی",
+      "مترجم": "محمد رضا آل یاسین",
+      "تعداد صفحات": "400",
+      "ناشر": "پیکان"
+    }
+  },
+  {
+    "id": "p5",
+    "name": "کفش ورزشی Nike Air Max",
+    "price": 4500000,
+    "desc": "کفش ورزشی با تکنولوژی Air Max برای راحتی و عملکرد بهتر در ورزش.",
+    "images": [
+      "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80",
+    "rating": 4,
+    "discount": 25,
+    "category": "sports",
+    "status": "hot",
+    "stock": 30,
+    "brand": "Nike",
+    "features": ["تکنولوژی Air Max", "کفی اورتوپدی", "مناسب دویدن", "تنفس پذیری بالا"],
+    "colors": ["سفید", "مشکی", "قرمز"],
+    "sizes": ["39", "40", "41", "42", "43", "44"],
+    "specifications": {
+      "جنس": "مش و چرم",
+      "سایز": "39-45",
+      "کاربرد": "ورزشی و روزمره",
+      "کف": "لاستیک با دوام"
+    }
+  },
+  {
+    "id": "p6",
+    "name": "مبل راحتی 3 نفره",
+    "price": 35000000,
+    "desc": "مبل راحتی با پارچه مخمل و قابلیت تنظیم پشتی. مناسب برای اتاق پذیرایی.",
+    "images": [
+      "https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80",
+    "rating": 4,
+    "discount": 15,
+    "category": "home",
+    "status": "",
+    "stock": 8,
+    "brand": "مبل ایران",
+    "features": ["پارچه مخمل", "قابلیت تنظیم پشتی", "پر کوسن‌ها", "قاب فلزی"],
+    "colors": ["مشکی", "خاکستری", "آبی"],
+    "sizes": ["دو نفره", "سه نفره", "L شکل"],
+    "specifications": {
+      "ابعاد": "200x90x80 سانتی‌متر",
+      "جنس پارچه": "مخمل",
+      "قاب": "فلز",
+      "ظرفیت": "3 نفر"
+    }
+  },
+  {
+    "id": "p7",
+    "name": "دستگاه قهوه ساز Delonghi",
+    "price": 12500000,
+    "desc": "دستگاه قهوه ساز تمام اتوماتیک با قابلیت تهیه انواع قهوه اسپرسو، کاپوچینو و لاته.",
+    "images": [
+      "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80",
+    "rating": 5,
+    "discount": 30,
+    "category": "home",
+    "status": "new",
+    "stock": 15,
+    "brand": "Delonghi",
+    "features": ["تمام اتوماتیک", "ساخت کاپوچینو", "پمپ 15 بار", "سیستم گرمایش سریع"],
+    "colors": ["مشکی", "نقره‌ای"],
+    "sizes": [],
+    "specifications": {
+      "نوع": "اسپرسو ساز",
+      "ظرفیت آب": "1.8 لیتر",
+      "قدرت": "1450 وات",
+      "ابعاد": "24x34x43 سانتی‌متر"
+    }
+  },
+  {
+    "id": "p8",
+    "name": "کاپشن زمستانی مردانه",
+    "price": 2800000,
+    "desc": "کاپشن زمستانی با پر طبیعی، مناسب برای هوای سرد. طراحی شیک و مدرن.",
+    "images": [
+      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"
+    ],
+    "img": "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80",
+    "rating": 4,
+    "discount": 40,
+    "category": "fashion",
+    "status": "hot",
+    "stock": 25,
+    "brand": "Zara",
+    "features": ["پر طبیعی", "ضد آب", "جیب‌های متعدد", "کاپوت جدا شونده"],
+    "colors": ["مشکی", "خاکستری", "آبی دریایی"],
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "specifications": {
+      "جنس": "نایلون و پر",
+      "سایز": "S-XXL",
+      "کاربرد": "زمستانی",
+      "شستشو": "خشک شویی"
+    }
+  }
+]

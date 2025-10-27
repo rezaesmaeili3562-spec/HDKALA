@@ -12,41 +12,59 @@ function updateBrandFilter() {
 }
 
 /* ---------- New Filter Functions ---------- */
-function applyFilters(){
-    let list = products.slice();
+function getFilteredProducts(source = products) {
+    let list = Array.isArray(source) ? source.slice() : [];
     const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
     if(q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q));
-    
+
     const mn = Number(minPrice ? minPrice.value || 0 : 0), mx = Number(maxPrice ? maxPrice.value || 0 : 0);
     if(mn>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) >= mn);
     if(mx>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) <= mx);
-    
+
     const cat = categoryFilter ? categoryFilter.value : '';
     if(cat) list = list.filter(p => p.category === cat);
-    
+
     const disc = discountFilter ? discountFilter.value : '';
     if(disc === 'has_discount') list = list.filter(p => p.discount > 0);
     if(disc === 'no_discount') list = list.filter(p => p.discount === 0);
     if(disc === 'high_discount') list = list.filter(p => p.discount >= 50);
-    
+
     const brand = brandFilter ? brandFilter.value : '';
     if(brand) list = list.filter(p => p.brand === brand);
-    
+
     const stock = stockFilter ? stockFilter.value : '';
     if(stock === 'in_stock') list = list.filter(p => p.stock > 0);
     if(stock === 'out_of_stock') list = list.filter(p => p.stock === 0);
-    
+
     const rating = ratingFilter ? ratingFilter.value : '';
     if(rating) list = list.filter(p => p.rating >= parseInt(rating));
-    
+
     const sort = sortSelect ? sortSelect.value : 'popular';
     if(sort==='price_asc') list.sort((a,b)=> (a.price*(1-a.discount/100)) - (b.price*(1-b.discount/100)));
     else if(sort==='price_desc') list.sort((a,b)=> (b.price*(1-b.discount/100)) - (a.price*(1-a.discount/100)));
     else if(sort==='discount') list.sort((a,b)=>b.discount - a.discount);
     else if(sort==='newest') list.sort((a,b)=> new Date(b.created || 0) - new Date(a.created || 0));
     else list.sort((a,b)=> (b.rating||0) - (a.rating||0));
-    
-    renderProducts(list);
+
+    return list;
+}
+
+function applyFilters(){
+    const filtered = getFilteredProducts(products);
+    setFilteredProductsCache(filtered);
+
+    const params = currentCategory ? [currentCategory] : [];
+    const nextQuery = { ...(currentRouteQuery || {}) };
+    delete nextQuery.page;
+
+    if (typeof navigate === 'function') {
+        navigate({ name: 'products', params, query: nextQuery }, { replace: true });
+    } else if (typeof refreshCurrentRoute === 'function') {
+        refreshCurrentRoute({ preserveScroll: true });
+    } else {
+        renderProducts(filtered);
+    }
+
     updateActiveFilters();
 }
 
