@@ -426,10 +426,10 @@ on(mobileMenuBtn, 'click', () => {
     }
 });
 
-const wishlistBtn = $('#wishlistBtn');
+const navigationWishlistBtn = $('#wishlistBtn');
 const homeLink = $('#homeLink');
 
-on(wishlistBtn, 'click', () => {
+on(navigationWishlistBtn, 'click', () => {
     location.hash = 'wishlist';
 });
 
