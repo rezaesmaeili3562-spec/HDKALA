@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-27T18:46:44.758Z */
+/* HDKALA bundle generated: 2025-10-27T20:52:58.859Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -5119,10 +5119,10 @@ on(mobileMenuBtn, 'click', () => {
     }
 });
 
-const wishlistBtn = $('#wishlistBtn');
+const wishlistNavTrigger = $('#wishlistBtn');
 const homeLink = $('#homeLink');
 
-on(wishlistBtn, 'click', () => {
+on(wishlistNavTrigger, 'click', () => {
     location.hash = 'wishlist';
 });
 
