@@ -182,9 +182,93 @@ const cartShipping = $('#cartShipping');
 const cartFinalTotal = $('#cartFinalTotal');
 const checkoutBtn = $('#checkoutBtn');
 const compareBtn = $('#compareBtn');
+const wishlistBtn = $('#wishlistBtn');
 const compareModal = $('#compareModal');
 const closeCompareModal = $('#closeCompareModal');
 const compareProducts = $('#compareProducts');
+
+function enhanceInteractiveButton(button, { pulse = false, shape = 'rounded' } = {}) {
+    if (!button || button.dataset.interactiveEnhanced === 'true') {
+        return;
+    }
+
+    button.dataset.interactiveEnhanced = 'true';
+
+    if (button.hasAttribute('disabled')) {
+        button.removeAttribute('disabled');
+    }
+    if (button.getAttribute('aria-disabled') === 'true') {
+        button.setAttribute('aria-disabled', 'false');
+    }
+
+    if (!button.hasAttribute('tabindex')) {
+        button.setAttribute('tabindex', '0');
+    }
+
+    button.classList.remove('cursor-not-allowed', 'opacity-50');
+    button.classList.add('interactive-trigger');
+
+    if (shape === 'circle') {
+        button.dataset.shape = 'circle';
+    }
+
+    if (pulse) {
+        button.dataset.animate = 'pulse';
+    }
+
+    const release = () => button.classList.remove('is-pressed');
+    const press = () => button.classList.add('is-pressed');
+
+    on(button, 'pointerdown', () => {
+        press();
+    });
+    on(button, 'pointerup', release);
+    on(button, 'pointerleave', release);
+    on(button, 'blur', release);
+
+    on(button, 'keydown', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            press();
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        }
+    });
+
+    on(button, 'keyup', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            release();
+            if (event.key === ' ') {
+                event.preventDefault();
+                button.click();
+            }
+        }
+    });
+}
+
+function triggerBadgeAnimation(badge) {
+    if (!badge) return;
+    badge.classList.remove('badge-pop');
+    // Trigger reflow to restart animation
+    void badge.offsetWidth;
+    badge.classList.add('badge-pop');
+    setTimeout(() => badge.classList.remove('badge-pop'), 450);
+}
+
+const interactiveButtons = [
+    { element: themeToggle, pulse: false, shape: 'circle' },
+    { element: filterBtn, pulse: true, shape: 'circle' },
+    { element: compareBtn, pulse: true, shape: 'circle' },
+    { element: wishlistBtn, pulse: true, shape: 'circle' },
+    { element: cartBtn, pulse: true, shape: 'circle' },
+    { element: userButton, pulse: false },
+    { element: adminBtn, pulse: false },
+    { element: checkoutBtn, pulse: false }
+];
+
+interactiveButtons.forEach(({ element, pulse, shape }) => {
+    enhanceInteractiveButton(element, { pulse, shape });
+});
 
 /* ---------- Admin Panel Elements ---------- */
 const adminModal = $('#adminModal');
@@ -226,24 +310,26 @@ function addViewedProduct(id) {
     LS.set('HDK_viewHistory', viewHistory);
 }
 
-function updateCartBadge(){ 
+function updateCartBadge(){
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
     if(totalItems === 0) {
-        cartCountEl.classList.add('hidden'); 
-    } else { 
-        cartCountEl.classList.remove('hidden'); 
-        cartCountEl.textContent = String(totalItems); 
-    } 
+        cartCountEl.classList.add('hidden');
+    } else {
+        cartCountEl.classList.remove('hidden');
+        cartCountEl.textContent = String(totalItems);
+        triggerBadgeAnimation(cartCountEl);
+    }
     updateCartDisplay();
 }
 
-function updateWishlistBadge(){ 
+function updateWishlistBadge(){
     if(wishlist.length === 0) {
-        wishlistCountEl.classList.add('hidden'); 
-    } else { 
-        wishlistCountEl.classList.remove('hidden'); 
-        wishlistCountEl.textContent = String(wishlist.length); 
-    } 
+        wishlistCountEl.classList.add('hidden');
+    } else {
+        wishlistCountEl.classList.remove('hidden');
+        wishlistCountEl.textContent = String(wishlist.length);
+        triggerBadgeAnimation(wishlistCountEl);
+    }
 }
 
 function updateCompareBadge() {
@@ -252,6 +338,7 @@ function updateCompareBadge() {
     } else {
         compareCountEl.classList.remove('hidden');
         compareCountEl.textContent = String(compareList.length);
+        triggerBadgeAnimation(compareCountEl);
     }
 }
 

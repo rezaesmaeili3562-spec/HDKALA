@@ -237,6 +237,105 @@ body.is-scroll-locked {
   visibility: visible;
   transform: translateY(0);
 }
+.interactive-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.2s ease,
+    color 0.2s ease;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  will-change: transform, box-shadow;
+}
+
+.interactive-trigger[data-shape="circle"] {
+  border-radius: 9999px;
+}
+
+.interactive-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.25), transparent 70%);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.interactive-trigger:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.interactive-trigger:active,
+.interactive-trigger.is-pressed {
+  transform: scale(0.94);
+}
+
+.interactive-trigger.is-pressed::after,
+.interactive-trigger:active::after {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.interactive-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+@keyframes interactivePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
+  }
+  60% {
+    box-shadow: 0 0 0 14px rgba(59, 130, 246, 0);
+  }
+}
+
+.interactive-trigger[data-animate="pulse"] {
+  animation: interactivePulse 2.6s ease-in-out infinite;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+  65% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge-pop {
+  animation: badgePop 0.45s ease-out;
+}
+
+@keyframes themeFlip {
+  0% {
+    transform: rotate(-25deg) scale(0.85);
+    opacity: 0.6;
+  }
+  55% {
+    transform: rotate(12deg) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+#themeToggle.theme-toggle-animate iconify-icon {
+  animation: themeFlip 0.45s ease;
+}
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
