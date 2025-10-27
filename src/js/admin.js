@@ -442,51 +442,55 @@ function deleteBlog(blogId) {
 /* ---------- Product Image Upload Fix ---------- */
 function setupImageUpload() {
     // این تابع مشکل آپلود عکس را برطرف می‌کند
-    document.addEventListener('change', (e) => {
-        if (e.target.type === 'file' && e.target.accept.includes('image')) {
-            const file = e.target.files[0];
+    const handler = (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.type === 'file' && target.accept && target.accept.includes('image')) {
+            const file = target.files ? target.files[0] : null;
             if (file) {
-                // بررسی نوع فایل
                 if (!file.type.startsWith('image/')) {
                     notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
-                    e.target.value = '';
+                    target.value = '';
                     return;
                 }
-                
-                // بررسی سایز فایل (حداکثر 5MB)
+
                 if (file.size > 5 * 1024 * 1024) {
                     notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
-                    e.target.value = '';
+                    target.value = '';
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function(loadEvent) {
                     const img = new Image();
                     img.onload = function() {
-                        // نمایش پیش‌نمایش
-                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
+                        const previewContainer = target.parentElement?.querySelector('.image-preview');
                         if (previewContainer) {
                             previewContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                                <img src="${loadEvent.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                                 <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
                                     <iconify-icon icon="mdi:close"></iconify-icon>
                                 </button>
                             `;
-                            
-                            // دکمه حذف عکس
-                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
-                                previewContainer.innerHTML = '';
-                                e.target.value = '';
-                            });
+
+                            const removeButton = previewContainer.querySelector('.remove-image');
+                            if (removeButton) {
+                                removeButton.addEventListener('click', function handleRemove() {
+                                    previewContainer.innerHTML = '';
+                                    target.value = '';
+                                }, { once: true });
+                            }
                         }
                     };
-                    img.src = e.target.result;
+                    img.src = loadEvent.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         }
-    });
+    };
+
+    document.addEventListener('change', handler);
+    return () => document.removeEventListener('change', handler);
 }
 
 // Admin panel event listeners
@@ -520,5 +524,31 @@ cancelProductBtn.addEventListener('click', () => {
 });
 adminSearch.addEventListener('input', renderAdminProducts);
 
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
+const imageUploadEnhancement = (() => {
+    let cleanup = null;
+
+    return {
+        init() {
+            if (cleanup) return;
+            cleanup = setupImageUpload();
+        },
+        destroy() {
+            if (cleanup) {
+                cleanup();
+                cleanup = null;
+            }
+        }
+    };
+})();
+
+(function registerImageUploadEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(imageUploadEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(imageUploadEnhancement);
+})();

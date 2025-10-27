@@ -4,6 +4,9 @@ let currentRouteParams = [];
 let currentRouteQuery = {};
 let pageRenderTimeout = null;
 
+const enhancementController = typeof window !== 'undefined' ? window.HDKEnhancements : null;
+const pageCleanupController = typeof window !== 'undefined' ? window.HDKPageCleanup : null;
+
 const ROUTE_HANDLERS = {
     login: () => renderLoginPage(),
     'admin-login': () => renderAdminLoginPage(),
@@ -503,6 +506,9 @@ function updateRouteState(route, params = [], query = {}) {
 }
 
 function renderPageSkeleton() {
+    if (pageCleanupController && typeof pageCleanupController.run === 'function') {
+        pageCleanupController.run();
+    }
     if (!contentRoot) return;
     contentRoot.setAttribute('aria-busy', 'true');
     const skeletonCards = Array.from({ length: 6 }, () => '<div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>').join('');
@@ -547,6 +553,9 @@ function renderResolvedRoute(handler, context) {
         let renderError = null;
 
         try {
+            if (pageCleanupController && typeof pageCleanupController.run === 'function') {
+                pageCleanupController.run();
+            }
             contentRoot.innerHTML = '';
             effectiveHandler(resolvedContext);
         } catch (error) {
@@ -574,6 +583,10 @@ function renderResolvedRoute(handler, context) {
             }
 
             window.scrollTo(0, 0);
+
+            if (enhancementController && typeof enhancementController.refreshAll === 'function') {
+                enhancementController.refreshAll(contentRoot);
+            }
         }
 
         return renderError;

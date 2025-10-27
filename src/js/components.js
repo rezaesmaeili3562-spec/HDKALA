@@ -21,35 +21,65 @@ function unlockBodyScroll() {
 }
 
 // کامپوننت اسکرول بار سفارشی
-function setupCustomScrollbar() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+function createCustomScrollbarManager() {
+    let styleEl = null;
+
+    return {
+        init() {
+            if (styleEl || typeof document === 'undefined') return;
+            styleEl = document.createElement('style');
+            styleEl.textContent = `
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f5f9;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #374151;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #6b7280;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #9ca3af;
+                }
+            `;
+            document.head.appendChild(styleEl);
+        },
+        destroy() {
+            if (!styleEl || !styleEl.parentNode) return;
+            styleEl.parentNode.removeChild(styleEl);
+            styleEl = null;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-            background: #374151;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #6b7280;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-    `;
-    document.head.appendChild(style);
+    };
 }
+
+const customScrollbarEnhancement = createCustomScrollbarManager();
+
+function setupCustomScrollbar() {
+    customScrollbarEnhancement.init();
+}
+
+(function registerCustomScrollbarEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(customScrollbarEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(customScrollbarEnhancement);
+})();
 
 // کامپوننت بنر کوچک‌تر صفحه اصلی
 function createSmallHero() {
@@ -557,6 +587,4 @@ function createBlogManagement() {
 }
 
 // Initialize components
-document.addEventListener('DOMContentLoaded', () => {
-    setupCustomScrollbar();
-});
+setupCustomScrollbar();

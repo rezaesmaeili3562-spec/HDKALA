@@ -373,7 +373,7 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
                 </div>
             </div>
             <form class="mt-8 space-y-6" id="verifyForm">
-                <div class="flex justify-center gap-2" dir="ltr">
+                <div class="flex justify-center gap-2" dir="ltr" data-auto-focus="interaction">
                     ${[0,1,2,3].map(i => `
                         <input type="tel"
                                maxlength="1"
@@ -384,6 +384,7 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
                                autocomplete="one-time-code">
                     `).join('')}
                 </div>
+                <div class="sr-only" data-otp-status role="status" aria-live="polite"></div>
                 <div>
                     <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                         تأیید و ورود
@@ -401,19 +402,30 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
     contentRoot.appendChild(page);
     
     // Setup OTP inputs
-    setupOtpInputs(page);
-    
+    const otpManager = setupOtpInputs(page, { autoFocus: 'interaction' });
+    if (typeof registerPageCleanup === 'function') {
+        registerPageCleanup(() => otpManager.destroy());
+    }
+
     $('#verifyForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const code = getOtpCode(page);
 
         if (code.length !== 4) {
-            highlightOtpInputs(page, false);
+            highlightOtpInputs(page, {
+                isValid: false,
+                message: 'کد تأیید باید ۴ رقم باشد',
+                politeness: 'assertive'
+            });
             notify('کد تأیید باید ۴ رقم باشد', 'error');
             return;
         }
 
-        highlightOtpInputs(page, true);
+        highlightOtpInputs(page, {
+            isValid: true,
+            message: 'کد تأیید با موفقیت ثبت شد',
+            politeness: 'polite'
+        });
 
         if (typeof onSuccess === 'function') {
             onSuccess({ phone, email, code, mode });

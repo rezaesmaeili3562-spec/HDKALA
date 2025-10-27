@@ -3,6 +3,118 @@ const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
+/* ---------- Global enhancement & cleanup registries ---------- */
+const enhancementRegistry = (() => {
+    const modules = new Set();
+    let initialized = false;
+
+    const safeInvoke = (module, method, ...args) => {
+        if (!module || typeof module[method] !== 'function') {
+            return;
+        }
+        try {
+            module[method](...args);
+        } catch (error) {
+            console.error(`HDKALA enhancement ${method} error:`, error);
+        }
+    };
+
+    const api = {
+        register(module) {
+            if (!module || typeof module.init !== 'function') {
+                return () => {};
+            }
+
+            modules.add(module);
+
+            if (initialized) {
+                safeInvoke(module, 'init', document);
+            }
+
+            return () => {
+                if (!modules.has(module)) return;
+                safeInvoke(module, 'destroy');
+                modules.delete(module);
+            };
+        },
+        initAll(root = document) {
+            if (initialized) {
+                api.refreshAll(root);
+                return;
+            }
+
+            modules.forEach(module => safeInvoke(module, 'init', root));
+            initialized = true;
+        },
+        destroyAll() {
+            modules.forEach(module => safeInvoke(module, 'destroy'));
+            initialized = false;
+        },
+        refreshAll(root = document) {
+            modules.forEach(module => safeInvoke(module, 'refresh', root));
+        },
+        isInitialized() {
+            return initialized;
+        }
+    };
+
+    return api;
+})();
+
+const pageCleanupRegistry = (() => {
+    let cleanups = [];
+
+    return {
+        register(fn) {
+            if (typeof fn !== 'function') return;
+            cleanups.push(fn);
+        },
+        run() {
+            const callbacks = cleanups.slice();
+            cleanups = [];
+            callbacks.reverse().forEach(fn => {
+                try {
+                    fn();
+                } catch (error) {
+                    console.error('HDKALA cleanup error:', error);
+                }
+            });
+        }
+    };
+})();
+
+function registerPageCleanup(fn) {
+    pageCleanupRegistry.register(fn);
+}
+
+if (typeof window !== 'undefined') {
+    window.HDKEnhancements = enhancementRegistry;
+    window.HDKPageCleanup = pageCleanupRegistry;
+    window.registerPageCleanup = registerPageCleanup;
+}
+
+if (typeof window !== 'undefined') {
+    if (Array.isArray(window.__HDK_PENDING_ENHANCEMENTS__)) {
+        window.__HDK_PENDING_ENHANCEMENTS__.forEach(module => {
+            try {
+                enhancementRegistry.register(module);
+            } catch (error) {
+                console.error('HDKALA enhancement registration error:', error);
+            }
+        });
+        window.__HDK_PENDING_ENHANCEMENTS__ = [];
+    }
+}
+
+if (typeof document !== 'undefined') {
+    const startEnhancements = () => enhancementRegistry.initAll(document);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startEnhancements, { once: true });
+    } else {
+        startEnhancements();
+    }
+}
+
 function on(element, eventName, handler, options){
     if(!element || typeof element.addEventListener !== 'function'){
         return () => {};

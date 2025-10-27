@@ -1,9 +1,121 @@
-/* HDKALA bundle generated: 2025-10-25T14:45:51.603Z */
+/* HDKALA bundle generated: 2025-10-27T16:19:53.191Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
 const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
+
+/* ---------- Global enhancement & cleanup registries ---------- */
+const enhancementRegistry = (() => {
+    const modules = new Set();
+    let initialized = false;
+
+    const safeInvoke = (module, method, ...args) => {
+        if (!module || typeof module[method] !== 'function') {
+            return;
+        }
+        try {
+            module[method](...args);
+        } catch (error) {
+            console.error(`HDKALA enhancement ${method} error:`, error);
+        }
+    };
+
+    const api = {
+        register(module) {
+            if (!module || typeof module.init !== 'function') {
+                return () => {};
+            }
+
+            modules.add(module);
+
+            if (initialized) {
+                safeInvoke(module, 'init', document);
+            }
+
+            return () => {
+                if (!modules.has(module)) return;
+                safeInvoke(module, 'destroy');
+                modules.delete(module);
+            };
+        },
+        initAll(root = document) {
+            if (initialized) {
+                api.refreshAll(root);
+                return;
+            }
+
+            modules.forEach(module => safeInvoke(module, 'init', root));
+            initialized = true;
+        },
+        destroyAll() {
+            modules.forEach(module => safeInvoke(module, 'destroy'));
+            initialized = false;
+        },
+        refreshAll(root = document) {
+            modules.forEach(module => safeInvoke(module, 'refresh', root));
+        },
+        isInitialized() {
+            return initialized;
+        }
+    };
+
+    return api;
+})();
+
+const pageCleanupRegistry = (() => {
+    let cleanups = [];
+
+    return {
+        register(fn) {
+            if (typeof fn !== 'function') return;
+            cleanups.push(fn);
+        },
+        run() {
+            const callbacks = cleanups.slice();
+            cleanups = [];
+            callbacks.reverse().forEach(fn => {
+                try {
+                    fn();
+                } catch (error) {
+                    console.error('HDKALA cleanup error:', error);
+                }
+            });
+        }
+    };
+})();
+
+function registerPageCleanup(fn) {
+    pageCleanupRegistry.register(fn);
+}
+
+if (typeof window !== 'undefined') {
+    window.HDKEnhancements = enhancementRegistry;
+    window.HDKPageCleanup = pageCleanupRegistry;
+    window.registerPageCleanup = registerPageCleanup;
+}
+
+if (typeof window !== 'undefined') {
+    if (Array.isArray(window.__HDK_PENDING_ENHANCEMENTS__)) {
+        window.__HDK_PENDING_ENHANCEMENTS__.forEach(module => {
+            try {
+                enhancementRegistry.register(module);
+            } catch (error) {
+                console.error('HDKALA enhancement registration error:', error);
+            }
+        });
+        window.__HDK_PENDING_ENHANCEMENTS__ = [];
+    }
+}
+
+if (typeof document !== 'undefined') {
+    const startEnhancements = () => enhancementRegistry.initAll(document);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startEnhancements, { once: true });
+    } else {
+        startEnhancements();
+    }
+}
 
 function on(element, eventName, handler, options){
     if(!element || typeof element.addEventListener !== 'function'){
@@ -759,6 +871,9 @@ let currentRouteParams = [];
 let currentRouteQuery = {};
 let pageRenderTimeout = null;
 
+const enhancementController = typeof window !== 'undefined' ? window.HDKEnhancements : null;
+const pageCleanupController = typeof window !== 'undefined' ? window.HDKPageCleanup : null;
+
 const ROUTE_HANDLERS = {
     login: () => renderLoginPage(),
     'admin-login': () => renderAdminLoginPage(),
@@ -1258,6 +1373,9 @@ function updateRouteState(route, params = [], query = {}) {
 }
 
 function renderPageSkeleton() {
+    if (pageCleanupController && typeof pageCleanupController.run === 'function') {
+        pageCleanupController.run();
+    }
     if (!contentRoot) return;
     contentRoot.setAttribute('aria-busy', 'true');
     const skeletonCards = Array.from({ length: 6 }, () => '<div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>').join('');
@@ -1302,6 +1420,9 @@ function renderResolvedRoute(handler, context) {
         let renderError = null;
 
         try {
+            if (pageCleanupController && typeof pageCleanupController.run === 'function') {
+                pageCleanupController.run();
+            }
             contentRoot.innerHTML = '';
             effectiveHandler(resolvedContext);
         } catch (error) {
@@ -1329,6 +1450,10 @@ function renderResolvedRoute(handler, context) {
             }
 
             window.scrollTo(0, 0);
+
+            if (enhancementController && typeof enhancementController.refreshAll === 'function') {
+                enhancementController.refreshAll(contentRoot);
+            }
         }
 
         return renderError;
@@ -2464,51 +2589,55 @@ function deleteBlog(blogId) {
 /* ---------- Product Image Upload Fix ---------- */
 function setupImageUpload() {
     // این تابع مشکل آپلود عکس را برطرف می‌کند
-    document.addEventListener('change', (e) => {
-        if (e.target.type === 'file' && e.target.accept.includes('image')) {
-            const file = e.target.files[0];
+    const handler = (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.type === 'file' && target.accept && target.accept.includes('image')) {
+            const file = target.files ? target.files[0] : null;
             if (file) {
-                // بررسی نوع فایل
                 if (!file.type.startsWith('image/')) {
                     notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
-                    e.target.value = '';
+                    target.value = '';
                     return;
                 }
-                
-                // بررسی سایز فایل (حداکثر 5MB)
+
                 if (file.size > 5 * 1024 * 1024) {
                     notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
-                    e.target.value = '';
+                    target.value = '';
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function(loadEvent) {
                     const img = new Image();
                     img.onload = function() {
-                        // نمایش پیش‌نمایش
-                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
+                        const previewContainer = target.parentElement?.querySelector('.image-preview');
                         if (previewContainer) {
                             previewContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                                <img src="${loadEvent.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                                 <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
                                     <iconify-icon icon="mdi:close"></iconify-icon>
                                 </button>
                             `;
-                            
-                            // دکمه حذف عکس
-                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
-                                previewContainer.innerHTML = '';
-                                e.target.value = '';
-                            });
+
+                            const removeButton = previewContainer.querySelector('.remove-image');
+                            if (removeButton) {
+                                removeButton.addEventListener('click', function handleRemove() {
+                                    previewContainer.innerHTML = '';
+                                    target.value = '';
+                                }, { once: true });
+                            }
                         }
                     };
-                    img.src = e.target.result;
+                    img.src = loadEvent.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         }
-    });
+    };
+
+    document.addEventListener('change', handler);
+    return () => document.removeEventListener('change', handler);
 }
 
 // Admin panel event listeners
@@ -2542,8 +2671,34 @@ cancelProductBtn.addEventListener('click', () => {
 });
 adminSearch.addEventListener('input', renderAdminProducts);
 
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
+const imageUploadEnhancement = (() => {
+    let cleanup = null;
+
+    return {
+        init() {
+            if (cleanup) return;
+            cleanup = setupImageUpload();
+        },
+        destroy() {
+            if (cleanup) {
+                cleanup();
+                cleanup = null;
+            }
+        }
+    };
+})();
+
+(function registerImageUploadEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(imageUploadEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(imageUploadEnhancement);
+})();
 
 // ---- cart.js ----
 /* ---------- Cart Functions ---------- */
@@ -3830,7 +3985,7 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
                 </div>
             </div>
             <form class="mt-8 space-y-6" id="verifyForm">
-                <div class="flex justify-center gap-2" dir="ltr">
+                <div class="flex justify-center gap-2" dir="ltr" data-auto-focus="interaction">
                     ${[0,1,2,3].map(i => `
                         <input type="tel"
                                maxlength="1"
@@ -3841,6 +3996,7 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
                                autocomplete="one-time-code">
                     `).join('')}
                 </div>
+                <div class="sr-only" data-otp-status role="status" aria-live="polite"></div>
                 <div>
                     <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                         تأیید و ورود
@@ -3858,19 +4014,30 @@ function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null,
     contentRoot.appendChild(page);
     
     // Setup OTP inputs
-    setupOtpInputs(page);
-    
+    const otpManager = setupOtpInputs(page, { autoFocus: 'interaction' });
+    if (typeof registerPageCleanup === 'function') {
+        registerPageCleanup(() => otpManager.destroy());
+    }
+
     $('#verifyForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const code = getOtpCode(page);
 
         if (code.length !== 4) {
-            highlightOtpInputs(page, false);
+            highlightOtpInputs(page, {
+                isValid: false,
+                message: 'کد تأیید باید ۴ رقم باشد',
+                politeness: 'assertive'
+            });
             notify('کد تأیید باید ۴ رقم باشد', 'error');
             return;
         }
 
-        highlightOtpInputs(page, true);
+        highlightOtpInputs(page, {
+            isValid: true,
+            message: 'کد تأیید با موفقیت ثبت شد',
+            politeness: 'polite'
+        });
 
         if (typeof onSuccess === 'function') {
             onSuccess({ phone, email, code, mode });
@@ -4927,217 +5094,224 @@ document.addEventListener('DOMContentLoaded', initializeFilters);
 
 // ---- pages.js ----
 /* ---------- Product Detail Page ---------- */
-function renderProductDetailPage(id){
-    const p = getProductById(id);
-    if(!p){ 
-        contentRoot.innerHTML = `
-            <div class="text-center text-gray-500 py-20">
-                <iconify-icon icon="mdi:package-variant-remove" width="64" class="mb-4"></iconify-icon>
-                <p class="text-lg">محصول مورد نظر یافت نشد</p>
-                <a href="#products" class="text-primary hover:text-primary/80 mt-4 inline-block">بازگشت به محصولات</a>
+function renderProductDetailSkeleton() {
+    if (!contentRoot) return;
+    contentRoot.setAttribute('aria-busy', 'true');
+    contentRoot.innerHTML = `
+        <div class="space-y-8 animate-pulse" role="status" aria-live="polite">
+            <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                <div class="space-y-4">
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-2/3"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
+                </div>
             </div>
-        `; 
-        return; 
-    }
-    
-    addViewedProduct(id);
-    const finalPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
-    const inWishlist = wishlist.includes(p.id);
-    const inCompare = compareList.includes(p.id);
-    
-    const productImages = typeof getProductImages === 'function' ? getProductImages(p) : (p.img ? [p.img] : []);
-    const mainImage = productImages.length > 0 ? productImages[0] : '';
-    const isOutOfStock = p.stock === 0;
-    const initialQuantity = isOutOfStock ? 0 : 1;
-    const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
-    const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
-    const variantSummaryParts = [];
-    if (hasColors && p.colors[0]) { variantSummaryParts.push(`رنگ: ${p.colors[0]}`); }
-    if (hasSizes && p.sizes[0]) { variantSummaryParts.push(`سایز: ${p.sizes[0]}`); }
-    const variantSummaryText = variantSummaryParts.length > 0
-        ? `انتخاب شما — ${variantSummaryParts.join(' | ')}`
-        : 'گزینه‌ای برای انتخاب وجود ندارد.';
-    const addToCartButtonClasses = isOutOfStock
-        ? 'add-to-cart flex-1 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-2'
-        : 'add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2';
-    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
-    const addToCartLabelMarkup = isOutOfStock
-        ? '<span class="text-red-500 font-semibold">ناموجود</span>'
-        : '<span>افزودن به سبد خرید</span>';
-    const buyNowClasses = isOutOfStock
-        ? 'buy-now flex-1 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed'
-        : 'buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors';
-    const stockLabel = isOutOfStock
-        ? '<span class="text-red-500 font-semibold">ناموجود</span>'
-        : `<span class="text-green-500 font-semibold">${p.stock} عدد در انبار</span>`;
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                ${Array.from({ length: 4 }, () => '<div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>').join('')}
+            </div>
+        </div>
+    `;
+}
 
-    const page = document.createElement('div');
-    page.innerHTML = `
+function createProductBreadcrumbSection(product) {
+    return `
         <nav class="mb-6" aria-label="مسیر راهنما">
             <ol class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <li><a href="#home" class="hover:text-primary transition-colors">خانه</a></li>
                 <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
                 <li><a href="#products" class="hover:text-primary transition-colors">محصولات</a></li>
                 <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
-                <li><a href="#products:${p.category}" class="hover:text-primary transition-colors">${getCategoryName(p.category)}</a></li>
+                <li><a href="#products:${product.category}" class="hover:text-primary transition-colors">${getCategoryName(product.category)}</a></li>
                 <li aria-hidden="true"><iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon></li>
-                <li><span class="text-primary">${p.name}</span></li>
+                <li><span class="text-primary">${product.name}</span></li>
             </ol>
         </nav>
+    `;
+}
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                <div class="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-                    ${mainImage
-                        ? `<img id="mainProductImage" src="${mainImage}" alt="${p.name}" class="w-full h-96 object-cover rounded-lg" data-active="${mainImage}" />`
-                        : `<iconify-icon icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>`}
+function createProductMediaSection(product, viewModel) {
+    const { productImages, mainImage } = viewModel;
+    return `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+            <div class="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                ${mainImage
+                    ? `<img id="mainProductImage" src="${mainImage}" alt="${product.name}" class="w-full h-96 object-cover rounded-lg" data-active="${mainImage}" />`
+                    : `<iconify-icon icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>`}
+            </div>
+            ${productImages.length > 1 ? `
+                <div class="grid grid-cols-4 gap-2 mt-4">
+                    ${productImages.map((image, index) => `
+                        <button type="button"
+                                class="product-thumbnail h-20 rounded-lg overflow-hidden border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors ${index === 0 ? 'border-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                                data-image="${image}"
+                                aria-label="تصویر ${index + 1}"
+                                aria-selected="${index === 0 ? 'true' : 'false'}">
+                            <img src="${image}" alt="${product.name}" class="w-full h-20 object-cover" />
+                        </button>
+                    `).join('')}
                 </div>
-                ${productImages.length > 1 ? `
-                    <div class="grid grid-cols-4 gap-2 mt-4">
-                        ${productImages.map((image, index) => `
-                            <button type="button"
-                                    class="product-thumbnail h-20 rounded-lg overflow-hidden border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors ${index === 0 ? 'border-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
-                                    data-image="${image}"
-                                    aria-label="تصویر ${index + 1}"
-                                    aria-selected="${index === 0 ? 'true' : 'false'}">
-                                <img src="${image}" alt="${p.name}" class="w-full h-20 object-cover" />
-                            </button>
-                        `).join('')}
-                    </div>
-                ` : ''}
+            ` : ''}
+        </div>
+    `;
+}
+
+function createProductInfoSection(product, viewModel) {
+    const {
+        inWishlist,
+        isOutOfStock,
+        finalPrice,
+        addToCartButtonClasses,
+        addToCartIcon,
+        addToCartLabelMarkup,
+        buyNowClasses,
+        stockLabel,
+        hasColors,
+        hasSizes,
+        variantSummaryText,
+        initialQuantity
+    } = viewModel;
+
+    const colorOptions = hasColors ? `
+        <div class="mb-6">
+            <h3 class="font-medium mb-2">انتخاب رنگ</h3>
+            <div class="flex flex-wrap gap-2">
+                ${product.colors.map((color, index) => `
+                    <button type="button"
+                            class="color-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                            data-color="${color}"
+                            aria-pressed="${index === 0 ? 'true' : 'false'}">
+                        ${color}
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const sizeOptions = hasSizes ? `
+        <div class="mb-6">
+            <h3 class="font-medium mb-2">انتخاب سایز</h3>
+            <div class="flex flex-wrap gap-2">
+                ${product.sizes.map((size, index) => `
+                    <button type="button"
+                            class="size-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
+                            data-size="${size}"
+                            aria-pressed="${index === 0 ? 'true' : 'false'}">
+                        ${size}
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const variantSummary = (hasColors || hasSizes) ? `
+        <div class="selected-variant text-sm text-gray-600 dark:text-gray-300 bg-primary/5 border border-dashed border-primary/30 rounded-xl px-4 py-3 mb-6">
+            ${variantSummaryText}
+        </div>
+    ` : '';
+
+    return `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+            <div class="flex justify-between items-start mb-4">
+                <h1 class="text-2xl font-bold">${product.name}</h1>
+                <div class="flex gap-2">
+                    <button class="add-to-wishlist wishlist-button wishlist-button--compact p-2 transition-colors"
+                            data-id="${product.id}"
+                            aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
+                            data-wishlist-active="${inWishlist ? 'true' : 'false'}"
+                            data-label-active="حذف از علاقه‌مندی"
+                            data-label-inactive="افزودن به علاقه‌مندی">
+                        <span class="wishlist-icon-wrapper">
+                            <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                            <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" width="24" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                        </span>
+                        <span class="wishlist-tooltip"></span>
+                    </button>
+                    <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${product.id}">
+                        <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>
+                    </button>
+                    ${isOutOfStock ? `
+                        <button class="notify-me p-2 text-blue-500 hover:text-blue-600 transition-colors" data-id="${product.id}">
+                            <iconify-icon icon="mdi:bell-alert-outline" width="24"></iconify-icon>
+                        </button>
+                    ` : ''}
+                </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                <div class="flex justify-between items-start mb-4">
-                    <h1 class="text-2xl font-bold">${p.name}</h1>
-                    <div class="flex gap-2">
-                        <button class="add-to-wishlist wishlist-button wishlist-button--compact p-2 transition-colors"
-                                data-id="${p.id}"
-                                aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
-                                data-wishlist-active="${inWishlist ? 'true' : 'false'}"
-                                data-label-active="حذف از علاقه‌مندی"
-                                data-label-inactive="افزودن به علاقه‌مندی">
-                            <span class="wishlist-icon-wrapper">
-                                <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24" class="wishlist-icon wishlist-icon-current"></iconify-icon>
-                                <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" width="24" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
-                            </span>
-                            <span class="wishlist-tooltip"></span>
-                        </button>
-                        <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${p.id}">
-                            <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>
-                        </button>
-                        ${isOutOfStock ? `
-                            <button class="notify-me p-2 text-blue-500 hover:text-blue-600 transition-colors" data-id="${p.id}">
-                                <iconify-icon icon="mdi:bell-alert-outline" width="24"></iconify-icon>
-                            </button>
-                        ` : ''}
+            <div class="flex items-center gap-2 mb-4">
+                <div class="text-yellow-500">${'★'.repeat(product.rating)}${product.rating < 5 ? '☆'.repeat(5-product.rating) : ''}</div>
+                <span class="text-gray-500 text-sm">(۱۲ نظر)</span>
+            </div>
+
+            <div class="mb-6">
+                ${product.discount > 0 ? `
+                    <div class="flex items-center gap-4 mb-2">
+                        <span class="text-2xl font-bold text-primary">${formatPrice(finalPrice)}</span>
+                        <span class="text-lg text-gray-500 line-through">${formatPrice(product.price)}</span>
+                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-sm">${product.discount}% تخفیف</span>
+                    </div>
+                ` : `
+                    <div class="text-2xl font-bold text-primary mb-2">${formatPrice(finalPrice)}</div>
+                `}
+
+                ${product.status === 'new' ? `<span class="badge badge-new mr-2">جدید</span>` : ''}
+                ${product.status === 'hot' ? `<span class="badge badge-hot mr-2">فروش ویژه</span>` : ''}
+                ${product.status === 'bestseller' ? `<span class="badge bg-purple-500 text-white mr-2">پرفروش</span>` : ''}
+            </div>
+
+            <p class="text-gray-600 dark:text-gray-400 mb-6">${product.desc}</p>
+
+            ${colorOptions}
+            ${sizeOptions}
+            ${variantSummary}
+
+            <div class="mb-6">
+                <h3 class="font-medium mb-2">تعداد:</h3>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="decrease-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>-</button>
+                        <span class="w-12 text-center text-lg quantity-display">${initialQuantity}</span>
+                        <button type="button" class="increase-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>+</button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${stockLabel}
                     </div>
                 </div>
+            </div>
 
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="text-yellow-500">${'★'.repeat(p.rating)}${p.rating < 5 ? '☆'.repeat(5-p.rating) : ''}</div>
-                    <span class="text-gray-500 text-sm">(۱۲ نظر)</span>
-                </div>
+            <div class="flex gap-3 mb-6">
+                <button class="${addToCartButtonClasses}"
+                        data-id="${product.id}"
+                        data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                        ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
+                    ${addToCartLabelMarkup}
+                </button>
+                <button class="${buyNowClasses}" data-id="${product.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    خرید الآن
+                </button>
+            </div>
 
-                <div class="mb-6">
-                    ${p.discount > 0 ? `
-                        <div class="flex items-center gap-4 mb-2">
-                            <span class="text-2xl font-bold text-primary">${formatPrice(finalPrice)}</span>
-                            <span class="text-lg text-gray-500 line-through">${formatPrice(p.price)}</span>
-                            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-sm">${p.discount}% تخفیف</span>
-                        </div>
-                    ` : `
-                        <div class="text-2xl font-bold text-primary mb-2">${formatPrice(finalPrice)}</div>
-                    `}
-
-                    ${p.status === 'new' ? `<span class="badge badge-new mr-2">جدید</span>` : ''}
-                    ${p.status === 'hot' ? `<span class="badge badge-hot mr-2">فروش ویژه</span>` : ''}
-                    ${p.status === 'bestseller' ? `<span class="badge bg-purple-500 text-white mr-2">پرفروش</span>` : ''}
-                </div>
-
-                <p class="text-gray-600 dark:text-gray-400 mb-6">${p.desc}</p>
-
-                ${hasColors ? `
-                <div class="mb-6">
-                    <h3 class="font-medium mb-2">انتخاب رنگ</h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${p.colors.map((color, index) => `
-                            <button type="button"
-                                    class="color-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
-                                    data-color="${color}"
-                                    aria-pressed="${index === 0 ? 'true' : 'false'}">
-                                ${color}
-                            </button>
-                        `).join('')}
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-1">
+                        <iconify-icon icon="mdi:package-variant"></iconify-icon>
+                        <span>ارسال رایگان برای خرید بالای ۵۰۰ هزار تومان</span>
                     </div>
-                </div>
-                ` : ''}
-
-                ${hasSizes ? `
-                <div class="mb-6">
-                    <h3 class="font-medium mb-2">انتخاب سایز</h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${p.sizes.map((size, index) => `
-                            <button type="button"
-                                    class="size-option px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${index === 0 ? 'bg-primary/5 border-primary text-primary ring-2 ring-primary/30 shadow-sm' : 'hover:border-primary/60'}"
-                                    data-size="${size}"
-                                    aria-pressed="${index === 0 ? 'true' : 'false'}">
-                                ${size}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
-
-                ${(hasColors || hasSizes) ? `
-                <div class="selected-variant text-sm text-gray-600 dark:text-gray-300 bg-primary/5 border border-dashed border-primary/30 rounded-xl px-4 py-3 mb-6">
-                    ${variantSummaryText}
-                </div>
-                ` : ''}
-
-                <div class="mb-6">
-                    <h3 class="font-medium mb-2">تعداد:</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <button type="button" class="decrease-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>-</button>
-                            <span class="w-12 text-center text-lg quantity-display">${initialQuantity}</span>
-                            <button type="button" class="increase-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center ${isOutOfStock ? 'opacity-60 cursor-not-allowed' : ''}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>+</button>
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            ${stockLabel}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-3 mb-6">
-                    <button class="${addToCartButtonClasses}"
-                            data-id="${p.id}"
-                            data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
-                            ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
-                        <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
-                        ${addToCartLabelMarkup}
-                    </button>
-                    <button class="${buyNowClasses}" data-id="${p.id}" ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
-                        خرید الآن
-                    </button>
-                </div>
-
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                        <div class="flex items-center gap-1">
-                            <iconify-icon icon="mdi:package-variant"></iconify-icon>
-                            <span>ارسال رایگان برای خرید بالای ۵۰۰ هزار تومان</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <iconify-icon icon="mdi:shield-check"></iconify-icon>
-                            <span>ضمانت بازگشت ۷ روزه</span>
-                        </div>
+                    <div class="flex items-center gap-1">
+                        <iconify-icon icon="mdi:shield-check"></iconify-icon>
+                        <span>ضمانت بازگشت ۷ روزه</span>
                     </div>
                 </div>
             </div>
         </div>
+    `;
+}
 
-        <!-- Product Tabs -->
+function createProductTabsSection(product) {
+    return `
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 mb-12">
             <div class="border-b border-gray-200 dark:border-gray-700">
                 <div class="flex gap-8 px-6">
@@ -5148,12 +5322,12 @@ function renderProductDetailPage(id){
             </div>
             <div class="p-6">
                 <div id="tab-description" class="tab-content active">
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">${p.desc}</p>
-                    ${p.features.length > 0 ? `
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">${product.desc}</p>
+                    ${product.features.length > 0 ? `
                         <div class="mt-6">
                             <h4 class="font-medium mb-3">ویژگی‌های اصلی:</h4>
                             <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                ${p.features.map(feature => `
+                                ${product.features.map(feature => `
                                     <li class="flex items-center gap-2 text-sm">
                                         <iconify-icon icon="mdi:check-circle" class="text-green-500"></iconify-icon>
                                         <span>${feature}</span>
@@ -5163,10 +5337,10 @@ function renderProductDetailPage(id){
                         </div>
                     ` : ''}
                 </div>
-                
+
                 <div id="tab-specifications" class="tab-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${Object.entries(p.specifications).map(([key, value]) => `
+                        ${Object.entries(product.specifications).map(([key, value]) => `
                             <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                                 <span class="text-gray-600 dark:text-gray-400">${key}:</span>
                                 <span class="font-medium">${value}</span>
@@ -5174,7 +5348,7 @@ function renderProductDetailPage(id){
                         `).join('')}
                     </div>
                 </div>
-                
+
                 <div id="tab-reviews" class="tab-content">
                     <div class="space-y-6">
                         <div class="flex items-center gap-4 mb-6">
@@ -5195,7 +5369,7 @@ function renderProductDetailPage(id){
                                 `).join('')}
                             </div>
                         </div>
-                        
+
                         <div class="space-y-4">
                             ${[1,2,3].map(i => `
                                 <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -5210,7 +5384,7 @@ function renderProductDetailPage(id){
                                 </div>
                             `).join('')}
                         </div>
-                        
+
                         <div class="mt-6">
                             <h4 class="font-medium mb-4">ثبت نظر</h4>
                             <form class="space-y-4">
@@ -5233,23 +5407,118 @@ function renderProductDetailPage(id){
                 </div>
             </div>
         </div>
-        
-        <!-- Related Products -->
+    `;
+}
+
+function createProductRelatedSection() {
+    return `
         <section class="mb-12">
             <h2 class="text-2xl font-bold mb-6">محصولات مرتبط</h2>
             <div id="relatedProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
     `;
-    contentRoot.appendChild(page);
-    
-    // Show related products (same category)
-    const related = products.filter(product => 
-        product.category === p.category && product.id !== p.id
-    ).slice(0, 4);
-    renderProductsList(related, $('#relatedProducts'));
-    
-    // Add event listeners
-    setupProductDetailEvents(page, p);
+}
+
+function buildProductDetailView(product, viewModel) {
+    const container = document.createElement('div');
+    container.className = 'space-y-12';
+    container.innerHTML = `
+        ${createProductBreadcrumbSection(product)}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            ${createProductMediaSection(product, viewModel)}
+            ${createProductInfoSection(product, viewModel)}
+        </div>
+        ${createProductTabsSection(product)}
+        ${createProductRelatedSection()}
+    `;
+    return container;
+}
+
+function renderProductDetailPage(id){
+    renderProductDetailSkeleton();
+
+    const hydrateProductView = () => {
+        const product = getProductById(id);
+        if(!product){
+            if (contentRoot) {
+                contentRoot.removeAttribute('aria-busy');
+                contentRoot.innerHTML = `
+                    <div class="text-center text-gray-500 py-20">
+                        <iconify-icon icon="mdi:package-variant-remove" width="64" class="mb-4"></iconify-icon>
+                        <p class="text-lg">محصول مورد نظر یافت نشد</p>
+                        <a href="#products" class="text-primary hover:text-primary/80 mt-4 inline-block">بازگشت به محصولات</a>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        addViewedProduct(id);
+
+        const productImages = typeof getProductImages === 'function' ? getProductImages(product) : (product.img ? [product.img] : []);
+        const mainImage = productImages.length > 0 ? productImages[0] : '';
+        const isOutOfStock = product.stock === 0;
+        const initialQuantity = isOutOfStock ? 0 : 1;
+        const hasColors = Array.isArray(product.colors) && product.colors.length > 0;
+        const hasSizes = Array.isArray(product.sizes) && product.sizes.length > 0;
+        const variantSummaryParts = [];
+        if (hasColors && product.colors[0]) { variantSummaryParts.push(`رنگ: ${product.colors[0]}`); }
+        if (hasSizes && product.sizes[0]) { variantSummaryParts.push(`سایز: ${product.sizes[0]}`); }
+        const variantSummaryText = variantSummaryParts.length > 0
+            ? `انتخاب شما — ${variantSummaryParts.join(' | ')}`
+            : 'گزینه‌ای برای انتخاب وجود ندارد.';
+
+        const finalPrice = product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price;
+        const addToCartButtonClasses = isOutOfStock
+            ? 'add-to-cart flex-1 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-2'
+            : 'add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2';
+        const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
+        const addToCartLabelMarkup = isOutOfStock
+            ? '<span class="text-red-500 font-semibold">ناموجود</span>'
+            : '<span>افزودن به سبد خرید</span>';
+        const buyNowClasses = isOutOfStock
+            ? 'buy-now flex-1 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed'
+            : 'buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors';
+        const stockLabel = isOutOfStock
+            ? '<span class="text-red-500 font-semibold">ناموجود</span>'
+            : `<span class="text-green-500 font-semibold">${product.stock} عدد در انبار</span>`;
+
+        const viewModel = {
+            inWishlist: wishlist.includes(product.id),
+            productImages,
+            mainImage,
+            isOutOfStock,
+            finalPrice,
+            addToCartButtonClasses,
+            addToCartIcon,
+            addToCartLabelMarkup,
+            buyNowClasses,
+            stockLabel,
+            hasColors,
+            hasSizes,
+            variantSummaryText,
+            initialQuantity
+        };
+
+        if (!contentRoot) return;
+        const page = buildProductDetailView(product, viewModel);
+        contentRoot.innerHTML = '';
+        contentRoot.removeAttribute('aria-busy');
+        contentRoot.appendChild(page);
+
+        const related = products.filter(item =>
+            item.category === product.category && item.id !== product.id
+        ).slice(0, 4);
+        renderProductsList(related, $('#relatedProducts', page));
+
+        setupProductDetailEvents(page, product);
+    };
+
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(hydrateProductView);
+    } else {
+        setTimeout(hydrateProductView, 0);
+    }
 }
 
 function setupProductDetailEvents(page, product) {
@@ -5656,41 +5925,53 @@ function renderAddressesPage() {
     `;
     
     contentRoot.appendChild(page);
-    setupAddressEvents();
+    setupAddressEvents(page);
 }
 
-function setupAddressEvents() {
-    $('#addAddressBtn').addEventListener('click', showAddressForm);
-    
-    // Edit address
-    document.addEventListener('click', (e) => {
+function setupAddressEvents(page) {
+    const cleanups = [];
+
+    cleanups.push(on($('#addAddressBtn', page), 'click', showAddressForm));
+
+    const handleEditClick = (e) => {
         const editBtn = e.target.closest('.edit-address');
-        if (editBtn) {
-            const addressId = editBtn.getAttribute('data-id');
-            const address = addresses.find(addr => addr.id === addressId);
-            if (address) {
-                showAddressForm(address);
-            }
+        if (!editBtn) return;
+        const addressId = editBtn.getAttribute('data-id');
+        const address = addresses.find(addr => addr.id === addressId);
+        if (address) {
+            showAddressForm(address);
         }
-    });
-    
-    // Delete address
-    document.addEventListener('click', (e) => {
+    };
+
+    const handleDeleteClick = (e) => {
         const deleteBtn = e.target.closest('.delete-address');
-        if (deleteBtn) {
-            const addressId = deleteBtn.getAttribute('data-id');
-            deleteAddress(addressId);
-        }
-    });
-    
-    // Set default address
-    document.addEventListener('click', (e) => {
+        if (!deleteBtn) return;
+        const addressId = deleteBtn.getAttribute('data-id');
+        deleteAddress(addressId);
+    };
+
+    const handleDefaultClick = (e) => {
         const setDefaultBtn = e.target.closest('.set-default-address');
-        if (setDefaultBtn) {
-            const addressId = setDefaultBtn.getAttribute('data-id');
-            setDefaultAddress(addressId);
-        }
-    });
+        if (!setDefaultBtn) return;
+        const addressId = setDefaultBtn.getAttribute('data-id');
+        setDefaultAddress(addressId);
+    };
+
+    cleanups.push(on(document, 'click', handleEditClick));
+    cleanups.push(on(document, 'click', handleDeleteClick));
+    cleanups.push(on(document, 'click', handleDefaultClick));
+
+    if (typeof registerPageCleanup === 'function') {
+        registerPageCleanup(() => {
+            cleanups.forEach(dispose => {
+                try {
+                    dispose?.();
+                } catch (error) {
+                    console.error('Address cleanup error:', error);
+                }
+            });
+        });
+    }
 }
 
 function showAddressForm(address = null) {
@@ -6560,25 +6841,30 @@ function showValidationErrors(errors, container) {
 
 // اعتبارسنجی real-time
 function setupRealTimeValidation() {
-    document.addEventListener('input', (e) => {
+    const handler = (e) => {
         const input = e.target;
-        
+
+        if (!(input instanceof HTMLInputElement)) return;
+
         if (input.type === 'tel' && input.hasAttribute('data-phone')) {
             validatePhoneField(input);
         }
-        
+
         if (input.hasAttribute('data-national')) {
             validateNationalCodeField(input);
         }
-        
+
         if (input.hasAttribute('data-postal')) {
             validatePostalCodeField(input);
         }
-        
+
         if (input.type === 'email') {
             validateEmailField(input);
         }
-    });
+    };
+
+    document.addEventListener('input', handler);
+    return () => document.removeEventListener('input', handler);
 }
 
 function validatePhoneField(input) {
@@ -6624,11 +6910,16 @@ function updateFieldValidationState(input, isValid, errorMessage) {
 
 // اعتبارسنجی فیلدهای عددی در پنل ادمین
 function setupAdminInputValidation() {
-    document.addEventListener('input', (e) => {
-        if (e.target.matches('#productPrice, #productDiscount, #productStock')) {
-            validateAdminNumberField(e.target);
+    const handler = (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.matches('#productPrice, #productDiscount, #productStock')) {
+            validateAdminNumberField(target);
         }
-    });
+    };
+
+    document.addEventListener('input', handler);
+    return () => document.removeEventListener('input', handler);
 }
 
 function validateAdminNumberField(input) {
@@ -6666,11 +6957,41 @@ function validateAdminNumberField(input) {
     input.value = value;
 }
 
-// Initialize validation
-document.addEventListener('DOMContentLoaded', () => {
-    setupRealTimeValidation();
-    setupAdminInputValidation();
-});
+const validationEnhancement = (() => {
+    let cleanups = [];
+
+    return {
+        init() {
+            if (cleanups.length > 0) return;
+            cleanups = [
+                setupRealTimeValidation(),
+                setupAdminInputValidation()
+            ].filter(Boolean);
+        },
+        destroy() {
+            cleanups.forEach(fn => {
+                try {
+                    fn?.();
+                } catch (error) {
+                    console.error('Validation cleanup error:', error);
+                }
+            });
+            cleanups = [];
+        }
+    };
+})();
+
+(function registerValidationEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(validationEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(validationEnhancement);
+})();
 
 // ---- components.js ----
 /* ---------- UI Components ---------- */
@@ -6696,35 +7017,65 @@ function unlockBodyScroll() {
 }
 
 // کامپوننت اسکرول بار سفارشی
-function setupCustomScrollbar() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+function createCustomScrollbarManager() {
+    let styleEl = null;
+
+    return {
+        init() {
+            if (styleEl || typeof document === 'undefined') return;
+            styleEl = document.createElement('style');
+            styleEl.textContent = `
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f5f9;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #374151;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #6b7280;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #9ca3af;
+                }
+            `;
+            document.head.appendChild(styleEl);
+        },
+        destroy() {
+            if (!styleEl || !styleEl.parentNode) return;
+            styleEl.parentNode.removeChild(styleEl);
+            styleEl = null;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-            background: #374151;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #6b7280;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-    `;
-    document.head.appendChild(style);
+    };
 }
+
+const customScrollbarEnhancement = createCustomScrollbarManager();
+
+function setupCustomScrollbar() {
+    customScrollbarEnhancement.init();
+}
+
+(function registerCustomScrollbarEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(customScrollbarEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(customScrollbarEnhancement);
+})();
 
 // کامپوننت بنر کوچک‌تر صفحه اصلی
 function createSmallHero() {
@@ -7232,165 +7583,392 @@ function createBlogManagement() {
 }
 
 // Initialize components
-document.addEventListener('DOMContentLoaded', () => {
-    setupCustomScrollbar();
-});
+setupCustomScrollbar();
 
 // ---- utils.js ----
 /* ---------- Utility Functions ---------- */
-function setupAutoClearInputs() {
-    document.addEventListener('focus', (e) => {
-        if (e.target.matches('input[type="number"], input[type="text"]')) {
-            if (e.target.value === '0' || e.target.value === '00') {
-                e.target.value = '';
-            }
-        }
-    });
+const OTP_DIGIT_PATTERN = /[0-9\u06F0-\u06F9\u0660-\u0669]/;
+const otpStateMap = new WeakMap();
+
+function registerEnhancementModule(module) {
+    if (!module || typeof module.init !== 'function') {
+        return;
+    }
+
+    const registry = typeof window !== 'undefined' ? window.HDKEnhancements : null;
+
+    if (registry && typeof registry.register === 'function') {
+        registry.register(module);
+        return;
+    }
+
+    if (typeof window !== 'undefined') {
+        window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+        window.__HDK_PENDING_ENHANCEMENTS__.push(module);
+    }
 }
 
-function setupInputValidation() {
-    document.addEventListener('blur', (e) => {
-        const input = e.target;
-        
-        if (input.type === 'tel' && input.hasAttribute('data-phone')) {
-            if (input.value && !validatePhone(input.value)) {
-                input.classList.add('border-red-500');
-                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', 'error');
-            } else {
-                input.classList.remove('border-red-500');
-            }
+function createAutoClearInputManager(root = document) {
+    let handler = null;
+
+    return {
+        init() {
+            if (handler || !root) return;
+            handler = (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLInputElement)) return;
+                if (!target.matches('input[type="number"], input[type="text"], input[type="tel"]')) return;
+
+                const normalized = target.value;
+                if (normalized === '0' || normalized === '00') {
+                    target.value = '';
+                }
+            };
+            root.addEventListener('focus', handler, true);
+        },
+        destroy() {
+            if (!handler || !root) return;
+            root.removeEventListener('focus', handler, true);
+            handler = null;
         }
-        
-        if (input.hasAttribute('data-postal')) {
-            if (input.value && !validatePostalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد پستی باید 10 رقمی باشد', 'error');
-            } else {
-                input.classList.remove('border-red-500');
-            }
+    };
+}
+
+function createBlurValidationManager(root = document) {
+    let handler = null;
+
+    return {
+        init() {
+            if (handler || !root) return;
+            handler = (event) => {
+                const input = event.target;
+                if (!(input instanceof HTMLInputElement)) return;
+
+                if (input.type === 'tel' && input.hasAttribute('data-phone')) {
+                    if (input.value && !validatePhone(input.value)) {
+                        input.classList.add('border-red-500');
+                        notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', 'error');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                }
+
+                if (input.hasAttribute('data-postal')) {
+                    if (input.value && !validatePostalCode(input.value)) {
+                        input.classList.add('border-red-500');
+                        notify('کد پستی باید 10 رقمی باشد', 'error');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                }
+
+                if (input.hasAttribute('data-national')) {
+                    if (input.value && !validateNationalCode(input.value)) {
+                        input.classList.add('border-red-500');
+                        notify('کد ملی نامعتبر است', 'error');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                }
+
+                if (input.type === 'email' && input.value) {
+                    if (!validateEmail(input.value)) {
+                        input.classList.add('border-red-500');
+                        notify('ایمیل وارد شده معتبر نیست', 'error');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                }
+            };
+            root.addEventListener('blur', handler, true);
+        },
+        destroy() {
+            if (!handler || !root) return;
+            root.removeEventListener('blur', handler, true);
+            handler = null;
         }
-        
-        if (input.hasAttribute('data-national')) {
-            if (input.value && !validateNationalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد ملی نامعتبر است', 'error');
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.type === 'email' && input.value) {
-            if (!validateEmail(input.value)) {
-                input.classList.add('border-red-500');
-                notify('ایمیل وارد شده معتبر نیست', 'error');
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-    });
+    };
+}
+
+function normalizeDigitString(value = '') {
+    return value
+        .replace(/[۰-۹]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 1728))
+        .replace(/[٠-٩]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 1632));
+}
+
+function ensureOtpStatusElement(container, providedElement) {
+    if (providedElement) return providedElement;
+    const existing = container.querySelector('[data-otp-status]');
+    if (existing) return existing;
+    const region = document.createElement('div');
+    region.setAttribute('data-otp-status', 'true');
+    region.setAttribute('role', 'status');
+    region.setAttribute('aria-live', 'polite');
+    region.className = 'sr-only';
+    container.appendChild(region);
+    return region;
 }
 
 // تابع برای مدیریت مربع‌های کد تأیید
-function setupOtpInputs(container) {
-    const inputs = $$('.otp-input', container);
+function setupOtpInputs(container, options = {}) {
+    const host = container instanceof HTMLElement ? container : document;
+    const inputs = $$('.otp-input', host);
+
+    if (!inputs || inputs.length === 0) {
+        otpStateMap.delete(host);
+        return { focusFirst: () => {}, destroy: () => {}, announce: () => {} };
+    }
+
+    const cleanup = [];
+    const statusElement = ensureOtpStatusElement(host, options.statusElement);
+    const announce = ({ message = '', type = 'status', politeness } = {}) => {
+        if (!statusElement) return;
+        const desiredPoliteness = politeness || (type === 'error' ? 'assertive' : 'polite');
+        statusElement.setAttribute('aria-live', desiredPoliteness);
+        statusElement.textContent = message;
+    };
+
+    const removeAllClasses = (input) => {
+        input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
+        if (!input.classList.contains('border-gray-300')) {
+            input.classList.add('border-gray-300');
+        }
+    };
+
+    const focusFirst = () => {
+        if (inputs[0] && typeof inputs[0].focus === 'function') {
+            inputs[0].focus({ preventScroll: true });
+            if (typeof inputs[0].select === 'function') {
+                inputs[0].select();
+            }
+        }
+    };
+
+    const commitSequence = (startIndex, digits) => {
+        const chars = digits.split('');
+        chars.forEach((char, offset) => {
+            const input = inputs[startIndex + offset];
+            if (!input) return;
+            input.value = char;
+            removeAllClasses(input);
+        });
+
+        const nextIndex = startIndex + chars.length;
+        if (inputs[nextIndex]) {
+            inputs[nextIndex].focus();
+        } else if (typeof options.onComplete === 'function') {
+            options.onComplete(getOtpCode(host));
+        }
+    };
 
     inputs.forEach((input, index) => {
         input.setAttribute('dir', 'ltr');
         input.setAttribute('inputmode', 'numeric');
         input.setAttribute('pattern', '[0-9]*');
+        input.setAttribute('autocomplete', 'one-time-code');
         input.type = 'tel';
+        input.maxLength = 1;
 
-        input.addEventListener('focus', () => {
-            input.select();
-        });
+        let isComposing = false;
 
-        input.addEventListener('input', (e) => {
-            const value = e.target.value.replace(/[^\d]/g, '');
-            e.target.value = value.slice(0, 1);
+        const handleFocus = () => {
+            if (typeof input.select === 'function') {
+                input.select();
+            }
+        };
 
-            e.target.classList.remove('border-red-500', 'border-green-500');
-            if (!e.target.classList.contains('border-gray-300')) {
-                e.target.classList.add('border-gray-300');
+        const handleInput = (event) => {
+            if (isComposing) return;
+            const target = event.target;
+            const normalizedValue = normalizeDigitString(target.value);
+            const digits = normalizedValue.replace(/\D+/g, '');
+
+            if (!digits) {
+                target.value = '';
+                return;
             }
 
-            // فقط اعداد مجاز
-            if (e.target.value.length === 1) {
-                if (index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            }
-        });
-        
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '') {
-                if (index > 0) {
-                    inputs[index - 1].focus();
-                }
-            }
-            
-            if (e.key === 'ArrowLeft' && index > 0) {
+            commitSequence(index, digits.slice(0, inputs.length - index));
+        };
+
+        const handleKeydown = (event) => {
+            const target = event.target;
+            const key = event.key;
+
+            if (key === 'ArrowLeft' && index > 0) {
+                event.preventDefault();
                 inputs[index - 1].focus();
+                return;
             }
-            
-            if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+
+            if (key === 'ArrowRight' && index < inputs.length - 1) {
+                event.preventDefault();
                 inputs[index + 1].focus();
+                return;
             }
-        });
-        
-        input.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pasteData = e.clipboardData.getData('text');
-            const numbers = pasteData.replace(/[^\d]/g, '').split('');
 
-            numbers.forEach((num, i) => {
-                if (inputs[i]) {
-                    inputs[i].value = num;
-                    inputs[i].classList.remove('border-red-500', 'border-green-500');
-                    if (!inputs[i].classList.contains('border-gray-300')) {
-                        inputs[i].classList.add('border-gray-300');
-                    }
+            if (key === 'Backspace') {
+                event.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index > 0) {
+                    inputs[index - 1].focus();
+                    inputs[index - 1].value = '';
                 }
-            });
-
-            if (inputs[numbers.length]) {
-                inputs[numbers.length].focus();
+                return;
             }
+
+            if (key === 'Delete') {
+                event.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                    inputs[index + 1].value = '';
+                }
+                return;
+            }
+
+            if (key === 'Enter') {
+                return;
+            }
+
+            if (key.length > 1) {
+                return;
+            }
+
+            if (!OTP_DIGIT_PATTERN.test(key)) {
+                event.preventDefault();
+            }
+        };
+
+        const handlePaste = (event) => {
+            event.preventDefault();
+            const pasteData = event.clipboardData?.getData('text') || '';
+            const digits = normalizeDigitString(pasteData).replace(/\D+/g, '');
+            if (!digits) return;
+            commitSequence(0, digits.slice(0, inputs.length));
+        };
+
+        const handleCompositionStart = () => {
+            isComposing = true;
+        };
+
+        const handleCompositionEnd = (event) => {
+            isComposing = false;
+            handleInput(event);
+        };
+
+        input.addEventListener('focus', handleFocus);
+        input.addEventListener('input', handleInput);
+        input.addEventListener('keydown', handleKeydown);
+        input.addEventListener('paste', handlePaste);
+        input.addEventListener('compositionstart', handleCompositionStart);
+        input.addEventListener('compositionend', handleCompositionEnd);
+
+        cleanup.push(() => {
+            input.removeEventListener('focus', handleFocus);
+            input.removeEventListener('input', handleInput);
+            input.removeEventListener('keydown', handleKeydown);
+            input.removeEventListener('paste', handlePaste);
+            input.removeEventListener('compositionstart', handleCompositionStart);
+            input.removeEventListener('compositionend', handleCompositionEnd);
         });
     });
 
-    if (inputs[0]) {
-        inputs[0].focus();
+    const autoFocusMode = options.autoFocus ?? host.getAttribute('data-auto-focus') ?? 'interaction';
+
+    if (autoFocusMode === 'immediate' || autoFocusMode === true) {
+        requestAnimationFrame(focusFirst);
+    } else if (autoFocusMode === 'interaction') {
+        const activate = () => {
+            focusFirst();
+        };
+        const pointerOptions = { once: true };
+        const keyOptions = { once: true };
+        host.addEventListener('pointerdown', activate, pointerOptions);
+        host.addEventListener('keydown', activate, keyOptions);
+        cleanup.push(() => {
+            host.removeEventListener('pointerdown', activate, pointerOptions);
+            host.removeEventListener('keydown', activate, keyOptions);
+        });
     }
+
+    host.setAttribute('role', host.getAttribute('role') || 'group');
+    host.setAttribute('data-otp-initialized', 'true');
+
+    const destroy = () => {
+        cleanup.forEach(fn => {
+            try {
+                fn();
+            } catch (error) {
+                console.error('OTP cleanup error:', error);
+            }
+        });
+        cleanup.length = 0;
+        otpStateMap.delete(host);
+    };
+
+    const state = {
+        inputs,
+        focusFirst,
+        destroy,
+        announce: ({ message, type, politeness }) => announce({ message, type, politeness })
+    };
+
+    otpStateMap.set(host, state);
+
+    return state;
 }
 
 // تابع برای جمع‌آوری کد از مربع‌ها
 function getOtpCode(container) {
     const inputs = $$('.otp-input', container);
-    return inputs.map(input => input.value).join('');
+    return inputs.map(input => normalizeDigitString(input.value || '').replace(/\D+/g, '')).join('');
 }
 
 // تابع برای ریست کردن مربع‌های کد
-function resetOtpInputs(container) {
-    const inputs = $$('.otp-input', container);
+function resetOtpInputs(container, { message = '' } = {}) {
+    const state = otpStateMap.get(container);
+    const inputs = state?.inputs || $$('.otp-input', container);
     inputs.forEach(input => {
         input.value = '';
         input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        input.classList.add('border-gray-300');
+        if (!input.classList.contains('border-gray-300')) {
+            input.classList.add('border-gray-300');
+        }
     });
-    if (inputs[0]) inputs[0].focus();
+    if (state) {
+        state.announce({ message, type: 'status', politeness: 'polite' });
+        state.focusFirst();
+    } else if (inputs[0]) {
+        inputs[0].focus();
+    }
 }
 
 // تابع برای هایلایت کردن مربع‌ها
-function highlightOtpInputs(container, isValid) {
-    const inputs = $$('.otp-input', container);
+function highlightOtpInputs(container, options = {}) {
+    let config = options;
+    if (typeof options === 'boolean') {
+        config = { isValid: options };
+    }
+
+    const state = otpStateMap.get(container);
+    const inputs = state?.inputs || $$('.otp-input', container);
+    const isValid = config.isValid !== undefined ? config.isValid : true;
+
     inputs.forEach(input => {
         input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        if (isValid) {
-            input.classList.add('border-green-500');
-        } else {
-            input.classList.add('border-red-500');
-        }
+        input.classList.add(isValid ? 'border-green-500' : 'border-red-500');
     });
+
+    if (state && config.message) {
+        state.announce({
+            message: config.message,
+            type: isValid ? 'status' : 'error',
+            politeness: config.politeness
+        });
+    }
 }
 
 // تابع برای ایجاد delay
@@ -7501,58 +8079,112 @@ function checkProductStock(productId, quantity = 1) {
 }
 
 // تابع برای مدیریت اسکرول بدون اختلال در مسیریاب
-function setupSmoothScroll() {
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href^="#"]');
-        if (!link) return;
+function createSmoothScrollManager(root = document) {
+    let handler = null;
 
-        if (link.hasAttribute('data-route-link')) {
-            return;
+    return {
+        init() {
+            if (handler || !root) return;
+            handler = (event) => {
+                const link = event.target.closest?.('a[href^="#"]');
+                if (!link) return;
+
+                if (link.hasAttribute('data-route-link')) {
+                    return;
+                }
+
+                const hash = link.getAttribute('href');
+                if (!hash || hash.length <= 1) return;
+
+                const target = document.querySelector(hash);
+                if (!target) return;
+
+                event.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            };
+            root.addEventListener('click', handler);
+        },
+        destroy() {
+            if (!handler || !root) return;
+            root.removeEventListener('click', handler);
+            handler = null;
         }
-
-        const hash = link.getAttribute('href');
-        if (!hash || hash.length <= 1) return;
-
-        const target = document.querySelector(hash);
-        if (!target) return;
-
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth' });
-    });
+    };
 }
 
 // تابع برای lazy loading تصاویر
-function setupLazyLoading() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                observer.unobserve(img);
-            }
+function createLazyLoadingManager() {
+    let observer = null;
+
+    const ensureObserver = () => {
+        if (observer) return observer;
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset && img.dataset.src) {
+                        img.src = img.dataset.src;
+                        delete img.dataset.src;
+                    }
+                    img.classList.remove('lazy');
+                    observer.unobserve(img);
+                }
+            });
         });
-    });
-    
-    $$('img[data-src]').forEach(img => {
-        observer.observe(img);
-    });
+        return observer;
+    };
+
+    const observeImages = (root = document) => {
+        const activeObserver = ensureObserver();
+        if (!root || !root.querySelectorAll) return;
+        root.querySelectorAll('img[data-src]').forEach(img => {
+            activeObserver.observe(img);
+        });
+    };
+
+    return {
+        init(root = document) {
+            observeImages(root);
+        },
+        refresh(root = document) {
+            observeImages(root);
+        },
+        destroy() {
+            if (observer) {
+                observer.disconnect();
+                observer = null;
+            }
+        }
+    };
 }
 
 // تابع برای مدیریت responsive
-function setupResponsiveHandlers() {
-    function handleResize() {
-        if (window.innerWidth >= 1024) {
-            mobileMenu.classList.add('hidden');
-        }
-    }
+function createResponsiveHandlersManager() {
+    let resizeHandler = null;
 
-    window.addEventListener('resize', handleResize);
+    return {
+        init() {
+            if (resizeHandler) return;
+            resizeHandler = () => {
+                if (typeof mobileMenu !== 'undefined' && mobileMenu && window.innerWidth >= 1024) {
+                    mobileMenu.classList.add('hidden');
+                }
+            };
+            window.addEventListener('resize', resizeHandler);
+            resizeHandler();
+        },
+        destroy() {
+            if (!resizeHandler) return;
+            window.removeEventListener('resize', resizeHandler);
+            resizeHandler = null;
+        }
+    };
 }
 
 // بهبود و انیمیشن آیکون‌ها در سراسر پروژه
-function setupIconAnimations() {
+function createIconAnimationManager() {
     const interactiveSelector = 'button, a, [role="button"], [data-icon-interactive-parent], .icon-action, .icon-button';
+    let observer = null;
 
     const markIcon = (icon) => {
         if (!(icon instanceof HTMLElement)) return;
@@ -7577,25 +8209,39 @@ function setupIconAnimations() {
         root.querySelectorAll?.('iconify-icon').forEach(markIcon);
     };
 
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (!(node instanceof HTMLElement)) return;
-                enhanceTree(node);
-            });
-        });
-    });
-
-    enhanceTree(document);
-
-    if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+    return {
+        init(root = document) {
+            enhanceTree(root || document);
+            if (!observer && document.body) {
+                observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (!(node instanceof HTMLElement)) return;
+                            enhanceTree(node);
+                        });
+                    });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        },
+        refresh(root = document) {
+            enhanceTree(root || document);
+        },
+        destroy() {
+            if (observer) {
+                observer.disconnect();
+                observer = null;
+            }
+        }
+    };
 }
 
-function setupWishlistButtonInteractions() {
+function createWishlistButtonManager() {
     const DEFAULT_ACTIVE_TEXT = 'حذف از علاقه‌مندی';
     const DEFAULT_INACTIVE_TEXT = 'افزودن به علاقه‌مندی';
+    let mouseenterHandler = null;
+    let clickHandler = null;
+    let observer = null;
 
     const getButtons = (root = document) => {
         if (!root || !root.querySelectorAll) return [];
@@ -7644,50 +8290,115 @@ function setupWishlistButtonInteractions() {
         getButtons(root).forEach(updateButtonState);
     };
 
-    updateAll(document);
+    return {
+        init(root = document) {
+            updateAll(root || document);
 
-    document.addEventListener('mouseenter', (event) => {
-        const button = event.target.closest?.('.wishlist-button');
-        if (!button) return;
-        updateButtonState(button);
-    }, true);
+            if (!mouseenterHandler) {
+                mouseenterHandler = (event) => {
+                    const button = event.target.closest?.('.wishlist-button');
+                    if (!button) return;
+                    updateButtonState(button);
+                };
+                document.addEventListener('mouseenter', mouseenterHandler, true);
+            }
 
-    document.addEventListener('click', (event) => {
-        const button = event.target.closest?.('.wishlist-button');
-        if (!button) return;
-        requestAnimationFrame(() => updateButtonState(button));
-        setTimeout(() => updateAll(document), 160);
-    });
+            if (!clickHandler) {
+                clickHandler = (event) => {
+                    const button = event.target.closest?.('.wishlist-button');
+                    if (!button) return;
+                    requestAnimationFrame(() => updateButtonState(button));
+                    setTimeout(() => updateAll(document), 160);
+                };
+                document.addEventListener('click', clickHandler);
+            }
 
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (!(node instanceof HTMLElement)) return;
-                if (node.matches?.('.wishlist-button')) {
-                    updateButtonState(node);
-                }
-                updateAll(node);
-            });
-        });
-    });
+            if (!observer && document.body) {
+                observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (!(node instanceof HTMLElement)) return;
+                            if (node.matches?.('.wishlist-button')) {
+                                updateButtonState(node);
+                            }
+                            updateAll(node);
+                        });
+                    });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
 
-    if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+            window.refreshWishlistButtons = updateAll;
+        },
+        refresh(root = document) {
+            updateAll(root || document);
+        },
+        destroy() {
+            if (mouseenterHandler) {
+                document.removeEventListener('mouseenter', mouseenterHandler, true);
+                mouseenterHandler = null;
+            }
 
-    window.refreshWishlistButtons = updateAll;
+            if (clickHandler) {
+                document.removeEventListener('click', clickHandler);
+                clickHandler = null;
+            }
+
+            if (observer) {
+                observer.disconnect();
+                observer = null;
+            }
+
+            if (window.refreshWishlistButtons === updateAll) {
+                delete window.refreshWishlistButtons;
+            }
+        }
+    };
 }
 
-// Initialize all utilities
-document.addEventListener('DOMContentLoaded', () => {
-    setupAutoClearInputs();
-    setupInputValidation();
-    setupSmoothScroll();
-    setupLazyLoading();
-    setupResponsiveHandlers();
-    setupWishlistButtonInteractions();
-    setupIconAnimations();
-});
+const autoClearManager = createAutoClearInputManager();
+const blurValidationManager = createBlurValidationManager();
+const smoothScrollManager = createSmoothScrollManager();
+const lazyLoadingManager = createLazyLoadingManager();
+const responsiveHandlersManager = createResponsiveHandlersManager();
+const wishlistButtonManager = createWishlistButtonManager();
+const iconAnimationManager = createIconAnimationManager();
+
+registerEnhancementModule(autoClearManager);
+registerEnhancementModule(blurValidationManager);
+registerEnhancementModule(smoothScrollManager);
+registerEnhancementModule(lazyLoadingManager);
+registerEnhancementModule(responsiveHandlersManager);
+registerEnhancementModule(wishlistButtonManager);
+registerEnhancementModule(iconAnimationManager);
+
+function setupAutoClearInputs(root) {
+    autoClearManager.init(root || document);
+}
+
+function setupInputValidation(root) {
+    blurValidationManager.init(root || document);
+}
+
+function setupSmoothScroll(root) {
+    smoothScrollManager.init(root || document);
+}
+
+function setupLazyLoading(root) {
+    lazyLoadingManager.init(root || document);
+}
+
+function setupResponsiveHandlers() {
+    responsiveHandlersManager.init();
+}
+
+function setupWishlistButtonInteractions(root) {
+    wishlistButtonManager.init(root || document);
+}
+
+function setupIconAnimations(root) {
+    iconAnimationManager.init(root || document);
+}
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
