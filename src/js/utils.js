@@ -55,11 +55,15 @@ function setupInputValidation() {
 function setupOtpInputs(container) {
     const inputs = $$('.otp-input', container);
 
+    const isDigitKey = (event) => /\d/.test(event.key);
+
     inputs.forEach((input, index) => {
         input.setAttribute('dir', 'ltr');
         input.setAttribute('inputmode', 'numeric');
         input.setAttribute('pattern', '[0-9]*');
+        input.setAttribute('autocomplete', 'one-time-code');
         input.type = 'tel';
+        input.maxLength = 1;
 
         input.addEventListener('focus', () => {
             input.select();
@@ -81,23 +85,54 @@ function setupOtpInputs(container) {
                 }
             }
         });
-        
+
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '') {
-                if (index > 0) {
-                    inputs[index - 1].focus();
-                }
-            }
-            
-            if (e.key === 'ArrowLeft' && index > 0) {
+            const target = e.target;
+            const key = e.key;
+
+            if (key === 'ArrowLeft' && index > 0) {
+                e.preventDefault();
                 inputs[index - 1].focus();
+                return;
             }
-            
-            if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+
+            if (key === 'ArrowRight' && index < inputs.length - 1) {
+                e.preventDefault();
                 inputs[index + 1].focus();
+                return;
+            }
+
+            if (key === 'Backspace') {
+                e.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index > 0) {
+                    inputs[index - 1].focus();
+                    inputs[index - 1].value = '';
+                }
+                return;
+            }
+
+            if (key === 'Delete') {
+                e.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                    inputs[index + 1].value = '';
+                }
+                return;
+            }
+
+            if (key.length > 1) {
+                return;
+            }
+
+            if (!isDigitKey(e)) {
+                e.preventDefault();
             }
         });
-        
+
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasteData = e.clipboardData.getData('text');
