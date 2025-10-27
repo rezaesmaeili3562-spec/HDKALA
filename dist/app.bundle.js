@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-27T17:25:52.869Z */
+/* HDKALA bundle generated: 2025-10-27T18:46:44.758Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -5178,6 +5178,12 @@ function applyThemePreference(isDark) {
 
     if (root) {
         root.classList.toggle('dark', enabled);
+        root.setAttribute('data-theme', enabled ? 'dark' : 'light');
+    }
+
+    if (document.body) {
+        document.body.classList.toggle('dark', enabled);
+        document.body.setAttribute('data-theme', enabled ? 'dark' : 'light');
     }
 
     if (themeIcon) {

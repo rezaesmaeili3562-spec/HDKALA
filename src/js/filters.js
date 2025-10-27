@@ -485,6 +485,12 @@ function applyThemePreference(isDark) {
 
     if (root) {
         root.classList.toggle('dark', enabled);
+        root.setAttribute('data-theme', enabled ? 'dark' : 'light');
+    }
+
+    if (document.body) {
+        document.body.classList.toggle('dark', enabled);
+        document.body.setAttribute('data-theme', enabled ? 'dark' : 'light');
     }
 
     if (themeIcon) {
