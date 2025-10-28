@@ -848,10 +848,6 @@ function closeCartSidebar() {
 }
 
 // Cart and Compare event listeners
-if (cartBtn) {
-    cartBtn.addEventListener('click', openCartSidebar);
-}
-
 if (closeCart) {
     closeCart.addEventListener('click', closeCartSidebar);
 }

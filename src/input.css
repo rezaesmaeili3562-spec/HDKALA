@@ -333,7 +333,7 @@ body.is-scroll-locked {
   }
 }
 
-#themeToggle.theme-toggle-animate iconify-icon {
+#darkModeBtn.theme-toggle-animate iconify-icon {
   animation: themeFlip 0.45s ease;
 }
 .skeleton {
