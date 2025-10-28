@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-27T18:46:44.758Z */
+/* HDKALA bundle generated: 2025-10-28T20:57:02.265Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -188,6 +188,87 @@ function quickAddDemoProduct() {
         id: `quick-add-${availableProduct.id}`,
         allowDuplicates: false
     });
+}
+
+function applySavedThemePreference() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    const root = document.documentElement;
+    let savedTheme;
+
+    try {
+        savedTheme = localStorage.getItem('theme');
+    } catch (error) {
+        savedTheme = null;
+    }
+
+    if (savedTheme === 'dark') {
+        root.classList.add('dark');
+        return;
+    }
+
+    if (savedTheme === 'light') {
+        root.classList.remove('dark');
+        return;
+    }
+}
+
+function initApp() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return;
+    }
+
+    applySavedThemePreference();
+
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    if (darkModeBtn) {
+        on(darkModeBtn, 'click', (event) => {
+            event.preventDefault();
+            const root = document.documentElement;
+            const isDark = root.classList.toggle('dark');
+            try {
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            } catch (error) {
+                /* ignore storage errors */
+            }
+        });
+    }
+
+    const navigationButtons = [
+        { id: 'cartBtn', hash: '#cart' },
+        { id: 'wishlistBtn', hash: '#wishlist' },
+        { id: 'compareBtn', hash: '#compare' },
+        { id: 'loginBtn', hash: '#login' },
+        { id: 'registerBtn', hash: '#register' }
+    ];
+
+    navigationButtons.forEach(({ id, hash }) => {
+        const button = document.getElementById(id);
+        if (!button) {
+            return;
+        }
+
+        on(button, 'click', (event) => {
+            event.preventDefault();
+            const targetHash = typeof hash === 'string' && hash.startsWith('#')
+                ? hash
+                : `#${hash || ''}`;
+
+            if (targetHash.length > 1) {
+                location.hash = targetHash;
+            }
+        });
+    });
+}
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        initApp();
+    }
 }
 
 // ---- storage.js ----
