@@ -307,12 +307,17 @@ function renderAdminPage() {
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
-                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors mb-4" onclick="openAdminPanel()">
-                        مدیریت محصولات
-                    </button>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                        <h3 class="text-lg font-semibold mb-3">پنل ادمین</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                            برای مدیریت محصولات، سفارشات و موجودی فروشگاه از این بخش وارد پنل ادمین شوید.
+                        </p>
+                        <button id="adminBtn" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                            ورود به پنل ادمین
+                        </button>
+                    </div>
                 </div>
-                
+
                 <div>
                     <h3 class="text-lg font-semibold mb-4">مدیریت بلاگ</h3>
                     ${createBlogManagement()}
@@ -323,6 +328,14 @@ function renderAdminPage() {
     
     contentRoot.appendChild(page);
     setupBlogManagement();
+
+    const adminTrigger = page.querySelector('#adminBtn');
+    if (adminTrigger) {
+        adminTrigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            openAdminPanel();
+        });
+    }
 }
 
 /* ---------- Render products ---------- */

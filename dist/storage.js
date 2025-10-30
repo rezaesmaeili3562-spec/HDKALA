@@ -244,7 +244,6 @@ const cartCountEl = $('#cartCount');
 const wishlistCountEl = $('#wishlistCount');
 const compareCountEl = $('#compareCount');
 const userLabel = $('#userLabel');
-const adminBtn = $('#adminBtn');
 const mobileMenuBtn = $('#mobileMenuBtn');
 const mobileMenu = $('#mobileMenu');
 const searchInput = $('#searchInput');
