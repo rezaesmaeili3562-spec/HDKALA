@@ -476,7 +476,13 @@ function setupImageUpload() {
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
+document.addEventListener('click', (event) => {
+    const trigger = event.target.closest('#adminBtn');
+    if (trigger) {
+        event.preventDefault();
+        openAdminPanel();
+    }
+});
 closeAdminModal.addEventListener('click', closeAdminPanel);
 addProductBtn.addEventListener('click', () => {
     editingProductId = null;
