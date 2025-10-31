@@ -114,6 +114,64 @@
     </div>
   </div>
 
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-xl border border-primary/20">
+      <div class="flex items-center justify-between p-6 border-b border-primary/20">
+        <h2 class="text-xl font-bold text-primary">ورود به پنل مدیریت</h2>
+        <button id="closeAdminLoginModal" class="text-gray-500 hover:text-primary" aria-label="بستن پنجره">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
+      </div>
+      <div class="p-6 space-y-6">
+        <div id="adminLoginStep" class="space-y-4">
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            برای دسترسی به پنل مدیریت، لطفا اطلاعات خود را وارد کنید.
+          </p>
+          <form id="adminLoginForm" class="space-y-4">
+            <div>
+              <label for="adminNationalCode" class="block text-sm font-medium mb-2">کد ملی</label>
+              <input id="adminNationalCode" name="nationalCode" type="text" required data-national maxlength="10" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="مثال: ۱۲۳۴۵۶۷۸۹۰">
+            </div>
+            <div>
+              <label for="adminPhone" class="block text-sm font-medium mb-2">شماره تماس</label>
+              <input id="adminPhone" name="phone" type="tel" required data-phone maxlength="11" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white text-left" placeholder="09xxxxxxxxx">
+            </div>
+            <div>
+              <label for="adminEmail" class="block text-sm font-medium mb-2">ایمیل</label>
+              <input id="adminEmail" name="email" type="email" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="admin@example.com">
+            </div>
+            <div>
+              <label for="adminCode" class="block text-sm font-medium mb-2">کد ادمین</label>
+              <input id="adminCode" name="adminCode" type="password" required minlength="4" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="کد امنیتی">
+            </div>
+            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+              ارسال کد تأیید
+            </button>
+          </form>
+        </div>
+        <div id="adminOtpStep" class="space-y-4 hidden">
+          <div class="bg-primary/10 text-primary text-sm p-3 rounded-lg" id="adminLoginMessage">
+          </div>
+          <form id="adminOtpForm" class="space-y-4">
+            <div class="flex justify-center gap-2">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+            </div>
+            <div class="flex gap-3">
+              <button type="button" id="adminOtpBack" class="flex-1 border border-primary text-primary py-2 rounded-lg hover:bg-primary/10 transition-colors">ویرایش اطلاعات</button>
+              <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">ورود به پنل</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin Panel Modal -->
   <div id="adminModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -309,7 +367,7 @@
           <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
           <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
           <a href="#addresses" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
-          <a href="#admin" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
+          <a href="#admin" id="adminAccessLink" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -341,8 +399,6 @@
           <iconify-icon icon="mdi:cart-outline" width="26"></iconify-icon>
           <span id="cartCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
         </button>
-        <!-- Admin -->
-        <button id="adminBtn" class="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-primary/30 text-gray-700 dark:text-white hover:bg-primary hover:text-white transition-colors">پنل ادمین</button>
         <!-- User -->
         <div class="relative">
           <button id="userButton" class="flex items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
