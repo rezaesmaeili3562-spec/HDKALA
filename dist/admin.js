@@ -1,4 +1,8 @@
 /* ---------- Admin Panel Functions ---------- */
+const ADMIN_ACCESS_SESSION_KEY = 'HDK_adminAuthorized';
+const ADMIN_SECURITY_CODE = 'HDK-ADMIN';
+let pendingAdminAction = null;
+
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
     renderAdminProducts();
@@ -9,6 +13,52 @@ function closeAdminPanel() {
     adminModal.classList.add('hidden');
     productForm.classList.add('hidden');
     editingProductId = null;
+}
+
+function hasAdminAccess() {
+    return sessionStorage.getItem(ADMIN_ACCESS_SESSION_KEY) === 'true';
+}
+
+function showAdminAccessModal(action = openAdminPanel) {
+    if (!adminAccessModal) {
+        action();
+        return;
+    }
+
+    pendingAdminAction = action || openAdminPanel;
+
+    if (adminAccessForm) {
+        adminAccessForm.reset();
+    }
+
+    adminAccessModal.classList.remove('hidden');
+    adminAccessModal.classList.add('flex');
+
+    if (adminAccessNational) {
+        adminAccessNational.focus();
+    }
+}
+
+function hideAdminAccessModal() {
+    if (!adminAccessModal) return;
+
+    adminAccessModal.classList.add('hidden');
+    adminAccessModal.classList.remove('flex');
+    if (adminAccessForm) {
+        adminAccessForm.reset();
+    }
+    pendingAdminAction = null;
+}
+
+function requestAdminAccess(action = openAdminPanel) {
+    const callback = action || openAdminPanel;
+
+    if (hasAdminAccess()) {
+        callback();
+        return;
+    }
+
+    showAdminAccessModal(callback);
 }
 
 function renderAdminProducts() {
@@ -476,18 +526,118 @@ function setupImageUpload() {
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
-closeAdminModal.addEventListener('click', closeAdminPanel);
-addProductBtn.addEventListener('click', () => {
-    editingProductId = null;
-    showProductForm();
+document.addEventListener('click', (event) => {
+    const accessTrigger = event.target.closest('[data-open-admin-access]');
+    if (accessTrigger) {
+        event.preventDefault();
+        requestAdminAccess(openAdminPanel);
+    }
 });
-saveProductBtn.addEventListener('click', saveProduct);
-cancelProductBtn.addEventListener('click', () => {
-    productForm.classList.add('hidden');
-    editingProductId = null;
+
+if (closeAdminModal) {
+    closeAdminModal.addEventListener('click', closeAdminPanel);
+}
+
+if (addProductBtn) {
+    addProductBtn.addEventListener('click', () => {
+        editingProductId = null;
+        showProductForm();
+    });
+}
+
+if (saveProductBtn) {
+    saveProductBtn.addEventListener('click', saveProduct);
+}
+
+if (cancelProductBtn) {
+    cancelProductBtn.addEventListener('click', () => {
+        productForm.classList.add('hidden');
+        editingProductId = null;
+    });
+}
+
+if (adminSearch) {
+    adminSearch.addEventListener('input', renderAdminProducts);
+}
+
+if (adminAccessCloseBtn) {
+    adminAccessCloseBtn.addEventListener('click', hideAdminAccessModal);
+}
+
+if (adminAccessCancelBtn) {
+    adminAccessCancelBtn.addEventListener('click', hideAdminAccessModal);
+}
+
+if (adminAccessModal) {
+    adminAccessModal.addEventListener('click', (event) => {
+        if (event.target === adminAccessModal) {
+            hideAdminAccessModal();
+        }
+    });
+}
+
+if (adminAccessForm) {
+    adminAccessForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const nationalCode = adminAccessNational ? adminAccessNational.value.trim() : '';
+        if (!validateNationalCode(nationalCode)) {
+            notify('کد ملی نامعتبر است', true);
+            if (adminAccessNational) adminAccessNational.focus();
+            return;
+        }
+
+        const phone = adminAccessPhone ? adminAccessPhone.value.trim() : '';
+        if (!validatePhone(phone)) {
+            notify('شماره تماس وارد شده صحیح نیست', true);
+            if (adminAccessPhone) adminAccessPhone.focus();
+            return;
+        }
+
+        const email = adminAccessEmail ? adminAccessEmail.value.trim() : '';
+        if (email && adminAccessEmail && !adminAccessEmail.checkValidity()) {
+            notify('ایمیل وارد شده معتبر نیست', true);
+            adminAccessEmail.focus();
+            return;
+        }
+
+        const adminCode = adminAccessCode ? adminAccessCode.value.trim() : '';
+        if (!adminCode) {
+            notify('وارد کردن کد ادمین الزامی است', true);
+            if (adminAccessCode) adminAccessCode.focus();
+            return;
+        }
+
+        if (adminCode !== ADMIN_SECURITY_CODE) {
+            notify('کد ادمین نادرست است', true);
+            if (adminAccessCode) adminAccessCode.focus();
+            return;
+        }
+
+        sessionStorage.setItem(ADMIN_ACCESS_SESSION_KEY, 'true');
+        LS.set('HDK_adminProfile', {
+            nationalCode,
+            phone,
+            email,
+            verifiedAt: new Date().toISOString()
+        });
+
+        notify('دسترسی مدیر با موفقیت تایید شد');
+
+        const action = pendingAdminAction || openAdminPanel;
+        hideAdminAccessModal();
+        pendingAdminAction = null;
+        if (typeof action === 'function') {
+            action();
+        }
+    });
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && adminAccessModal && !adminAccessModal.classList.contains('hidden')) {
+        hideAdminAccessModal();
+    }
 });
-adminSearch.addEventListener('input', renderAdminProducts);
 
 // Initialize image upload
 document.addEventListener('DOMContentLoaded', setupImageUpload);

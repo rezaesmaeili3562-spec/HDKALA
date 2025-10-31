@@ -56,8 +56,19 @@ function renderProductDetailPage(id){
                 <div class="flex justify-between items-start mb-4">
                     <h1 class="text-2xl font-bold">${p.name}</h1>
                     <div class="flex gap-2">
-                        <button class="add-to-wishlist p-2 text-gray-500 hover:text-red-500 transition-colors" data-id="${p.id}">
-                            <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24"></iconify-icon>
+                        <button class="add-to-wishlist wishlist-button wishlist-button--compact p-2 transition-colors"
+                                data-id="${p.id}"
+                                aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
+                                data-wishlist-active="${inWishlist ? 'true' : 'false'}"
+                                data-label-active="حذف از علاقه‌مندی"
+                                data-label-inactive="افزودن به علاقه‌مندی">
+                            <span class="wishlist-icon-wrapper">
+                                <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24"
+                                             class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                                <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" width="24"
+                                             class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                            </span>
+                            <span class="wishlist-tooltip"></span>
                         </button>
                         <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${p.id}">
                             <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>

@@ -114,6 +114,57 @@
     </div>
   </div>
 
+  <!-- Admin Access Modal -->
+  <div id="adminAccessModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-[60] p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg shadow-2xl border border-primary/20">
+      <div class="flex items-center justify-between p-6 border-b border-primary/20">
+        <h2 class="text-xl font-bold text-primary">ورود مدیر</h2>
+        <button id="closeAdminAccess" class="text-gray-500 hover:text-primary">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
+      </div>
+      <form id="adminAccessForm" class="p-6 space-y-5">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          برای ورود به پنل مدیریت، اطلاعات هویتی خود را تکمیل کنید.
+        </p>
+        <div>
+          <label class="block text-sm font-medium mb-2">کد ملی <span class="text-red-500">*</span></label>
+          <input id="adminAccessNational" type="text" required maxlength="10" pattern="[0-9]{10}"
+                 class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">شماره تماس <span class="text-red-500">*</span></label>
+          <input id="adminAccessPhone" type="tel" required
+                 class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                 placeholder="مثال: ۰۹۱۲۱۲۳۴۵۶۷">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
+          <input id="adminAccessEmail" type="email"
+                 class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                 placeholder="example@email.com">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">کد ادمین <span class="text-red-500">*</span></label>
+          <input id="adminAccessCode" type="password" required
+                 class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                 placeholder="کد دسترسی">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            💡 در این نسخه آزمایشی از کد <strong>HDK-ADMIN</strong> استفاده کنید.
+          </p>
+        </div>
+        <div class="flex gap-4 pt-2">
+          <button type="button" id="cancelAdminAccess" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors">
+            انصراف
+          </button>
+          <button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+            ورود به پنل مدیریت
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Admin Panel Modal -->
   <div id="adminModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -309,7 +360,9 @@
           <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
           <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
           <a href="#addresses" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
-          <a href="#admin" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
+          <button type="button" id="adminNavLink" data-open-admin-access class="text-gray-700 dark:text-white hover:text-primary transition-colors">
+            پنل مدیریت
+          </button>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -341,8 +394,6 @@
           <iconify-icon icon="mdi:cart-outline" width="26"></iconify-icon>
           <span id="cartCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
         </button>
-        <!-- Admin -->
-        <button id="adminBtn" class="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-primary/30 text-gray-700 dark:text-white hover:bg-primary hover:text-white transition-colors">پنل ادمین</button>
         <!-- User -->
         <div class="relative">
           <button id="userButton" class="flex items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
@@ -370,6 +421,9 @@
         <a href="#contact" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
         <a href="#blog" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
         <a href="#addresses" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+        <button type="button" id="mobileAdminAccess" data-open-admin-access class="block w-full text-right py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
+          پنل مدیریت
+        </button>
       </div>
     </div>
     <!-- Main Content -->

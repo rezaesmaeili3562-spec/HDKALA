@@ -192,11 +192,11 @@ function renderUserInfoForm(phone) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">نام <span class="text-red-500">*</span></label>
-                            <input type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <input type="text" required data-first-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">نام خانوادگی <span class="text-red-500">*</span></label>
-                            <input type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <input type="text" required data-last-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                     </div>
                     
@@ -225,7 +225,7 @@ function renderUserInfoForm(phone) {
                     
                     <div>
                         <label class="block text-sm font-medium mb-2">آدرس دقیق <span class="text-red-500">*</span></label>
-                        <textarea required rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
+                        <textarea required rows="3" data-address class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
                     </div>
                     
                     <div>
@@ -239,11 +239,11 @@ function renderUserInfoForm(phone) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">تاریخ تولد</label>
-                            <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
+                            <input type="text" data-birth-date class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">نام پدر</label>
-                            <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <input type="text" data-father-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                     </div>
                     
@@ -279,31 +279,55 @@ function renderUserInfoForm(phone) {
         e.preventDefault();
         
         // Validate required fields
-        const nationalCode = $('input[data-national]').value;
+        const nationalCodeInput = $('input[data-national]');
+        const nationalCode = nationalCodeInput ? nationalCodeInput.value.trim() : '';
         if (!validateNationalCode(nationalCode)) {
             notify('کد ملی نامعتبر است', true);
             return;
         }
-        
-        const postalCode = $('input[data-postal]').value;
+
+        const postalCodeInput = $('input[data-postal]');
+        const postalCode = postalCodeInput ? postalCodeInput.value.trim() : '';
         if (!validatePostalCode(postalCode)) {
             notify('کد پستی باید 10 رقمی باشد', true);
             return;
         }
-        
+
+        const firstNameInput = $('#userInfoForm [data-first-name]');
+        const lastNameInput = $('#userInfoForm [data-last-name]');
+        const addressInput = $('#userInfoForm [data-address]');
+        const birthDateInput = $('#userInfoForm [data-birth-date]');
+        const fatherNameInput = $('#userInfoForm [data-father-name]');
+        const emailInput = $('#userInfoForm input[type="email"]');
+
+        const firstName = firstNameInput ? firstNameInput.value.trim() : '';
+        const lastName = lastNameInput ? lastNameInput.value.trim() : '';
+        const address = addressInput ? addressInput.value.trim() : '';
+        const birthDate = birthDateInput ? birthDateInput.value.trim() : '';
+        const fatherName = fatherNameInput ? fatherNameInput.value.trim() : '';
+        const email = emailInput ? emailInput.value.trim() : '';
+
+        if (!firstName || !lastName) {
+            notify('وارد کردن نام و نام خانوادگی الزامی است', true);
+            return;
+        }
+
+        const provinceSelect = $('#provinceSelect');
+        const citySelect = $('#citySelect');
+
         // Create user
         user = {
             id: uid('u'),
-            name: $('#userInfoForm input[type="text"]:nth-child(1)').value + ' ' + $('#userInfoForm input[type="text"]:nth-child(2)').value,
+            name: [firstName, lastName].filter(Boolean).join(' '),
             phone: phone,
             nationalCode: nationalCode,
-            province: $('#provinceSelect').value,
-            city: $('#citySelect').value,
-            address: $('#userInfoForm textarea').value,
+            province: provinceSelect ? provinceSelect.value : '',
+            city: citySelect ? citySelect.value : '',
+            address: address,
             postalCode: postalCode,
-            birthDate: $('#userInfoForm input[placeholder="۱۳۷۰/۰۱/۰۱"]').value,
-            fatherName: $('#userInfoForm input[type="text"]:last-child').value,
-            email: $('#userInfoForm input[type="email"]').value,
+            birthDate: birthDate,
+            fatherName: fatherName,
+            email: email,
             created: new Date().toISOString()
         };
         

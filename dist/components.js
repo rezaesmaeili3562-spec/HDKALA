@@ -193,10 +193,18 @@ function createCompareProduct(product) {
                         data-id="${product.id}">
                     افزودن به سبد خرید
                 </button>
-                <button class="add-to-wishlist w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
-                        data-id="${product.id}">
-                    <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline'}"></iconify-icon>
-                    علاقه‌مندی
+                <button class="add-to-wishlist wishlist-button wishlist-button--inline w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
+                        data-id="${product.id}"
+                        aria-label="${wishlist.includes(product.id) ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
+                        data-wishlist-active="${wishlist.includes(product.id) ? 'true' : 'false'}"
+                        data-label-active="حذف از علاقه‌مندی"
+                        data-label-inactive="افزودن به علاقه‌مندی">
+                    <span class="wishlist-icon-wrapper">
+                        <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                        <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                    </span>
+                    <span class="wishlist-tooltip"></span>
+                    <span class="wishlist-label-text">علاقه‌مندی</span>
                 </button>
             </div>
         </div>
