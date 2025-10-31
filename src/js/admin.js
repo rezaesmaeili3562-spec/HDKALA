@@ -1,5 +1,10 @@
 /* ---------- Admin Panel Functions ---------- */
+let pendingProductImage = '';
+
 function openAdminPanel() {
+    if (!ensureAdminAccess()) {
+        return;
+    }
     adminModal.classList.remove('hidden');
     renderAdminProducts();
     setupAdminInputHandlers();
@@ -9,6 +14,8 @@ function closeAdminPanel() {
     adminModal.classList.add('hidden');
     productForm.classList.add('hidden');
     editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
 }
 
 function renderAdminProducts() {
@@ -107,6 +114,7 @@ function showProductForm() {
     
     if (editingProductId) {
         const product = getProductById(editingProductId);
+        pendingProductImage = product?.img || '';
         $('#productName').value = product.name;
         $('#productPrice').value = product.price;
         $('#productDesc').value = product.desc;
@@ -124,6 +132,7 @@ function showProductForm() {
             `;
         }
     } else {
+        pendingProductImage = '';
         // Reset form for new product
         $('#productName').value = '';
         $('#productPrice').value = '';
@@ -160,8 +169,9 @@ function setupAdminInputHandlers() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
+                pendingProductImage = e.target.result;
                 $('#imagePreview').innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                    <img src="${pendingProductImage}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                 `;
             };
             reader.readAsDataURL(file);
@@ -179,7 +189,7 @@ function deleteProduct(productId) {
         products = products.filter(p => p.id !== productId);
         LS.set('HDK_products', products);
         renderAdminProducts();
-        notify('محصول با موفقیت حذف شد');
+        notify('محصول با موفقیت حذف شد', 'success');
         // Update main products view if on products page
         if (currentPage === 'home' || currentPage === 'products') {
             renderProducts(products);
@@ -200,24 +210,26 @@ function saveProduct() {
     const rating = parseInt($('#productRating').value) || 5;
     
     if (!name || !price) {
-        notify('لطفا نام و قیمت محصول را وارد کنید', true);
+        notify('لطفا نام و قیمت محصول را وارد کنید', 'error');
         return;
     }
     
     if (discount < 0 || discount > 100) {
-        notify('تخفیف باید بین 0 تا 100 باشد', true);
+        notify('تخفیف باید بین 0 تا 100 باشد', 'error');
         return;
     }
     
     if (stock < 0) {
-        notify('موجودی نمی‌تواند منفی باشد', true);
+        notify('موجودی نمی‌تواند منفی باشد', 'error');
         return;
     }
     
     // Get image data
     const imagePreview = $('#imagePreview img');
-    const img = imagePreview ? imagePreview.src : '';
+    const img = pendingProductImage || (imagePreview ? imagePreview.src : '');
     
+    const wasEditing = Boolean(editingProductId);
+
     if (editingProductId) {
         // Update existing product
         const index = products.findIndex(p => p.id === editingProductId);
@@ -257,12 +269,14 @@ function saveProduct() {
         };
         products.push(newProduct);
     }
-    
+
     LS.set('HDK_products', products);
     renderAdminProducts();
     productForm.classList.add('hidden');
     editingProductId = null;
-    notify(editingProductId ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد');
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
+    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد', 'success');
     
     // Update main products view if on products page
     if (currentPage === 'home' || currentPage === 'products') {
@@ -397,7 +411,7 @@ function saveBlog(blogId = null, formContainer) {
     
     LS.set('HDK_blogs', blogs);
     formContainer.remove();
-    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد');
+    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد', 'success');
     
     // Refresh blog management view
     if (currentPage === 'admin') {
@@ -416,7 +430,7 @@ function deleteBlog(blogId) {
     if (confirm('آیا از حذف این مقاله مطمئن هستید؟')) {
         blogs = blogs.filter(b => b.id !== blogId);
         LS.set('HDK_blogs', blogs);
-        notify('مقاله با موفقیت حذف شد');
+        notify('مقاله با موفقیت حذف شد', 'success');
         
         // Refresh blog management view
         if (currentPage === 'admin') {
@@ -428,55 +442,74 @@ function deleteBlog(blogId) {
 /* ---------- Product Image Upload Fix ---------- */
 function setupImageUpload() {
     // این تابع مشکل آپلود عکس را برطرف می‌کند
-    document.addEventListener('change', (e) => {
-        if (e.target.type === 'file' && e.target.accept.includes('image')) {
-            const file = e.target.files[0];
+    const handler = (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.type === 'file' && target.accept && target.accept.includes('image')) {
+            const file = target.files ? target.files[0] : null;
             if (file) {
-                // بررسی نوع فایل
                 if (!file.type.startsWith('image/')) {
-                    notify('لطفا فقط فایل تصویری انتخاب کنید', true);
-                    e.target.value = '';
+                    notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
+                    target.value = '';
                     return;
                 }
-                
-                // بررسی سایز فایل (حداکثر 5MB)
+
                 if (file.size > 5 * 1024 * 1024) {
-                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', true);
-                    e.target.value = '';
+                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
+                    target.value = '';
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function(loadEvent) {
                     const img = new Image();
                     img.onload = function() {
-                        // نمایش پیش‌نمایش
-                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
+                        const previewContainer = target.parentElement?.querySelector('.image-preview');
                         if (previewContainer) {
                             previewContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                                <img src="${loadEvent.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
                                 <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
                                     <iconify-icon icon="mdi:close"></iconify-icon>
                                 </button>
                             `;
-                            
-                            // دکمه حذف عکس
-                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
-                                previewContainer.innerHTML = '';
-                                e.target.value = '';
-                            });
+
+                            const removeButton = previewContainer.querySelector('.remove-image');
+                            if (removeButton) {
+                                removeButton.addEventListener('click', function handleRemove() {
+                                    previewContainer.innerHTML = '';
+                                    target.value = '';
+                                }, { once: true });
+                            }
                         }
                     };
-                    img.src = e.target.result;
+                    img.src = loadEvent.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         }
-    });
+    };
+
+    document.addEventListener('change', handler);
+    return () => document.removeEventListener('change', handler);
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
+if (adminBtn) {
+    adminBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (isAdminUser()) {
+            openAdminPanel();
+            return;
+        }
+
+        if (typeof navigate === 'function') {
+            navigate('admin-login');
+        } else {
+            location.hash = 'admin-login';
+        }
+    });
+}
 closeAdminModal.addEventListener('click', closeAdminPanel);
 addProductBtn.addEventListener('click', () => {
     editingProductId = null;
@@ -486,8 +519,36 @@ saveProductBtn.addEventListener('click', saveProduct);
 cancelProductBtn.addEventListener('click', () => {
     productForm.classList.add('hidden');
     editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
 });
 adminSearch.addEventListener('input', renderAdminProducts);
 
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
+const imageUploadEnhancement = (() => {
+    let cleanup = null;
+
+    return {
+        init() {
+            if (cleanup) return;
+            cleanup = setupImageUpload();
+        },
+        destroy() {
+            if (cleanup) {
+                cleanup();
+                cleanup = null;
+            }
+        }
+    };
+})();
+
+(function registerImageUploadEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(imageUploadEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(imageUploadEnhancement);
+})();

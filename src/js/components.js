@@ -1,77 +1,85 @@
 /* ---------- UI Components ---------- */
 
-// کامپوننت فیلتر قیمت جدید
-function createPriceFilter() {
-    return `
-        <div class="space-y-3">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">محدوده قیمت</label>
-            <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="minPrice" 
-                           placeholder="حداقل قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
-                    <span class="text-gray-500">تومان</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="maxPrice" 
-                           placeholder="حداکثر قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
-                    <span class="text-gray-500">تومان</span>
-                </div>
-            </div>
-        </div>
-    `;
+function lockBodyScroll() {
+    const body = document.body;
+    const currentCount = parseInt(body.dataset.scrollLockCount || '0', 10);
+    if (currentCount === 0) {
+        body.classList.add('is-scroll-locked');
+    }
+    body.dataset.scrollLockCount = String(currentCount + 1);
 }
 
-// کامپوننت هدر فیلترها با فلش جمع‌شونده
-function createFilterHeader() {
-    return `
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-2">
-                <button id="filterCollapse" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                    <iconify-icon icon="mdi:chevron-left" class="text-xl"></iconify-icon>
-                </button>
-                <h3 class="text-lg font-semibold">فیلترها</h3>
-            </div>
-            <button id="closeFilters" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
-            </button>
-        </div>
-    `;
+function unlockBodyScroll() {
+    const body = document.body;
+    const currentCount = parseInt(body.dataset.scrollLockCount || '0', 10);
+    if (!currentCount || currentCount <= 1) {
+        body.classList.remove('is-scroll-locked');
+        delete body.dataset.scrollLockCount;
+        return;
+    }
+    body.dataset.scrollLockCount = String(currentCount - 1);
 }
 
 // کامپوننت اسکرول بار سفارشی
-function setupCustomScrollbar() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+function createCustomScrollbarManager() {
+    let styleEl = null;
+
+    return {
+        init() {
+            if (styleEl || typeof document === 'undefined') return;
+            styleEl = document.createElement('style');
+            styleEl.textContent = `
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f5f9;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #374151;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #6b7280;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #9ca3af;
+                }
+            `;
+            document.head.appendChild(styleEl);
+        },
+        destroy() {
+            if (!styleEl || !styleEl.parentNode) return;
+            styleEl.parentNode.removeChild(styleEl);
+            styleEl = null;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-            background: #374151;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #6b7280;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-    `;
-    document.head.appendChild(style);
+    };
 }
+
+const customScrollbarEnhancement = createCustomScrollbarManager();
+
+function setupCustomScrollbar() {
+    customScrollbarEnhancement.init();
+}
+
+(function registerCustomScrollbarEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(customScrollbarEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(customScrollbarEnhancement);
+})();
 
 // کامپوننت بنر کوچک‌تر صفحه اصلی
 function createSmallHero() {
@@ -96,6 +104,100 @@ function createSmallHero() {
             </div>
         </section>
     `;
+}
+
+// کارت محصول
+function createProductCard(product) {
+    const finalPrice = product.discount > 0
+        ? product.price * (1 - product.discount / 100)
+        : product.price;
+    const hasDiscount = product.discount > 0;
+    const inWishlist = Array.isArray(wishlist) && wishlist.includes(product.id);
+    const inCompare = Array.isArray(compareList) && compareList.includes(product.id);
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
+    const isOutOfStock = product.stock === 0;
+    const addToCartClasses = isOutOfStock
+        ? 'add-to-cart flex-1 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-2'
+        : 'add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2';
+    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
+
+    const article = document.createElement('article');
+    article.className = 'product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20';
+    article.innerHTML = `
+        <div class="relative overflow-hidden">
+            <a href="#product:${product.id}">
+                <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    ${primaryImage
+                        ? `<img src="${primaryImage}" alt="${product.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />`
+                        : '<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>'}
+                </div>
+            </a>
+            <div class="absolute top-2 left-2 flex gap-2">
+                <button aria-label="${inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}" data-id="${product.id}"
+                        class="add-to-wishlist wishlist-button wishlist-button--compact bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm"
+                        data-wishlist-active="${inWishlist ? 'true' : 'false'}"
+                        data-label-active="حذف از علاقه‌مندی"
+                        data-label-inactive="افزودن به علاقه‌مندی">
+                    <span class="wishlist-icon-wrapper">
+                        <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                        <iconify-icon icon="${inWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                    </span>
+                    <span class="wishlist-tooltip"></span>
+                </button>
+                <button aria-label="مقایسه محصول" data-id="${product.id}"
+                        class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
+                    <iconify-icon icon="mdi:scale-balance" class="${inCompare ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
+                </button>
+            </div>
+            <div class="absolute top-2 right-2 flex flex-col gap-2">
+                ${hasDiscount ? `<div class="badge badge-discount">${product.discount}%</div>` : ''}
+                ${product.status === 'new' ? '<div class="badge badge-new">جدید</div>' : ''}
+                ${product.status === 'hot' ? '<div class="badge badge-hot">فروش ویژه</div>' : ''}
+                ${product.status === 'bestseller' ? '<div class="badge bg-purple-500 text-white">پرفروش</div>' : ''}
+            </div>
+        </div>
+        <div class="p-4">
+            <h3 class="font-bold text-lg mb-1 dark:text-white line-clamp-2">${product.name}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${product.desc}</p>
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    ${hasDiscount ? `<div class="text-gray-500 line-through text-sm">${formatPrice(product.price)}</div>` : ''}
+                    <span class="text-primary font-extrabold">${formatPrice(finalPrice)}</span>
+                </div>
+                <div class="text-yellow-500 text-sm">${'★'.repeat(product.rating)}${product.rating < 5 ? '☆'.repeat(5 - product.rating) : ''}</div>
+            </div>
+            <div class="flex items-center justify-between mb-2 text-xs">
+                <div class="text-gray-500 dark:text-gray-400">
+                    موجودی: ${product.stock > 0
+                        ? `<span class="text-green-500">${product.stock}</span>`
+                        : '<span class="text-red-500">ناموجود</span>'}
+                </div>
+                <div class="text-gray-500 dark:text-gray-400">${product.brand || '---'}</div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" class="${addToCartClasses}"
+                        data-id="${product.id}"
+                        data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                        ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <iconify-icon icon="${addToCartIcon}" width="20"></iconify-icon>
+                    ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد</span>'}
+                </button>
+                <a href="#product:${product.id}"
+                   class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                   aria-label="جزئیات">
+                    <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
+                </a>
+            </div>
+        </div>
+    `;
+
+    if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
+        window.refreshWishlistButtons(article);
+    }
+
+    return article;
 }
 
 // کامپوننت گزینه‌های پرداخت
@@ -135,11 +237,51 @@ function createPaymentOptions(selectedMethod = 'online') {
     `;
 }
 
+function createShippingOptions(selectedMethod = (shippingMethods[0]?.id || 'standard')) {
+    return `
+        <div class="space-y-3">
+            ${shippingMethods.map(method => `
+                <label class="shipping-option flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedMethod === method.id
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                    : 'border-gray-300 hover:border-primary/50'
+                }" data-id="${method.id}">
+                    <input type="radio" name="shipping" value="${method.id}" ${selectedMethod === method.id ? 'checked' : ''}
+                           class="text-primary hidden">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                            selectedMethod === method.id ? 'border-primary bg-primary text-white' : 'border-gray-400 text-gray-500'
+                        }">
+                            <iconify-icon icon="${method.icon}" width="18"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium flex items-center justify-between gap-3">
+                                <span>${method.name}</span>
+                                <span class="text-sm text-gray-500">${method.price === 0 ? 'رایگان' : formatPrice(method.price)}</span>
+                            </div>
+                            <div class="text-sm text-gray-500">${method.description}</div>
+                        </div>
+                    </div>
+                </label>
+            `).join('')}
+        </div>
+    `;
+}
+
 // کامپوننت محصول برای مقایسه
 function createCompareProduct(product) {
-    const finalPrice = product.discount > 0 ? 
+    const finalPrice = product.discount > 0 ?
         product.price * (1 - product.discount / 100) : product.price;
-    
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
+    const isOutOfStock = product.stock === 0;
+    const addToCartClasses = isOutOfStock
+        ? 'add-to-cart w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 rounded-lg font-medium cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2'
+        : 'add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm flex items-center justify-center gap-2';
+    const addToCartIcon = isOutOfStock ? 'mdi:close-circle-outline' : 'mdi:cart-plus';
+    const isInWishlist = Array.isArray(wishlist) && wishlist.includes(product.id);
+
     return `
         <div class="bg-white dark:bg-gray-800 rounded-lg border border-primary/20 p-4 relative">
             <button class="remove-compare absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
@@ -150,8 +292,8 @@ function createCompareProduct(product) {
             <div class="text-center mb-4">
                 <h3 class="font-bold text-lg mb-2">${product.name}</h3>
                 <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
-                    ${product.img ? 
-                        `<img src="${product.img}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg">` :
+                    ${primaryImage ?
+                        `<img src="${primaryImage}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg">` :
                         `<iconify-icon icon="mdi:image-off" width="32" class="text-gray-400"></iconify-icon>`
                     }
                 </div>
@@ -187,16 +329,27 @@ function createCompareProduct(product) {
                     </span>
                 </div>
             </div>
-            
+
             <div class="mt-4 space-y-2">
-                <button class="add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
-                        data-id="${product.id}">
-                    افزودن به سبد خرید
+                <button class="${addToCartClasses}"
+                        data-id="${product.id}"
+                        data-out-of-stock="${isOutOfStock ? 'true' : 'false'}"
+                        ${isOutOfStock ? 'disabled aria-disabled="true"' : ''}>
+                    <iconify-icon icon="${addToCartIcon}" width="18"></iconify-icon>
+                    ${isOutOfStock ? '<span class="text-red-500 font-semibold">ناموجود</span>' : '<span>افزودن به سبد خرید</span>'}
                 </button>
-                <button class="add-to-wishlist w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
-                        data-id="${product.id}">
-                    <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline'}"></iconify-icon>
-                    علاقه‌مندی
+                <button class="add-to-wishlist wishlist-button wishlist-button--inline w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
+                        data-id="${product.id}"
+                        aria-label="${isInWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}"
+                        data-wishlist-active="${isInWishlist ? 'true' : 'false'}"
+                        data-label-active="حذف از علاقه‌مندی"
+                        data-label-inactive="افزودن به علاقه‌مندی">
+                    <span class="wishlist-icon-wrapper">
+                        <iconify-icon icon="${isInWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="wishlist-icon wishlist-icon-current"></iconify-icon>
+                        <iconify-icon icon="${isInWishlist ? 'mdi:heart-off' : 'mdi:heart-plus'}" class="wishlist-icon wishlist-icon-preview"></iconify-icon>
+                    </span>
+                    <span class="wishlist-tooltip"></span>
+                    <span class="wishlist-label-text">علاقه‌مندی</span>
                 </button>
             </div>
         </div>
@@ -205,20 +358,26 @@ function createCompareProduct(product) {
 
 // کامپوننت اطلاع‌رسانی موجود شدن محصول
 function createNotifyMeModal(product) {
+    const primaryImage = typeof getPrimaryProductImage === 'function'
+        ? getPrimaryProductImage(product)
+        : (product.img || '');
+    const modalId = uid('notify-modal-');
+    const titleId = `${modalId}-title`;
+    const descriptionId = `${modalId}-description`;
     return `
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6">
+        <div class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" data-modal-overlay aria-hidden="true">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6" data-modal-dialog role="dialog" aria-modal="true" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" tabindex="-1">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold">اطلاع‌رسانی هنگام موجود شدن</h3>
+                    <h3 class="text-lg font-semibold" id="${titleId}">اطلاع‌رسانی هنگام موجود شدن</h3>
                     <button class="close-notify-modal p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                         <iconify-icon icon="mdi:close"></iconify-icon>
                     </button>
                 </div>
-                
-                <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+
+                <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg" id="${descriptionId}">
                     <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                        ${product.img ? 
-                            `<img src="${product.img}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :
+                        ${primaryImage ?
+                            `<img src="${primaryImage}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :
                             `<iconify-icon icon="mdi:package" class="text-gray-400"></iconify-icon>`
                         }
                     </div>
@@ -428,6 +587,4 @@ function createBlogManagement() {
 }
 
 // Initialize components
-document.addEventListener('DOMContentLoaded', () => {
-    setupCustomScrollbar();
-});
+setupCustomScrollbar();

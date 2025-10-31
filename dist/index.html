@@ -15,19 +15,26 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
   <!-- Notification Container -->
-  <div id="notification" class="fixed top-4 left-4 right-4 z-50 transition-all duration-300 transform -translate-y-full">
-    <div class="bg-green-500 text-white p-4 rounded-lg shadow-lg mx-auto max-w-md text-center">
-      <span id="notificationMessage"></span>
-    </div>
-  </div>
-  
+  <div id="toastContainer" class="toast-container" role="region" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Filter Overlay -->
+  <div id="filterOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden lg:hidden" aria-hidden="true"></div>
+
+  <!-- Cart Overlay -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden" aria-hidden="true"></div>
+
   <!-- Filter Sidebar -->
-  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
-    <div class="p-4 border-b border-primary/20">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-primary">فیلترها</h2>
-        <button id="closeFilters" class="text-gray-500 hover:text-primary">
-          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
+    <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10">
+      <div class="flex items-center justify-between p-4">
+        <div class="flex items-center gap-2">
+          <button id="filterCollapse" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="جمع کردن فیلترها">
+            <iconify-icon icon="mdi:chevron-left" width="22"></iconify-icon>
+          </button>
+          <h2 class="text-lg font-bold text-primary">فیلترها</h2>
+        </div>
+        <button id="closeFilters" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="بستن فیلترها">
+          <iconify-icon icon="mdi:close" width="22"></iconify-icon>
         </button>
       </div>
     </div>
@@ -44,14 +51,21 @@
         </select>
       </div>
       <!-- Price Filter -->
-      <div>
-        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر قیمت</label>
-        <div class="flex gap-2">
-          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-        </div>
-        <div class="mt-2">
-          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full" />
+      <div class="border border-primary/20 rounded-xl">
+        <button id="togglePriceFilter" class="w-full flex items-center justify-between px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary/5 transition-colors" type="button">
+          <span>محدوده قیمت</span>
+          <iconify-icon icon="mdi:chevron-down" width="20" class="transition-transform" id="priceFilterIcon"></iconify-icon>
+        </button>
+        <div id="priceFilterFields" class="px-4 pb-4 space-y-3 hidden">
+          <div class="space-y-2">
+            <label for="minPrice" class="block text-xs text-gray-500 dark:text-gray-400">حداقل قیمت (تومان)</label>
+            <input id="minPrice" type="number" placeholder="مثلاً 500000" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          </div>
+          <div class="space-y-2">
+            <label for="maxPrice" class="block text-xs text-gray-500 dark:text-gray-400">حداکثر قیمت (تومان)</label>
+            <input id="maxPrice" type="number" placeholder="مثلاً 5000000" class="w-full p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          </div>
+          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full">
         </div>
       </div>
       <!-- Category Filter -->
@@ -107,7 +121,7 @@
         <button id="applyFilter" class="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
           اعمال فیلترها
         </button>
-        <button id="clearFilter" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+        <button id="clearFilter" class="flex-1 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
           پاک‌سازی
         </button>
       </div>
@@ -239,11 +253,11 @@
   </div>
 
   <!-- Compare Modal -->
-  <div id="compareModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+  <div id="compareModal" class="modal-overlay fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" aria-hidden="true">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto" data-modal-dialog role="dialog" aria-modal="true" aria-labelledby="compareModalTitle" tabindex="-1">
       <div class="p-6 border-b border-primary/20">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-primary">مقایسه محصولات</h2>
+          <h2 class="text-xl font-bold text-primary" id="compareModalTitle">مقایسه محصولات</h2>
           <button id="closeCompareModal" class="text-gray-500 hover:text-primary">
             <iconify-icon icon="mdi:close" width="24"></iconify-icon>
           </button>
@@ -258,7 +272,7 @@
   </div>
 
   <!-- Cart Sidebar -->
-  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
     <div class="p-4 border-b border-primary/20">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold text-primary">سبد خرید</h2>
@@ -304,12 +318,12 @@
           HDKALA
         </a>
         <div class="hidden md:flex items-center gap-4">
-          <a href="#products" class="text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
-          <a href="#about" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
-          <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
-          <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-          <a href="#addresses" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
-          <a href="#admin" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
+          <a href="#products" data-route-link="products" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+          <a href="#about" data-route-link="about" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+          <a href="#contact" data-route-link="contact" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+          <a href="#blog" data-route-link="blog" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+          <a href="#addresses" data-route-link="addresses" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+          <a href="#admin" data-route-link="admin" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="text-gray-700 dark:text-white hover:text-primary transition-colors">پنل مدیریت</a>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -365,11 +379,11 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="md:hidden hidden mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-primary/30">
       <div class="flex flex-col gap-3">
-        <a href="#products" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
-        <a href="#about" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
-        <a href="#contact" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
-        <a href="#blog" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-        <a href="#addresses" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+        <a href="#products" data-route-link="products" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">محصولات</a>
+        <a href="#about" data-route-link="about" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
+        <a href="#contact" data-route-link="contact" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
+        <a href="#blog" data-route-link="blog" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
+        <a href="#addresses" data-route-link="addresses" data-active-class="text-primary dark:text-primary font-semibold" data-inactive-class="text-gray-700 dark:text-white" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
       </div>
     </div>
     <!-- Main Content -->
@@ -428,18 +442,6 @@
   </div>
 
   <!-- Main JavaScript Files -->
-  <script src="./core.js"></script>
-  <script src="./storage.js"></script>
-  <script src="./router.js"></script>
-  <script src="./admin.js"></script>
-  <script src="./cart.js"></script>
-  <script src="./auth.js"></script>
-  <script src="./filters.js"></script>
-  <script src="./pages.js"></script>
-  <script src="./ui.js"></script>
-  <script src="./validation.js"></script>
-  <script src="./components.js"></script>
-  <script src="./utils.js"></script>
-  <script src="./constants.js"></script>
+  <script src="./app.bundle.js" defer></script>
 </body>
 </html>

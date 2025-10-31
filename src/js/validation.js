@@ -99,25 +99,30 @@ function showValidationErrors(errors, container) {
 
 // اعتبارسنجی real-time
 function setupRealTimeValidation() {
-    document.addEventListener('input', (e) => {
+    const handler = (e) => {
         const input = e.target;
-        
+
+        if (!(input instanceof HTMLInputElement)) return;
+
         if (input.type === 'tel' && input.hasAttribute('data-phone')) {
             validatePhoneField(input);
         }
-        
+
         if (input.hasAttribute('data-national')) {
             validateNationalCodeField(input);
         }
-        
+
         if (input.hasAttribute('data-postal')) {
             validatePostalCodeField(input);
         }
-        
+
         if (input.type === 'email') {
             validateEmailField(input);
         }
-    });
+    };
+
+    document.addEventListener('input', handler);
+    return () => document.removeEventListener('input', handler);
 }
 
 function validatePhoneField(input) {
@@ -163,11 +168,16 @@ function updateFieldValidationState(input, isValid, errorMessage) {
 
 // اعتبارسنجی فیلدهای عددی در پنل ادمین
 function setupAdminInputValidation() {
-    document.addEventListener('input', (e) => {
-        if (e.target.matches('#productPrice, #productDiscount, #productStock')) {
-            validateAdminNumberField(e.target);
+    const handler = (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.matches('#productPrice, #productDiscount, #productStock')) {
+            validateAdminNumberField(target);
         }
-    });
+    };
+
+    document.addEventListener('input', handler);
+    return () => document.removeEventListener('input', handler);
 }
 
 function validateAdminNumberField(input) {
@@ -197,7 +207,7 @@ function validateAdminNumberField(input) {
     
     if (!isValid && value) {
         input.classList.add('border-red-500');
-        notify(errorMessage, true);
+        notify(errorMessage, 'error');
     } else {
         input.classList.remove('border-red-500');
     }
@@ -205,8 +215,38 @@ function validateAdminNumberField(input) {
     input.value = value;
 }
 
-// Initialize validation
-document.addEventListener('DOMContentLoaded', () => {
-    setupRealTimeValidation();
-    setupAdminInputValidation();
-});
+const validationEnhancement = (() => {
+    let cleanups = [];
+
+    return {
+        init() {
+            if (cleanups.length > 0) return;
+            cleanups = [
+                setupRealTimeValidation(),
+                setupAdminInputValidation()
+            ].filter(Boolean);
+        },
+        destroy() {
+            cleanups.forEach(fn => {
+                try {
+                    fn?.();
+                } catch (error) {
+                    console.error('Validation cleanup error:', error);
+                }
+            });
+            cleanups = [];
+        }
+    };
+})();
+
+(function registerValidationEnhancement() {
+    if (typeof window === 'undefined') return;
+    const registry = window.HDKEnhancements;
+    if (registry && typeof registry.register === 'function') {
+        registry.register(validationEnhancement);
+        return;
+    }
+
+    window.__HDK_PENDING_ENHANCEMENTS__ = window.__HDK_PENDING_ENHANCEMENTS__ || [];
+    window.__HDK_PENDING_ENHANCEMENTS__.push(validationEnhancement);
+})();
