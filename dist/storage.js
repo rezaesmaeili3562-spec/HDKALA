@@ -396,7 +396,8 @@ function updateUserLabel(){
             userButton.classList.add('flex');
         }
         if (adminAccessLink) {
-            adminAccessLink.classList.add('hidden');
+            adminAccessLink.classList.remove('hidden');
+            adminAccessLink.textContent = 'پنل مدیریت (نسخه نمایشی)';
         }
         toggleAuthButtons(false);
     } else {
