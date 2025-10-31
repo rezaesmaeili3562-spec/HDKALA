@@ -244,7 +244,7 @@ const cartCountEl = $('#cartCount');
 const wishlistCountEl = $('#wishlistCount');
 const compareCountEl = $('#compareCount');
 const userLabel = $('#userLabel');
-const adminBtn = $('#adminBtn');
+const adminAccessLink = $('#adminAccessLink');
 const mobileMenuBtn = $('#mobileMenuBtn');
 const mobileMenu = $('#mobileMenu');
 const searchInput = $('#searchInput');
@@ -284,6 +284,16 @@ const adminProductCount = $('#adminProductCount');
 const adminInStockCount = $('#adminInStockCount');
 const adminDiscountCount = $('#adminDiscountCount');
 const adminOrderCount = $('#adminOrderCount');
+
+/* ---------- Admin Login Elements ---------- */
+const adminLoginModal = $('#adminLoginModal');
+const closeAdminLoginModal = $('#closeAdminLoginModal');
+const adminLoginStep = $('#adminLoginStep');
+const adminOtpStep = $('#adminOtpStep');
+const adminLoginForm = $('#adminLoginForm');
+const adminOtpForm = $('#adminOtpForm');
+const adminOtpBack = $('#adminOtpBack');
+const adminLoginMessage = $('#adminLoginMessage');
 
 /* ---------- Filter Elements ---------- */
 const sortSelect = $('#sortSelect');

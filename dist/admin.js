@@ -417,12 +417,68 @@ function deleteBlog(blogId) {
         blogs = blogs.filter(b => b.id !== blogId);
         LS.set('HDK_blogs', blogs);
         notify('مقاله با موفقیت حذف شد');
-        
+
         // Refresh blog management view
         if (currentPage === 'admin') {
             renderAdminPage();
         }
     }
+}
+
+/* ---------- Admin Login Flow ---------- */
+const ADMIN_LOGIN_OTP = '864215';
+let pendingAdminLogin = null;
+
+function showAdminLoginStep(resetForm = false) {
+    if (!adminLoginStep || !adminOtpStep) return;
+    adminLoginStep.classList.remove('hidden');
+    adminOtpStep.classList.add('hidden');
+    if (resetForm && adminLoginForm) {
+        adminLoginForm.reset();
+        pendingAdminLogin = null;
+    }
+    if (adminLoginMessage) {
+        adminLoginMessage.textContent = '';
+    }
+    if (typeof resetOtpInputs === 'function' && adminOtpStep) {
+        resetOtpInputs(adminOtpStep);
+    }
+}
+
+function showAdminOtpStep(message) {
+    if (!adminLoginStep || !adminOtpStep) return;
+    adminLoginStep.classList.add('hidden');
+    adminOtpStep.classList.remove('hidden');
+    if (adminLoginMessage) {
+        adminLoginMessage.innerHTML = message;
+    }
+    if (typeof resetOtpInputs === 'function') {
+        resetOtpInputs(adminOtpStep);
+    }
+    const inputs = adminOtpStep ? $$('.otp-input', adminOtpStep) : [];
+    if (inputs.length) {
+        inputs[0].focus();
+    }
+}
+
+function openAdminLoginModal() {
+    if (!adminLoginModal) return;
+    adminLoginModal.classList.remove('hidden');
+    adminLoginModal.classList.add('flex');
+    showAdminLoginStep(true);
+    if (adminLoginForm) {
+        const nationalInput = adminLoginForm.querySelector('#adminNationalCode');
+        if (nationalInput) {
+            nationalInput.focus();
+        }
+    }
+}
+
+function closeAdminLoginModalHandler() {
+    if (!adminLoginModal) return;
+    adminLoginModal.classList.add('hidden');
+    adminLoginModal.classList.remove('flex');
+    showAdminLoginStep(true);
 }
 
 /* ---------- Product Image Upload Fix ---------- */
@@ -476,7 +532,101 @@ function setupImageUpload() {
 }
 
 // Admin panel event listeners
-adminBtn.addEventListener('click', openAdminPanel);
+if (adminAccessLink) {
+    adminAccessLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openAdminLoginModal();
+    });
+}
+
+if (closeAdminLoginModal) {
+    closeAdminLoginModal.addEventListener('click', closeAdminLoginModalHandler);
+}
+
+if (adminLoginModal) {
+    adminLoginModal.addEventListener('click', (e) => {
+        if (e.target === adminLoginModal) {
+            closeAdminLoginModalHandler();
+        }
+    });
+}
+
+if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(adminLoginForm);
+        const nationalCode = (formData.get('nationalCode') || '').toString().trim();
+        const phone = (formData.get('phone') || '').toString().trim();
+        const email = (formData.get('email') || '').toString().trim();
+        const adminCode = (formData.get('adminCode') || '').toString().trim();
+
+        if (typeof validateNationalCode === 'function' && !validateNationalCode(nationalCode)) {
+            notify('کد ملی وارد شده معتبر نیست.', true);
+            return;
+        }
+
+        if (typeof validatePhone === 'function' && !validatePhone(phone)) {
+            notify('شماره تماس باید با 09 شروع شده و 11 رقمی باشد.', true);
+            return;
+        }
+
+        if (typeof validateEmail === 'function' && !validateEmail(email)) {
+            notify('ایمیل وارد شده معتبر نیست.', true);
+            return;
+        }
+
+        if (adminCode.length < 4) {
+            notify('کد ادمین باید حداقل ۴ رقم باشد.', true);
+            return;
+        }
+
+        pendingAdminLogin = { nationalCode, phone, email, adminCode };
+        const message = `کد تأیید <strong>${ADMIN_LOGIN_OTP}</strong> به شماره <strong>${phone}</strong> ارسال شد.`;
+        showAdminOtpStep(message);
+        notify('کد تأیید برای شما ارسال شد.');
+    });
+}
+
+if (adminOtpBack) {
+    adminOtpBack.addEventListener('click', () => {
+        if (!adminLoginForm || !pendingAdminLogin) {
+            showAdminLoginStep(true);
+            return;
+        }
+        showAdminLoginStep(false);
+        const nationalField = adminLoginForm.querySelector('#adminNationalCode');
+        const phoneField = adminLoginForm.querySelector('#adminPhone');
+        const emailField = adminLoginForm.querySelector('#adminEmail');
+        const adminCodeField = adminLoginForm.querySelector('#adminCode');
+        if (nationalField) nationalField.value = pendingAdminLogin.nationalCode;
+        if (phoneField) phoneField.value = pendingAdminLogin.phone;
+        if (emailField) emailField.value = pendingAdminLogin.email;
+        if (adminCodeField) adminCodeField.value = pendingAdminLogin.adminCode;
+    });
+}
+
+if (adminOtpForm) {
+    adminOtpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!adminOtpStep) return;
+        const code = typeof getOtpCode === 'function' ? getOtpCode(adminOtpStep) : '';
+        if (code === ADMIN_LOGIN_OTP) {
+            notify('ورود مدیر با موفقیت انجام شد!');
+            closeAdminLoginModalHandler();
+            openAdminPanel();
+        } else {
+            notify('کد تأیید نادرست است. لطفا مجددا تلاش کنید.', true);
+            if (typeof resetOtpInputs === 'function') {
+                resetOtpInputs(adminOtpStep);
+            }
+            const inputs = adminOtpStep ? $$('.otp-input', adminOtpStep) : [];
+            if (inputs.length) {
+                inputs[0].focus();
+            }
+        }
+    });
+}
+
 closeAdminModal.addEventListener('click', closeAdminPanel);
 addProductBtn.addEventListener('click', () => {
     editingProductId = null;
@@ -489,5 +639,10 @@ cancelProductBtn.addEventListener('click', () => {
 });
 adminSearch.addEventListener('input', renderAdminProducts);
 
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
+// Initialize image upload and admin OTP inputs
+document.addEventListener('DOMContentLoaded', () => {
+    setupImageUpload();
+    if (adminOtpStep && typeof setupOtpInputs === 'function') {
+        setupOtpInputs(adminOtpStep);
+    }
+});
