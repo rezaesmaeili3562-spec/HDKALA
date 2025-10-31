@@ -49,6 +49,87 @@ function ensureAdminAccess() {
     return false;
 }
 
+function handleAdminQuickAction(action) {
+    const detailsContainer = $('#adminActionDetails');
+    if (!detailsContainer) {
+        notify('بخش گزارشات در حال حاضر در دسترس نیست.', true);
+        return;
+    }
+
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const pendingOrders = orders.filter(order => (order.status || '').toLowerCase() === 'processing').length;
+    const deliveredOrders = orders.filter(order => (order.status || '').toLowerCase() === 'delivered').length;
+    const lowStockProducts = products.filter(p => p.stock <= 3);
+    const discountedProducts = products.filter(p => p.discount > 0);
+    const recommendedBudget = totalRevenue ? Math.round(totalRevenue * 0.1) : 5000000;
+
+    let html = '';
+
+    switch (action) {
+        case 'reports': {
+            const averageOrder = orders.length ? Math.round(totalRevenue / Math.max(orders.length, 1)) : 0;
+            const highlightedProducts = discountedProducts.slice(0, 3);
+            html = `
+                <div class="flex items-center justify-between"><span>درآمد کل</span><span class="font-semibold text-green-600">${formatPrice(totalRevenue)}</span></div>
+                <div class="flex items-center justify-between"><span>میانگین ارزش سفارش</span><span class="font-semibold">${orders.length ? formatPrice(averageOrder) : '۰ تومان'}</span></div>
+                <div class="flex items-center justify-between"><span>سفارش‌های فعال</span><span class="font-semibold text-blue-600">${pendingOrders}</span></div>
+                <div class="pt-3 text-xs text-gray-500 dark:text-gray-400">پیشنهاد برای تبلیغ محصولات دارای تخفیف:</div>
+                <ul class="mt-2 space-y-1 text-xs">
+                    ${highlightedProducts.length ? highlightedProducts.map(product => `<li class="flex items-center justify-between"><span>${product.name}</span><span>${product.discount}% تخفیف</span></li>`).join('') : '<li>محصول تخفیف‌دار فعالی ثبت نشده است.</li>'}
+                </ul>
+            `;
+            notify('گزارش فروش به‌روزرسانی شد.');
+            break;
+        }
+        case 'inventory': {
+            html = lowStockProducts.length
+                ? `<p class="text-sm text-red-500 mb-2">محصولات با موجودی کم:</p>
+                   <ul class="space-y-1 text-xs">${lowStockProducts.slice(0, 5).map(product => `<li class="flex items-center justify-between"><span>${product.name}</span><span>${product.stock} عدد</span></li>`).join('')}</ul>`
+                : `<p class="text-sm text-green-600">تمام موجودی‌ها در وضعیت مناسب هستند.</p>`;
+            notify('بررسی موجودی با موفقیت انجام شد.');
+            break;
+        }
+        case 'users': {
+            const favoriteCount = typeof wishlist !== 'undefined' ? wishlist.length : 0;
+            html = `
+                <div class="text-sm text-gray-600 dark:text-gray-300">کاربر فعال: <span class="font-semibold">${user ? user.name : 'هنوز سفارشی ثبت نشده'}</span></div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 mt-2">آیتم‌های لیست علاقه‌مندی: <span class="font-semibold">${favoriteCount}</span></div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">پیشنهاد می‌شود برای کاربران فعال پیام خوش‌آمدگویی و کد تخفیف ارسال شود.</p>
+            `;
+            notify('گزارش کاربران نمایش داده شد.');
+            break;
+        }
+        case 'support': {
+            html = `
+                <p class="text-sm text-gray-600 dark:text-gray-300">درخواست پشتیبانی برای تیم مربوطه ثبت شد.</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">میانگین زمان پاسخ‌گویی کمتر از ۲ ساعت است.</p>
+            `;
+            notify('درخواست پشتیبانی ثبت گردید.');
+            break;
+        }
+        case 'campaign': {
+            const topCategories = [...new Set(products.map(product => product.category))].slice(0, 3);
+            html = `
+                <p class="text-sm text-gray-600 dark:text-gray-300">پیشنهاد کمپین جدید:</p>
+                <ul class="mt-2 space-y-1 text-xs">${topCategories.length ? topCategories.map(category => `<li>تخفیف هدفمند برای دسته ${category}</li>`).join('') : '<li>دسته‌بندی ثبت نشده است.</li>'}</ul>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">بودجه پیشنهادی: ${formatPrice(recommendedBudget)}</p>
+            `;
+            notify('برنامه کمپین تبلیغاتی آماده شد.');
+            break;
+        }
+        case 'dashboard': {
+            html = `<p class="text-sm text-gray-600 dark:text-gray-300">در حال بارگذاری داشبورد مدیریت...</p>`;
+            notify('داشبورد مدیریت در حال نمایش است.');
+            break;
+        }
+        default: {
+            html = `<p class="text-sm text-gray-600 dark:text-gray-300">گزارش انتخاب شده در دسترس نیست.</p>`;
+            notify('گزینه مورد نظر یافت نشد.', true);
+        }
+    }
+
+    detailsContainer.innerHTML = html;
+}
 /* ---------- Admin Panel Functions ---------- */
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
@@ -614,10 +695,16 @@ if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(adminLoginForm);
+        const fullName = (formData.get('fullName') || '').toString().trim();
         const nationalCode = (formData.get('nationalCode') || '').toString().trim();
         const phone = (formData.get('phone') || '').toString().trim();
         const email = (formData.get('email') || '').toString().trim();
         const adminCode = (formData.get('adminCode') || '').toString().trim();
+
+        if (!fullName || fullName.length < 3) {
+            notify('لطفا نام و نام خانوادگی مدیر را وارد کنید.', true);
+            return;
+        }
 
         if (typeof validateNationalCode === 'function' && !validateNationalCode(nationalCode)) {
             notify('کد ملی وارد شده معتبر نیست.', true);
@@ -639,7 +726,7 @@ if (adminLoginForm) {
             return;
         }
 
-        pendingAdminLogin = { nationalCode, phone, email, adminCode };
+        pendingAdminLogin = { fullName, nationalCode, phone, email, adminCode };
         const message = `کد تأیید <strong>${ADMIN_LOGIN_OTP}</strong> به شماره <strong>${phone}</strong> ارسال شد.`;
         showAdminOtpStep(message);
         notify('کد تأیید برای شما ارسال شد.');
@@ -653,10 +740,12 @@ if (adminOtpBack) {
             return;
         }
         showAdminLoginStep(false);
+        const fullNameField = adminLoginForm.querySelector('#adminFullName');
         const nationalField = adminLoginForm.querySelector('#adminNationalCode');
         const phoneField = adminLoginForm.querySelector('#adminPhone');
         const emailField = adminLoginForm.querySelector('#adminEmail');
         const adminCodeField = adminLoginForm.querySelector('#adminCode');
+        if (fullNameField) fullNameField.value = pendingAdminLogin.fullName || '';
         if (nationalField) nationalField.value = pendingAdminLogin.nationalCode;
         if (phoneField) phoneField.value = pendingAdminLogin.phone;
         if (emailField) emailField.value = pendingAdminLogin.email;
@@ -675,6 +764,10 @@ if (adminOtpForm) {
             notify('ورود مدیر با موفقیت انجام شد!');
             closeAdminLoginModalHandler();
             openAdminDashboardWindow();
+            if (typeof updateUserLabel === 'function') {
+                updateUserLabel();
+            }
+            location.hash = '#admin';
         } else {
             notify('کد تأیید نادرست است. لطفا مجددا تلاش کنید.', true);
             if (typeof resetOtpInputs === 'function') {
@@ -705,5 +798,35 @@ document.addEventListener('DOMContentLoaded', () => {
     setupImageUpload();
     if (adminOtpStep && typeof setupOtpInputs === 'function') {
         setupOtpInputs(adminOtpStep);
+    }
+});
+
+document.addEventListener('click', (event) => {
+    const actionBtn = event.target.closest('[data-admin-action]');
+    if (actionBtn) {
+        event.preventDefault();
+        const action = actionBtn.getAttribute('data-admin-action');
+        handleAdminQuickAction(action);
+        if (action === 'dashboard') {
+            location.hash = '#admin';
+        }
+        if (typeof userDropdown !== 'undefined' && userDropdown) {
+            userDropdown.classList.remove('open');
+        }
+    }
+
+    if (event.target.id === 'adminLogoutBtn' || event.target.closest('#adminLogoutBtn')) {
+        event.preventDefault();
+        clearAdminSession();
+        notify('خروج مدیر انجام شد.');
+        if (typeof updateUserLabel === 'function') {
+            updateUserLabel();
+        }
+        if (typeof userDropdown !== 'undefined' && userDropdown) {
+            userDropdown.classList.remove('open');
+        }
+        if (location.hash === '#admin') {
+            location.hash = '#home';
+        }
     }
 });

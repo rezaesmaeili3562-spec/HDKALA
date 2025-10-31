@@ -12,6 +12,71 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Iconify -->
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <style>
+    body.admin-mode {
+      background: linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(124, 58, 237, 0.08));
+    }
+
+    body.admin-mode .admin-dashboard-card {
+      box-shadow: 0 20px 45px -18px rgba(30, 64, 175, 0.25);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .nav-auth-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 1.4rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      transform-origin: center;
+      box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.35);
+    }
+
+    .nav-auth-btn:hover {
+      transform: translateY(-3px) scale(1.01);
+    }
+
+    #navLoginBtn,
+    #mobileLoginBtn {
+      background: rgba(255, 255, 255, 0.88);
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.65);
+    }
+
+    #navLoginBtn:hover,
+    #mobileLoginBtn:hover {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 20px 45px -20px rgba(37, 99, 235, 0.8);
+    }
+
+    #navSignupBtn,
+    #mobileSignupBtn {
+      background: #16a34a;
+      color: #ffffff;
+      border: 1px solid rgba(22, 163, 74, 0.65);
+    }
+
+    #navSignupBtn:hover,
+    #mobileSignupBtn:hover {
+      background: #0f766e;
+      box-shadow: 0 20px 45px -20px rgba(16, 185, 129, 0.8);
+    }
+
+    .auth-tab {
+      border-radius: 9999px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .auth-tab.active {
+      box-shadow: 0 18px 36px -22px rgba(37, 99, 235, 0.65);
+      border-color: rgba(37, 99, 235, 0.35);
+    }
+  </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
   <!-- Notification Container -->
@@ -129,6 +194,10 @@
             برای دسترسی به پنل مدیریت، لطفا اطلاعات خود را وارد کنید.
           </p>
           <form id="adminLoginForm" class="space-y-4">
+            <div>
+              <label for="adminFullName" class="block text-sm font-medium mb-2">نام و نام خانوادگی مدیر</label>
+              <input id="adminFullName" name="fullName" type="text" required maxlength="60" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="مثال: رضا محمدی">
+            </div>
             <div>
               <label for="adminNationalCode" class="block text-sm font-medium mb-2">کد ملی</label>
               <input id="adminNationalCode" name="nationalCode" type="text" required data-national maxlength="10" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="مثال: ۱۲۳۴۵۶۷۸۹۰">
@@ -399,14 +468,19 @@
           <iconify-icon icon="mdi:cart-outline" width="26"></iconify-icon>
           <span id="cartCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
         </button>
+        <!-- Auth buttons -->
+        <div id="authButtonGroup" class="hidden md:flex items-center gap-2">
+          <button id="navLoginBtn" class="nav-auth-btn">ورود</button>
+          <button id="navSignupBtn" class="nav-auth-btn">ثبت‌نام</button>
+        </div>
         <!-- User -->
-        <div class="relative">
-          <button id="userButton" class="flex items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
+        <div class="relative" id="userArea">
+          <button id="userButton" class="hidden items-center gap-2 text-gray-700 dark:text-white hover:text-primary transition-colors">
             <iconify-icon icon="mdi:user-circle-outline" width="26"></iconify-icon>
-            <span id="userLabel" class="hidden sm:inline">ورود / ثبت‌نام</span>
+            <span id="userLabel" class="hidden sm:inline">کاربر</span>
           </button>
           <!-- User Dropdown -->
-          <div id="userDropdown" class="user-dropdown absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-primary/30 py-2 z-30 opacity-0 invisible transform -translate-y-2 transition-all duration-200">
+          <div id="userDropdown" class="user-dropdown absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-primary/30 py-2 z-30 opacity-0 invisible transform -translate-y-2 transition-all duration-200">
             <div id="userDropdownContent">
               <!-- Content will be populated dynamically -->
             </div>
@@ -426,6 +500,10 @@
         <a href="#contact" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
         <a href="#blog" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
         <a href="#addresses" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+      </div>
+      <div id="mobileAuthButtons" class="mt-4 flex flex-col gap-2">
+        <button id="mobileLoginBtn" class="nav-auth-btn">ورود</button>
+        <button id="mobileSignupBtn" class="nav-auth-btn">ثبت‌نام</button>
       </div>
     </div>
     <!-- Main Content -->
