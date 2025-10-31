@@ -59,8 +59,18 @@ const DataService = (() => {
             throw new Error(`Resource "${key}" is not registered`);
         }
 
-        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
-            return cache.get(key);
+        if (typeof window !== 'undefined' && window.location?.protocol === 'file:') {
+            if (cache.has(key)) {
+                return cache.get(key);
+            }
+
+            if (embeddedData && Object.prototype.hasOwnProperty.call(embeddedData, key)) {
+                const data = embeddedData[key];
+                cache.set(key, data);
+                return data;
+            }
+
+            throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });

@@ -245,13 +245,26 @@ class ToastManager {
     }
 }
 
-const toastManager = new ToastManager();
+let toastManagerInstance = null;
+
+function getToastManager() {
+    if (!toastManagerInstance) {
+        toastManagerInstance = new ToastManager();
+
+        if (typeof window !== 'undefined') {
+            window.toastManager = toastManagerInstance;
+        }
+    }
+
+    return toastManagerInstance;
+}
 
 function notify(message, variant = 'info', options = {}) {
-    return toastManager.show(message, variant, options);
+    const manager = getToastManager();
+    return manager ? manager.show(message, variant, options) : null;
 }
 
 if (typeof window !== 'undefined') {
     window.notify = notify;
-    window.toastManager = toastManager;
+    getToastManager();
 }

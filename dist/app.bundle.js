@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-31T10:26:42.822Z */
+/* HDKALA bundle generated: 2025-10-31T10:54:57.110Z */
 // ---- embedded-data ----
 const EMBEDDED_DATA = Object.freeze({
   "products": [
@@ -1354,15 +1354,28 @@ class ToastManager {
     }
 }
 
-const toastManager = new ToastManager();
+let toastManagerInstance = null;
+
+function getToastManager() {
+    if (!toastManagerInstance) {
+        toastManagerInstance = new ToastManager();
+
+        if (typeof window !== 'undefined') {
+            window.toastManager = toastManagerInstance;
+        }
+    }
+
+    return toastManagerInstance;
+}
 
 function notify(message, variant = 'info', options = {}) {
-    return toastManager.show(message, variant, options);
+    const manager = getToastManager();
+    return manager ? manager.show(message, variant, options) : null;
 }
 
 if (typeof window !== 'undefined') {
     window.notify = notify;
-    window.toastManager = toastManager;
+    getToastManager();
 }
 
 // ---- storage.js ----
@@ -1446,8 +1459,18 @@ const DataService = (() => {
             throw new Error(`Resource "${key}" is not registered`);
         }
 
-        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
-            return cache.get(key);
+        if (typeof window !== 'undefined' && window.location?.protocol === 'file:') {
+            if (cache.has(key)) {
+                return cache.get(key);
+            }
+
+            if (embeddedData && Object.prototype.hasOwnProperty.call(embeddedData, key)) {
+                const data = embeddedData[key];
+                cache.set(key, data);
+                return data;
+            }
+
+            throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });
