@@ -13,9 +13,16 @@ window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home')
 function renderPage(){
     contentRoot.innerHTML = '';
 
+    if (typeof document !== 'undefined') {
+        document.body.classList.toggle('admin-mode', currentPage === 'admin');
+    }
+
     switch(currentPage) {
         case 'login':
             renderLoginPage();
+            break;
+        case 'signup':
+            renderSignupPage();
             break;
         case 'home':
             renderHomePage();
@@ -315,48 +322,141 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    const adminSession = typeof getAdminSession === 'function' ? getAdminSession() : null;
+    const adminInfo = adminSession && adminSession.info ? adminSession.info : {};
+    const adminName = adminInfo.fullName || 'مدیر HDKALA';
+    const adminPhone = adminInfo.phone || '---';
+    const adminEmail = adminInfo.email || '---';
+
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const pendingOrders = orders.filter(order => (order.status || '').toLowerCase() === 'processing').length;
+    const deliveredOrders = orders.filter(order => (order.status || '').toLowerCase() === 'delivered').length;
+    const inStockCount = products.filter(p => p.stock > 0).length;
+    const lowStockCount = products.filter(p => p.stock <= 3).length;
+    const discountProducts = products.filter(p => p.discount > 0).length;
+
     const page = document.createElement('div');
+    page.className = 'space-y-8';
     page.innerHTML = `
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-            <h1 class="text-2xl font-bold mb-6">پنل مدیریت</h1>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-primary/10 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-primary">${products.length}</div>
-                    <div class="text-gray-600 dark:text-gray-400">تعداد محصولات</div>
+        <section class="relative overflow-hidden rounded-3xl text-white shadow-xl border border-primary/30" style="background: linear-gradient(135deg, #1d4ed8, #6d28d9);">
+            <div class="absolute -top-24 -left-20 w-72 h-72 rounded-full opacity-30" style="background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 60%);"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 opacity-20" style="background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 65%);"></div>
+            <div class="relative z-10 p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div>
+                    <p class="text-sm uppercase tracking-widest text-white/70">مرکز کنترل مدیریت</p>
+                    <h1 class="text-3xl font-bold mt-2">خوش آمدید، ${adminName}</h1>
+                    <div class="mt-4 space-y-2 text-sm text-white/80">
+                        <div class="flex items-center gap-2"><iconify-icon icon="mdi:email-outline" width="18"></iconify-icon><span>${adminEmail}</span></div>
+                        <div class="flex items-center gap-2"><iconify-icon icon="mdi:phone" width="18"></iconify-icon><span>${adminPhone}</span></div>
+                    </div>
                 </div>
-                <div class="bg-green-500/10 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-green-500">${orders.length}</div>
-                    <div class="text-gray-600 dark:text-gray-400">سفارشات</div>
-                </div>
-                <div class="bg-blue-500/10 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-blue-500">${user ? 1 : 0}</div>
-                    <div class="text-gray-600 dark:text-gray-400">کاربران</div>
-                </div>
-                <div class="bg-purple-500/10 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-purple-500">${blogs.length}</div>
-                    <div class="text-gray-600 dark:text-gray-400">مقالات</div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" class="nav-auth-btn text-white border border-white/40" data-admin-action="reports" style="background: rgba(255,255,255,0.18);">گزارش فروش امروز</button>
+                    <a href="#products" class="nav-auth-btn" style="background:#ffffff;color:#1d4ed8;border:1px solid rgba(255,255,255,0.6);">مشاهده فروشگاه</a>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
-                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors mb-4" onclick="openAdminPanel()">
-                        مدیریت محصولات
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">محصولات فعال</p>
+                        <div class="text-3xl font-bold text-primary mt-2">${products.length}</div>
+                    </div>
+                    <iconify-icon icon="mdi:package-variant" width="30" class="text-primary/70"></iconify-icon>
+                </div>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${lowStockCount} محصول موجودی رو به اتمام دارند.</p>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">درآمد کل</p>
+                        <div class="text-3xl font-bold text-green-500 mt-2">${formatPrice(totalRevenue)}</div>
+                    </div>
+                    <iconify-icon icon="mdi:chart-line" width="30" class="text-green-500/70"></iconify-icon>
+                </div>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${orders.length} سفارش ثبت شده در سیستم.</p>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">وضعیت سفارش‌ها</p>
+                        <div class="text-3xl font-bold text-blue-500 mt-2">${pendingOrders}</div>
+                    </div>
+                    <iconify-icon icon="mdi:clipboard-list" width="30" class="text-blue-500/70"></iconify-icon>
+                </div>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${deliveredOrders} سفارش تحویل شده ثبت شده است.</p>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">محتوای دیجیتال</p>
+                        <div class="text-3xl font-bold text-purple-500 mt-2">${blogs.length}</div>
+                    </div>
+                    <iconify-icon icon="mdi:pen" width="30" class="text-purple-500/70"></iconify-icon>
+                </div>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${discountProducts} محصول دارای تخفیف فعال است.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4">عملیات سریع</h3>
+                <div class="space-y-3">
+                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="inventory">بررسی موجودی انبار</button>
+                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="users">مدیریت مشتریان وفادار</button>
+                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="support">ارسال پیام پشتیبانی</button>
+                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="campaign">ایجاد کمپین تبلیغاتی</button>
+                </div>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4">شاخص‌های کلیدی</h3>
+                <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                    <li class="flex items-center justify-between"><span>سفارش‌های در انتظار بررسی</span><span class="font-semibold text-blue-500">${pendingOrders}</span></li>
+                    <li class="flex items-center justify-between"><span>سفارش‌های تحویل شده</span><span class="font-semibold text-green-500">${deliveredOrders}</span></li>
+                    <li class="flex items-center justify-between"><span>میانگین ارزش سفارش</span><span class="font-semibold">${orders.length ? formatPrice(Math.round(totalRevenue / Math.max(orders.length,1))) : '۰ تومان'}</span></li>
+                    <li class="flex items-center justify-between"><span>محصولات دارای تخفیف</span><span class="font-semibold">${discountProducts}</span></li>
+                </ul>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md" id="adminActionOutput">
+                <h3 class="text-lg font-semibold mb-4">مرکز اعلان‌ها</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">یکی از عملیات سریع را انتخاب کنید تا گزارش مربوطه نمایش داده شود.</p>
+                <div id="adminActionDetails" class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
+                <div class="flex flex-col gap-4">
+                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors" onclick="openAdminPanel()">
+                        باز کردن پنل محصولات
                     </button>
+                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
+                        <div class="p-4 rounded-xl bg-primary/10">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">محصولات موجود</div>
+                            <div class="text-xl font-semibold text-primary mt-1">${inStockCount}</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-red-100 dark:bg-red-500/10">
+                            <div class="text-xs text-red-500">نیازمند تأمین</div>
+                            <div class="text-xl font-semibold text-red-500 mt-1">${lowStockCount}</div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">مدیریت بلاگ</h3>
-                    ${createBlogManagement()}
-                </div>
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4">مدیریت بلاگ</h3>
+                ${createBlogManagement()}
             </div>
         </div>
     `;
-    
+
     contentRoot.appendChild(page);
     setupBlogManagement();
+    if (typeof handleAdminQuickAction === 'function') {
+        handleAdminQuickAction('reports');
+    }
 }
 
 /* ---------- Render products ---------- */

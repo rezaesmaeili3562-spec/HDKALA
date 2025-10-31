@@ -254,6 +254,12 @@ const closeFilters = $('#closeFilters');
 const userButton = $('#userButton');
 const userDropdown = $('#userDropdown');
 const userDropdownContent = $('#userDropdownContent');
+const authButtonGroup = $('#authButtonGroup');
+const mobileAuthButtons = $('#mobileAuthButtons');
+const navLoginBtn = $('#navLoginBtn');
+const navSignupBtn = $('#navSignupBtn');
+const mobileLoginBtn = $('#mobileLoginBtn');
+const mobileSignupBtn = $('#mobileSignupBtn');
 const themeToggle = $('#themeToggle');
 const themeIcon = $('#themeIcon');
 const root = document.documentElement;
@@ -349,7 +355,83 @@ function updateCompareBadge() {
     }
 }
 
-function updateUserLabel(){ 
-    userLabel.textContent = (user && user.name) ? user.name : 'ورود / ثبت‌نام'; 
+function toggleAuthButtons(show){
+    if (authButtonGroup) {
+        authButtonGroup.classList.toggle('hidden', !show);
+        if (show) {
+            authButtonGroup.classList.add('flex');
+        } else {
+            authButtonGroup.classList.remove('flex');
+        }
+    }
+    if (mobileAuthButtons) {
+        mobileAuthButtons.classList.toggle('hidden', !show);
+    }
+}
+
+function updateUserLabel(){
+    const hasAdminSession = typeof getAdminSession === 'function' ? getAdminSession() : null;
+    const isAdminActive = !!(hasAdminSession && hasAdminSession.isAuthenticated);
+
+    if (isAdminActive) {
+        const adminInfo = hasAdminSession.info || {};
+        if (userLabel) {
+            userLabel.textContent = adminInfo.fullName || 'مدیریت HDKALA';
+        }
+        if (userButton) {
+            userButton.classList.remove('hidden');
+            userButton.classList.add('flex');
+        }
+        toggleAuthButtons(false);
+    } else if (user) {
+        if (userLabel) {
+            userLabel.textContent = user.name || 'کاربر HDKALA';
+        }
+        if (userButton) {
+            userButton.classList.remove('hidden');
+            userButton.classList.add('flex');
+        }
+        toggleAuthButtons(false);
+    } else {
+        if (userLabel) {
+            userLabel.textContent = 'ورود / ثبت‌نام';
+        }
+        if (userButton) {
+            userButton.classList.add('hidden');
+            userButton.classList.remove('flex');
+        }
+        toggleAuthButtons(true);
+    }
+
     updateUserDropdown();
 }
+
+[navLoginBtn, mobileLoginBtn].filter(Boolean).forEach(btn => {
+    btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (userDropdown) {
+            userDropdown.classList.remove('open');
+        }
+        if (mobileMenu) {
+            mobileMenu.classList.add('hidden');
+        }
+        location.hash = '#login';
+    });
+});
+
+[navSignupBtn, mobileSignupBtn].filter(Boolean).forEach(btn => {
+    btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (userDropdown) {
+            userDropdown.classList.remove('open');
+        }
+        if (mobileMenu) {
+            mobileMenu.classList.add('hidden');
+        }
+        location.hash = '#signup';
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateUserLabel();
+});
