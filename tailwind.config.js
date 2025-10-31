@@ -1,15 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./index.html",
-    "./src/**/*.{html,js}",
-    "./dist/**/*.{html,js}"
+    './index.html',
+    './src/**/*.{html,js,jsx,ts,tsx}'
   ],
   darkMode: 'class',
   theme: {
     extend: {
-      colors: { 
-        primary: { 
+      colors: {
+        primary: {
           DEFAULT: '#1e90ff',
           50: '#eff6ff',
           100: '#dbeafe',
@@ -23,10 +22,10 @@ module.exports = {
           700: '#334155'
         }
       },
-      fontFamily: { 
-        vazir: ['Vazirmatn', 'sans-serif'] 
+      fontFamily: {
+        vazir: ['Vazirmatn', 'sans-serif']
       }
     }
   },
-  plugins: [],
-}
+  plugins: []
+};
