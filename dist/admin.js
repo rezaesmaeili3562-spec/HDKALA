@@ -1,3 +1,25 @@
+const ADMIN_AUTH_STORAGE_KEY = 'HDK_adminAuthState';
+
+function isAdminAuthenticated() {
+    const state = LS.get(ADMIN_AUTH_STORAGE_KEY, { authenticated: false });
+    return !!state && state.authenticated === true;
+}
+
+function setAdminAuthenticated() {
+    LS.set(ADMIN_AUTH_STORAGE_KEY, {
+        authenticated: true,
+        timestamp: new Date().toISOString()
+    });
+}
+
+function openAdminWindow() {
+    const baseUrl = window.location.href.split('#')[0];
+    const adminWindow = window.open(`${baseUrl}#admin`, '_blank', 'noopener');
+    if (adminWindow && typeof adminWindow.focus === 'function') {
+        adminWindow.focus();
+    }
+}
+
 /* ---------- Admin Panel Functions ---------- */
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
@@ -535,7 +557,11 @@ function setupImageUpload() {
 if (adminAccessLink) {
     adminAccessLink.addEventListener('click', (e) => {
         e.preventDefault();
-        openAdminLoginModal();
+        if (isAdminAuthenticated()) {
+            openAdminWindow();
+        } else {
+            openAdminLoginModal();
+        }
     });
 }
 
@@ -612,8 +638,10 @@ if (adminOtpForm) {
         const code = typeof getOtpCode === 'function' ? getOtpCode(adminOtpStep) : '';
         if (code === ADMIN_LOGIN_OTP) {
             notify('ورود مدیر با موفقیت انجام شد!');
+            setAdminAuthenticated();
+            pendingAdminLogin = null;
             closeAdminLoginModalHandler();
-            openAdminPanel();
+            openAdminWindow();
         } else {
             notify('کد تأیید نادرست است. لطفا مجددا تلاش کنید.', true);
             if (typeof resetOtpInputs === 'function') {
