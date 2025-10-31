@@ -1,3 +1,54 @@
+/* ---------- Admin Session Management ---------- */
+const ADMIN_SESSION_KEY = 'HDK_admin_session';
+const ADMIN_WINDOW_NAME = 'HDKALA_ADMIN_PANEL';
+
+function getAdminSession() {
+    return LS.get(ADMIN_SESSION_KEY, null);
+}
+
+function isAdminAuthenticated() {
+    const session = getAdminSession();
+    return !!(session && session.isAuthenticated);
+}
+
+function startAdminSession(info) {
+    const sessionData = {
+        isAuthenticated: true,
+        info: info || {},
+        lastLogin: new Date().toISOString()
+    };
+    LS.set(ADMIN_SESSION_KEY, sessionData);
+    return sessionData;
+}
+
+function clearAdminSession() {
+    try {
+        localStorage.removeItem(ADMIN_SESSION_KEY);
+    } catch (err) {
+        // ignore storage errors
+    }
+}
+
+function openAdminDashboardWindow() {
+    try {
+        const adminUrl = new URL(window.location.href);
+        adminUrl.hash = 'admin';
+        adminUrl.searchParams.set('adminWindow', '1');
+        window.open(adminUrl.toString(), ADMIN_WINDOW_NAME);
+    } catch (err) {
+        window.open('#admin', ADMIN_WINDOW_NAME);
+    }
+}
+
+function ensureAdminAccess() {
+    if (isAdminAuthenticated()) {
+        return true;
+    }
+    notify('برای دسترسی به پنل مدیریت ابتدا وارد شوید.', true);
+    openAdminLoginModal();
+    return false;
+}
+
 /* ---------- Admin Panel Functions ---------- */
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
@@ -463,6 +514,10 @@ function showAdminOtpStep(message) {
 
 function openAdminLoginModal() {
     if (!adminLoginModal) return;
+    if (isAdminAuthenticated()) {
+        openAdminDashboardWindow();
+        return;
+    }
     adminLoginModal.classList.remove('hidden');
     adminLoginModal.classList.add('flex');
     showAdminLoginStep(true);
@@ -535,7 +590,11 @@ function setupImageUpload() {
 if (adminAccessLink) {
     adminAccessLink.addEventListener('click', (e) => {
         e.preventDefault();
-        openAdminLoginModal();
+        if (isAdminAuthenticated()) {
+            openAdminDashboardWindow();
+        } else {
+            openAdminLoginModal();
+        }
     });
 }
 
@@ -611,9 +670,11 @@ if (adminOtpForm) {
         if (!adminOtpStep) return;
         const code = typeof getOtpCode === 'function' ? getOtpCode(adminOtpStep) : '';
         if (code === ADMIN_LOGIN_OTP) {
+            startAdminSession(pendingAdminLogin);
+            pendingAdminLogin = null;
             notify('ورود مدیر با موفقیت انجام شد!');
             closeAdminLoginModalHandler();
-            openAdminPanel();
+            openAdminDashboardWindow();
         } else {
             notify('کد تأیید نادرست است. لطفا مجددا تلاش کنید.', true);
             if (typeof resetOtpInputs === 'function') {
