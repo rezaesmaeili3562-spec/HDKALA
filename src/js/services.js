@@ -46,6 +46,20 @@ const DataService = (() => {
         return typeof window !== 'undefined' && typeof window.fetch === 'function';
     }
 
+    function isFileProtocol() {
+        if (typeof window === 'undefined' || typeof window.location === 'undefined') {
+            return false;
+        }
+
+        const { protocol, origin } = window.location;
+
+        if (protocol === 'file:') {
+            return true;
+        }
+
+        return origin === 'null' || origin === null || typeof origin === 'undefined';
+    }
+
     function readEmbeddedDataFromDom() {
         if (typeof document === 'undefined') {
             return null;
@@ -88,6 +102,20 @@ const DataService = (() => {
         return undefined;
     }
 
+    function primeFromEmbeddedData(key) {
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+
+        const dataset = resolveEmbeddedDataset(key);
+        if (typeof dataset !== 'undefined') {
+            cache.set(key, dataset);
+            return dataset;
+        }
+
+        return undefined;
+    }
+
     function buildRequestUrl(path) {
         if (!isBrowser()) {
             return path;
@@ -111,22 +139,19 @@ const DataService = (() => {
         }
 
         const resourcePath = manifest[key];
-        if (!resourcePath || !isBrowser()) {
-            if (cache.has(key)) {
-                return cache.get(key);
-            }
+        if (!resourcePath) {
             throw new Error(`Resource "${key}" is not registered`);
         }
 
-        if (typeof window !== 'undefined' && window.location?.protocol === 'file:') {
-            if (cache.has(key)) {
-                return cache.get(key);
+        if (!isBrowser() || isFileProtocol()) {
+            const fallbackData = primeFromEmbeddedData(key);
+
+            if (typeof fallbackData !== 'undefined') {
+                return fallbackData;
             }
 
-            const fallbackData = resolveEmbeddedDataset(key);
-            if (typeof fallbackData !== 'undefined') {
-                cache.set(key, fallbackData);
-                return fallbackData;
+            if (!isBrowser()) {
+                throw new Error(`Resource "${key}" cannot be fetched outside of a browser environment`);
             }
 
             throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
@@ -193,6 +218,7 @@ const DataService = (() => {
                 }
 
                 try {
+                    primeFromEmbeddedData(key);
                     const data = await fetchJson(key);
                     results[key] = data;
                     emit(key, data, { source: 'remote' });
