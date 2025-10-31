@@ -10,14 +10,14 @@ const distDataDir = path.join(distDir, 'data');
 
 const sources = [
   'core.js',
+  'toast.js',
   'storage.js',
   'services.js',
   'state.js',
-  'router.js',
-  'admin.js',
   'cart.js',
+  'admin.js',
   'auth.js',
-  'toast.js',
+  'router.js',
   'filters.js',
   'pages.js',
   'ui.js',
@@ -33,14 +33,47 @@ function ensureFileExists(filePath) {
   }
 }
 
+function loadEmbeddedData() {
+  if (!fs.existsSync(staticDataDir)) {
+    return null;
+  }
+
+  const data = {};
+  const manifest = ['products', 'blogs', 'categories', 'provinces'];
+
+  manifest.forEach((key) => {
+    const filePath = path.join(staticDataDir, `${key}.json`);
+    if (!fs.existsSync(filePath)) {
+      return;
+    }
+
+    try {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      data[key] = JSON.parse(raw);
+    } catch (error) {
+      console.warn(`Failed to embed ${key}.json:`, error.message);
+    }
+  });
+
+  return Object.keys(data).length > 0 ? data : null;
+}
+
 function buildBundle() {
   fs.mkdirSync(distDir, { recursive: true });
 
-  const parts = sources.map((file) => {
+  const parts = [];
+
+  const embeddedData = loadEmbeddedData();
+  if (embeddedData) {
+    const snippet = `// ---- embedded-data ----\nconst EMBEDDED_DATA = Object.freeze(${JSON.stringify(embeddedData, null, 2)});\nif (typeof globalThis !== 'undefined') {\n  if (!globalThis.__HDK_BOOTSTRAP_DATA__) {\n    globalThis.__HDK_BOOTSTRAP_DATA__ = EMBEDDED_DATA;\n  }\n}\n`;
+    parts.push(snippet);
+  }
+
+  sources.forEach((file) => {
     const filePath = path.join(srcDir, file);
     ensureFileExists(filePath);
     const content = fs.readFileSync(filePath, 'utf8');
-    return `// ---- ${file} ----\n${content.trim()}\n`;
+    parts.push(`// ---- ${file} ----\n${content.trim()}\n`);
   });
 
   const banner = `/* HDKALA bundle generated: ${new Date().toISOString()} */\n`;

@@ -1,8 +1,19 @@
 /* ---------- Sample Data ---------- */
-const defaultProducts = [];
+const BOOTSTRAP_DATA = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+    ? globalThis.__HDK_BOOTSTRAP_DATA__
+    : {};
+
+const defaultProducts = Array.isArray(BOOTSTRAP_DATA.products) ? BOOTSTRAP_DATA.products.slice() : [];
 
 
-const defaultBlogs = [];
+const defaultBlogs = Array.isArray(BOOTSTRAP_DATA.blogs) ? BOOTSTRAP_DATA.blogs.slice() : [];
+
+
+const defaultCategories = (BOOTSTRAP_DATA.categories && typeof BOOTSTRAP_DATA.categories === 'object')
+    ? { ...BOOTSTRAP_DATA.categories }
+    : {};
+
+const defaultProvinces = Array.isArray(BOOTSTRAP_DATA.provinces) ? BOOTSTRAP_DATA.provinces.slice() : [];
 
 
 // داده‌های جدید برای آدرس‌ها و اطلاع‌رسانی
@@ -110,7 +121,7 @@ let products = LS.get('HDK_products', []);
 let cart = LS.get('HDK_cart', []);
 let orders = LS.get('HDK_orders', []);
 let user = normalizeUser(LS.get('HDK_user', null));
-let wishlist = LS.get('HDK_wishlist', []);
+let wishlist = (LS.get('HDK_wishlist', []) || []).map(item => String(item));
 let comments = LS.get('HDK_comments', {});
 let viewHistory = LS.get('HDK_viewHistory', []);
 let compareList = LS.get('HDK_compare', []);
@@ -332,6 +343,118 @@ function updateWishlistBadge(){
     }
 }
 
+function normalizeProductId(productId) {
+    if (productId === null || typeof productId === 'undefined') {
+        return null;
+    }
+    return String(productId).trim();
+}
+
+function persistWishlist() {
+    wishlist = Array.isArray(wishlist) ? wishlist : [];
+    LS.set('HDK_wishlist', wishlist);
+    updateWishlistBadge();
+
+    if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
+        try {
+            window.refreshWishlistButtons(document);
+        } catch (error) {
+            /* ignore button refresh errors */
+        }
+    }
+
+    if (UIEventBus && typeof UIEventBus.emit === 'function') {
+        UIEventBus.emit('wishlist:update', { wishlist: wishlist.slice() });
+    }
+}
+
+function notifyWishlistChange(message, variant = 'info', options = {}) {
+    if (typeof notify === 'function' && message) {
+        notify(message, variant, options);
+    }
+}
+
+function refreshWishlistViewIfActive() {
+    if (typeof refreshCurrentRoute !== 'function' || typeof location === 'undefined') {
+        return;
+    }
+
+    const currentHash = location.hash ? location.hash.replace(/^#/, '').split('?')[0] : '';
+    const routeName = currentHash.split(':')[0];
+    if (routeName === 'wishlist') {
+        refreshCurrentRoute({ preserveScroll: true });
+    }
+}
+
+function addToWishlist(productId, { showToast = true } = {}) {
+    const id = normalizeProductId(productId);
+    if (!id) {
+        return false;
+    }
+
+    wishlist = Array.isArray(wishlist) ? wishlist : [];
+    if (wishlist.includes(id)) {
+        if (showToast) {
+            notifyWishlistChange('این محصول پیش از این به علاقه‌مندی اضافه شده است', 'info', { allowDuplicates: false });
+        }
+        return false;
+    }
+
+    const product = typeof getProductById === 'function' ? getProductById(id) : null;
+    if (!product) {
+        notifyWishlistChange('محصول مورد نظر برای افزودن یافت نشد', 'error', { allowDuplicates: false });
+        return false;
+    }
+
+    wishlist.push(id);
+    persistWishlist();
+
+    if (showToast) {
+        notifyWishlistChange(`«${product.name}» به علاقه‌مندی‌ها اضافه شد`, 'success', { allowDuplicates: false });
+    }
+
+    refreshWishlistViewIfActive();
+    return true;
+}
+
+function removeFromWishlist(productId, { showToast = true } = {}) {
+    const id = normalizeProductId(productId);
+    if (!id || !Array.isArray(wishlist) || wishlist.length === 0) {
+        return false;
+    }
+
+    const index = wishlist.indexOf(id);
+    if (index === -1) {
+        return false;
+    }
+
+    const product = typeof getProductById === 'function' ? getProductById(id) : null;
+    wishlist.splice(index, 1);
+    persistWishlist();
+
+    if (showToast) {
+        const message = product ? `«${product.name}» از علاقه‌مندی‌ها حذف شد` : 'محصول از علاقه‌مندی‌ها حذف شد';
+        notifyWishlistChange(message, 'info', { allowDuplicates: false });
+    }
+
+    refreshWishlistViewIfActive();
+    return true;
+}
+
+function toggleWishlist(productId, options = {}) {
+    const id = normalizeProductId(productId);
+    if (!id) {
+        return false;
+    }
+
+    if (Array.isArray(wishlist) && wishlist.includes(id)) {
+        removeFromWishlist(id, options);
+        return false;
+    }
+
+    return addToWishlist(id, options);
+}
+
 function updateCompareBadge() {
     if(compareList.length === 0) {
         compareCountEl.classList.add('hidden');
@@ -456,10 +579,14 @@ DataService.bootstrap({
         prime: blogs
     },
     categories: {
-        fallback: DataService.getCached('categories') || {}
+        fallback: Object.keys(defaultCategories).length > 0
+            ? defaultCategories
+            : (DataService.getCached('categories') || {})
     },
     provinces: {
-        fallback: DataService.getCached('provinces') || []
+        fallback: defaultProvinces.length > 0
+            ? defaultProvinces
+            : (DataService.getCached('provinces') || [])
     }
 }).catch(error => {
     console.warn('Failed to bootstrap data', error);

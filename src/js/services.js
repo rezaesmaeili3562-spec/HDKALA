@@ -8,6 +8,17 @@ const DataService = (() => {
     });
 
     const cache = new Map();
+    const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+        ? globalThis.__HDK_BOOTSTRAP_DATA__
+        : null;
+
+    if (embeddedData && typeof embeddedData === 'object') {
+        Object.entries(embeddedData).forEach(([key, value]) => {
+            if (manifest[key] && typeof value !== 'undefined' && !cache.has(key)) {
+                cache.set(key, value);
+            }
+        });
+    }
     const eventTarget = typeof window !== 'undefined' && typeof window.EventTarget === 'function'
         ? new EventTarget()
         : { addEventListener() {}, removeEventListener() {}, dispatchEvent() {} };
@@ -42,7 +53,14 @@ const DataService = (() => {
 
         const resourcePath = manifest[key];
         if (!resourcePath || !isBrowser()) {
+            if (cache.has(key)) {
+                return cache.get(key);
+            }
             throw new Error(`Resource "${key}" is not registered`);
+        }
+
+        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
+            return cache.get(key);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });
