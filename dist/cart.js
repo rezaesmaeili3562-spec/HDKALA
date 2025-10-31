@@ -149,6 +149,37 @@ function addToCart(productId, qty=1){
     notify('محصول به سبد اضافه شد.');
 }
 
+/* ---------- Wishlist Helpers ---------- */
+function toggleWishlist(productId) {
+    if (!productId) return;
+
+    const index = wishlist.indexOf(productId);
+    if (index > -1) {
+        wishlist.splice(index, 1);
+        notify('محصول از علاقه‌مندی‌ها حذف شد');
+    } else {
+        wishlist.push(productId);
+        notify('محصول به علاقه‌مندی‌ها اضافه شد');
+    }
+
+    LS.set('HDK_wishlist', wishlist);
+    updateWishlistBadge();
+
+    const isInWishlist = wishlist.includes(productId);
+    $$(`.add-to-wishlist[data-id="${productId}"]`).forEach(btn => {
+        btn.classList.toggle('active', isInWishlist);
+        btn.setAttribute('aria-pressed', isInWishlist ? 'true' : 'false');
+
+        const icon = btn.querySelector('iconify-icon');
+        if (icon) {
+            icon.setAttribute('icon', isInWishlist ? 'mdi:heart' : 'mdi:heart-outline');
+            icon.classList.toggle('text-red-500', isInWishlist);
+            icon.classList.toggle('text-gray-600', !isInWishlist);
+            icon.classList.toggle('dark:text-gray-400', !isInWishlist);
+        }
+    });
+}
+
 /* ---------- Enhanced Compare Functions ---------- */
 function toggleCompare(productId) {
     const index = compareList.indexOf(productId);
@@ -463,5 +494,23 @@ checkoutBtn.addEventListener('click', () => {
 });
 
 // Replace original checkout with enhanced version
-const originalRenderCheckoutPage = renderCheckoutPage;
-renderCheckoutPage = renderEnhancedCheckoutPage;
+function enhanceCheckoutRendering() {
+    if (typeof window === 'undefined') return false;
+
+    const currentRender = window.renderCheckoutPage;
+
+    if (typeof currentRender !== 'function') {
+        return false;
+    }
+
+    if (currentRender === renderEnhancedCheckoutPage) {
+        return true;
+    }
+
+    window.renderCheckoutPage = renderEnhancedCheckoutPage;
+    return true;
+}
+
+if (!enhanceCheckoutRendering()) {
+    window.addEventListener('load', enhanceCheckoutRendering, { once: true });
+}

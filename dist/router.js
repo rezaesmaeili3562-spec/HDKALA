@@ -12,7 +12,7 @@ window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home')
 
 function renderPage(){
     contentRoot.innerHTML = '';
-    
+
     switch(currentPage) {
         case 'login':
             renderLoginPage();
@@ -65,6 +65,27 @@ function renderPage(){
     
     mobileMenu.classList.add('hidden');
     userDropdown.classList.remove('open');
+}
+
+function quickAddDemoProduct(e){
+    if (e) {
+        e.preventDefault();
+    }
+
+    const availableProduct = products.find(p => p.stock > 0) || products[0];
+
+    if (!availableProduct) {
+        notify('محصولی برای افزودن یافت نشد', true);
+        return;
+    }
+
+    addToCart(availableProduct.id, 1);
+
+    if (cartSidebar) {
+        cartSidebar.classList.add('open');
+    }
+
+    notify('یک محصول به سبد خرید شما اضافه شد!');
 }
 
 /* ---------- Home Page ---------- */
@@ -164,12 +185,17 @@ function renderHomePage(){
     contentRoot.appendChild(page);
     const featuredProducts = $('#featuredProducts', page);
     const quickAddDemo = $('#quickAddDemo', page);
-    
+
     // Show featured products (products with discount or special status)
-    const featured = products.filter(p => p.discount > 0 || p.status === 'hot' || p.status === 'new').slice(0, 8);
-    renderProductsList(featured, featuredProducts);
-    featuredProducts.addEventListener('click', handleProductActions);
-    quickAddDemo.addEventListener('click', quickAddDemoProduct);
+    if (featuredProducts) {
+        const featured = products.filter(p => p.discount > 0 || p.status === 'hot' || p.status === 'new').slice(0, 8);
+        renderProductsList(featured, featuredProducts);
+        featuredProducts.addEventListener('click', handleProductActions);
+    }
+
+    if (quickAddDemo) {
+        quickAddDemo.addEventListener('click', quickAddDemoProduct);
+    }
 }
 
 /* ---------- Products Page ---------- */

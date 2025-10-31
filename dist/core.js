@@ -1,6 +1,23 @@
 /* ---------- helpers ---------- */
-const $ = (s, ctx=document) => ctx.querySelector(s);
-const $$ = (s, ctx=document) => Array.from((ctx||document).querySelectorAll(s));
+const $ = (s, ctx=document) => {
+    const scope = ctx || document;
+    try {
+        return scope.querySelector(s);
+    } catch (err) {
+        if (typeof s === 'string' && s.startsWith('#')) {
+            return scope.getElementById(s.slice(1));
+        }
+        return null;
+    }
+};
+const $$ = (s, ctx=document) => {
+    const scope = ctx || document;
+    try {
+        return Array.from(scope.querySelectorAll(s));
+    } catch (err) {
+        return [];
+    }
+};
 const notifyEl = document.getElementById('notification');
 
 function notify(msg, isError=false){
