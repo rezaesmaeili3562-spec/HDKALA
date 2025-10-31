@@ -1,4 +1,788 @@
-/* HDKALA bundle generated: 2025-10-31T10:10:41.194Z */
+/* HDKALA bundle generated: 2025-10-31T10:26:42.822Z */
+// ---- embedded-data ----
+const EMBEDDED_DATA = Object.freeze({
+  "products": [
+    {
+      "id": "p1",
+      "name": "هدفون بی‌سیم Sony WH-1000XM4",
+      "price": 990000,
+      "desc": "هدفون بی‌سیم با نویزکنسلینگ پیشرفته و کیفیت صدای استثنایی. مناسب برای مسافرت و محیط‌های پر سر و صدا.",
+      "images": [
+        "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1510074377623-8cf13fb90a81?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=800&q=80",
+      "rating": 5,
+      "discount": 15,
+      "category": "electronics",
+      "status": "new",
+      "stock": 50,
+      "brand": "Sony",
+      "features": [
+        "نویزکنسلینگ",
+        "باتری 30 ساعته",
+        "شارژ سریع",
+        "کنترل لمسی"
+      ],
+      "colors": [
+        "مشکی",
+        "نقره‌ای",
+        "آبی"
+      ],
+      "sizes": [],
+      "specifications": {
+        "نوع": "بی‌سیم",
+        "باتری": "30 ساعت",
+        "وزن": "254 گرم",
+        "اتصال": "بلوتوث 5.0"
+      }
+    },
+    {
+      "id": "p2",
+      "name": "گوشی هوشمند Samsung Galaxy S23",
+      "price": 25000000,
+      "desc": "گوشی هوشمند قدرتمند با دوربین 200 مگاپیکسلی و پردازنده اسنپدراگون 8 نسل 2. مناسب برای بازی و عکاسی حرفه‌ای.",
+      "images": [
+        "https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1610945415295-1c071f2a1ed5?auto=format&fit=crop&w=800&q=80",
+      "rating": 5,
+      "discount": 0,
+      "category": "electronics",
+      "status": "hot",
+      "stock": 12,
+      "brand": "Samsung",
+      "features": [
+        "دوربین 200MP",
+        "پردازنده اسنپدراگون",
+        "نمایشگر 120Hz",
+        "شارژ سریع 45W"
+      ],
+      "colors": [
+        "مشکی",
+        "سبز",
+        "بنفش"
+      ],
+      "sizes": [],
+      "specifications": {
+        "نمایشگر": "6.8 اینچ",
+        "رم": "12GB",
+        "حافظه": "256GB",
+        "باتری": "5000 mAh"
+      }
+    },
+    {
+      "id": "p3",
+      "name": "لپ‌تاپ Apple MacBook Pro 14",
+      "price": 85000000,
+      "desc": "لپ‌تاپ حرفه‌ای با تراشه M2 Pro، نمایشگر Liquid Retina XDR و باتری تمام‌روزه. مناسب برای طراحان و برنامه‌نویسان.",
+      "images": [
+        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1481277542470-605612bd2d61?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+      "rating": 5,
+      "discount": 10,
+      "category": "electronics",
+      "status": "bestseller",
+      "stock": 5,
+      "brand": "Apple",
+      "features": [
+        "تراشه M2 Pro",
+        "نمایشگر XDR",
+        "باتری 18 ساعته",
+        "18GB رم"
+      ],
+      "colors": [
+        "نقره‌ای",
+        "Space Gray"
+      ],
+      "sizes": [],
+      "specifications": {
+        "پردازنده": "Apple M2 Pro",
+        "رم": "18GB",
+        "ذخیره‌سازی": "1TB SSD",
+        "نمایشگر": "14.2 اینچ"
+      }
+    },
+    {
+      "id": "p4",
+      "name": "کتاب هفت عادت مردمان موثر",
+      "price": 85000,
+      "desc": "کتاب پرفروش استفان کاوی درباره هفت عادتی که زندگی شما را متحول خواهد کرد.",
+      "images": [
+        "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
+      "rating": 4,
+      "discount": 20,
+      "category": "books",
+      "status": "",
+      "stock": 100,
+      "brand": "نشر پیکان",
+      "features": [
+        "جلد گالینگور",
+        "ترجمه روان",
+        "کیفیت چاپ بالا"
+      ],
+      "colors": [],
+      "sizes": [],
+      "specifications": {
+        "نویسنده": "استفان کاوی",
+        "مترجم": "محمد رضا آل یاسین",
+        "تعداد صفحات": "400",
+        "ناشر": "پیکان"
+      }
+    },
+    {
+      "id": "p5",
+      "name": "کفش ورزشی Nike Air Max",
+      "price": 4500000,
+      "desc": "کفش ورزشی با تکنولوژی Air Max برای راحتی و عملکرد بهتر در ورزش.",
+      "images": [
+        "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1523381294911-8d3cead13475?auto=format&fit=crop&w=800&q=80",
+      "rating": 4,
+      "discount": 25,
+      "category": "sports",
+      "status": "hot",
+      "stock": 30,
+      "brand": "Nike",
+      "features": [
+        "تکنولوژی Air Max",
+        "کفی اورتوپدی",
+        "مناسب دویدن",
+        "تنفس پذیری بالا"
+      ],
+      "colors": [
+        "سفید",
+        "مشکی",
+        "قرمز"
+      ],
+      "sizes": [
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44"
+      ],
+      "specifications": {
+        "جنس": "مش و چرم",
+        "سایز": "39-45",
+        "کاربرد": "ورزشی و روزمره",
+        "کف": "لاستیک با دوام"
+      }
+    },
+    {
+      "id": "p6",
+      "name": "مبل راحتی 3 نفره",
+      "price": 35000000,
+      "desc": "مبل راحتی با پارچه مخمل و قابلیت تنظیم پشتی. مناسب برای اتاق پذیرایی.",
+      "images": [
+        "https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1549187774-b4e9b0445b07?auto=format&fit=crop&w=800&q=80",
+      "rating": 4,
+      "discount": 15,
+      "category": "home",
+      "status": "",
+      "stock": 8,
+      "brand": "مبل ایران",
+      "features": [
+        "پارچه مخمل",
+        "قابلیت تنظیم پشتی",
+        "پر کوسن‌ها",
+        "قاب فلزی"
+      ],
+      "colors": [
+        "مشکی",
+        "خاکستری",
+        "آبی"
+      ],
+      "sizes": [
+        "دو نفره",
+        "سه نفره",
+        "L شکل"
+      ],
+      "specifications": {
+        "ابعاد": "200x90x80 سانتی‌متر",
+        "جنس پارچه": "مخمل",
+        "قاب": "فلز",
+        "ظرفیت": "3 نفر"
+      }
+    },
+    {
+      "id": "p7",
+      "name": "دستگاه قهوه ساز Delonghi",
+      "price": 12500000,
+      "desc": "دستگاه قهوه ساز تمام اتوماتیک با قابلیت تهیه انواع قهوه اسپرسو، کاپوچینو و لاته.",
+      "images": [
+        "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80",
+      "rating": 5,
+      "discount": 30,
+      "category": "home",
+      "status": "new",
+      "stock": 15,
+      "brand": "Delonghi",
+      "features": [
+        "تمام اتوماتیک",
+        "ساخت کاپوچینو",
+        "پمپ 15 بار",
+        "سیستم گرمایش سریع"
+      ],
+      "colors": [
+        "مشکی",
+        "نقره‌ای"
+      ],
+      "sizes": [],
+      "specifications": {
+        "نوع": "اسپرسو ساز",
+        "ظرفیت آب": "1.8 لیتر",
+        "قدرت": "1450 وات",
+        "ابعاد": "24x34x43 سانتی‌متر"
+      }
+    },
+    {
+      "id": "p8",
+      "name": "کاپشن زمستانی مردانه",
+      "price": 2800000,
+      "desc": "کاپشن زمستانی با پر طبیعی، مناسب برای هوای سرد. طراحی شیک و مدرن.",
+      "images": [
+        "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"
+      ],
+      "img": "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80",
+      "rating": 4,
+      "discount": 40,
+      "category": "fashion",
+      "status": "hot",
+      "stock": 25,
+      "brand": "Zara",
+      "features": [
+        "پر طبیعی",
+        "ضد آب",
+        "جیب‌های متعدد",
+        "کاپوت جدا شونده"
+      ],
+      "colors": [
+        "مشکی",
+        "خاکستری",
+        "آبی دریایی"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "specifications": {
+        "جنس": "نایلون و پر",
+        "سایز": "S-XXL",
+        "کاربرد": "زمستانی",
+        "شستشو": "خشک شویی"
+      }
+    }
+  ],
+  "blogs": [
+    {
+      "id": "b1",
+      "title": "۱۰ نکته برای خرید هوشمندانه آنلاین",
+      "excerpt": "در این مقاله با نکات مهم برای خرید آنلاین ایمن و هوشمندانه آشنا می‌شوید.",
+      "image": "",
+      "date": "۱۴۰۲/۱۰/۱۵",
+      "category": "خرید آنلاین"
+    },
+    {
+      "id": "b2",
+      "title": "راهنمای انتخاب بهترین هدفون",
+      "excerpt": "چگونه بر اساس نیاز خود بهترین هدفون را انتخاب کنید؟",
+      "image": "",
+      "date": "۱۴۰۲/۱۰/۱۰",
+      "category": "الکترونیک"
+    },
+    {
+      "id": "b3",
+      "title": "مقایسه برندهای لوازم خانگی",
+      "excerpt": "بررسی و مقایسه برندهای مطرح لوازم خانگی در بازار ایران",
+      "image": "",
+      "date": "۱۴۰۲/۱۰/۰۵",
+      "category": "لوازم خانگی"
+    }
+  ],
+  "categories": {
+    "electronics": {
+      "name": "الکترونیک",
+      "subcategories": [
+        "موبایل",
+        "لپ‌تاپ",
+        "هدفون",
+        "تبلت",
+        "دوربین",
+        "کنسول بازی"
+      ]
+    },
+    "fashion": {
+      "name": "مد و پوشاک",
+      "subcategories": [
+        "لباس مردانه",
+        "لباس زنانه",
+        "کفش",
+        "اکسسوری",
+        "کیف",
+        "ساعت"
+      ]
+    },
+    "home": {
+      "name": "خانه و آشپزخانه",
+      "subcategories": [
+        "مبلمان",
+        "لوازم آشپزخانه",
+        "دکوراسیون",
+        "لوازم برقی",
+        "سرویس خواب",
+        "فرش"
+      ]
+    },
+    "books": {
+      "name": "کتاب",
+      "subcategories": [
+        "رمان",
+        "علمی",
+        "تاریخی",
+        "کودک",
+        "دانشگاهی",
+        "خارجی"
+      ]
+    },
+    "sports": {
+      "name": "ورزشی",
+      "subcategories": [
+        "لباس ورزشی",
+        "کفش ورزشی",
+        "تجهیزات بدنسازی",
+        "توپ",
+        "کوهنوردی",
+        "شنا"
+      ]
+    }
+  },
+  "provinces": [
+    {
+      "name": "تهران",
+      "cities": [
+        "تهران",
+        "اسلامشهر",
+        "ری",
+        "شهریار",
+        "ورامین",
+        "قدس",
+        "پاکدشت",
+        "شمیرانات",
+        "رباط کریم"
+      ]
+    },
+    {
+      "name": "اصفهان",
+      "cities": [
+        "اصفهان",
+        "کاشان",
+        "خمینی شهر",
+        "نجف آباد",
+        "شهرضا",
+        "اردستان",
+        "مبارکه",
+        "فلاورجان",
+        "گلپایگان"
+      ]
+    },
+    {
+      "name": "فارس",
+      "cities": [
+        "شیراز",
+        "مرودشت",
+        "کازرون",
+        "فسا",
+        "لار",
+        "جهرم",
+        "داراب",
+        "آباده",
+        "اقلید"
+      ]
+    },
+    {
+      "name": "خراسان رضوی",
+      "cities": [
+        "مشهد",
+        "نیشابور",
+        "سبزوار",
+        "تربت حیدریه",
+        "قوچان",
+        "کاشمر",
+        "گناباد",
+        "تایباد",
+        "خواف"
+      ]
+    },
+    {
+      "name": "آذربایجان شرقی",
+      "cities": [
+        "تبریز",
+        "مراغه",
+        "مرند",
+        "اهر",
+        "میانه",
+        "اسکو",
+        "شبستر",
+        "هشترود",
+        "بناب"
+      ]
+    },
+    {
+      "name": "آذربایجان غربی",
+      "cities": [
+        "ارومیه",
+        "خوی",
+        "مهاباد",
+        "میاندوآب",
+        "سلماس",
+        "پیرانشهر",
+        "اشنویه",
+        "بوکان",
+        "شاهین دژ"
+      ]
+    },
+    {
+      "name": "کرمان",
+      "cities": [
+        "کرمان",
+        "رفسنجان",
+        "سیرجان",
+        "بم",
+        "جیرفت",
+        "زرند",
+        "کهنوج",
+        "انار",
+        "راور"
+      ]
+    },
+    {
+      "name": "خوزستان",
+      "cities": [
+        "اهواز",
+        "آبادان",
+        "خرمشهر",
+        "دزفول",
+        "شوشتر",
+        "اندیمشک",
+        "مسجد سلیمان",
+        "بهبهان",
+        "شادگان"
+      ]
+    },
+    {
+      "name": "گیلان",
+      "cities": [
+        "رشت",
+        "انزلی",
+        "لاهیجان",
+        "لنگرود",
+        "آستارا",
+        "آستانه اشرفیه",
+        "رودسر",
+        "صومعه سرا",
+        "فومن"
+      ]
+    },
+    {
+      "name": "مازندران",
+      "cities": [
+        "ساری",
+        "بابل",
+        "آمل",
+        "قائم شهر",
+        "نور",
+        "نوشهر",
+        "چالوس",
+        "رامسر",
+        "بهشهر"
+      ]
+    },
+    {
+      "name": "البرز",
+      "cities": [
+        "کرج",
+        "هشتگرد",
+        "نظرآباد",
+        "طالقان",
+        "اشتهارد",
+        "فردیس",
+        "ماهدشت",
+        "کمال شهر",
+        "محمودآباد"
+      ]
+    },
+    {
+      "name": "قم",
+      "cities": [
+        "قم",
+        "جعفریه",
+        "کهک",
+        "دستجرد",
+        "سلفچگان"
+      ]
+    },
+    {
+      "name": "کردستان",
+      "cities": [
+        "سنندج",
+        "سقز",
+        "مریوان",
+        "بانه",
+        "بیجار",
+        "قروه",
+        "کامیاران",
+        "دهگلان"
+      ]
+    },
+    {
+      "name": "همدان",
+      "cities": [
+        "همدان",
+        "ملایر",
+        "نهاوند",
+        "تویسرکان",
+        "کبودرآهنگ",
+        "رزن",
+        "اسدآباد",
+        "بهار"
+      ]
+    },
+    {
+      "name": "مرکزی",
+      "cities": [
+        "اراک",
+        "ساوه",
+        "خمین",
+        "محلات",
+        "تفرش",
+        "شازند",
+        "دلیجان",
+        "زرندیه"
+      ]
+    },
+    {
+      "name": "لرستان",
+      "cities": [
+        "خرم آباد",
+        "بروجرد",
+        "دورود",
+        "کوهدشت",
+        "الیگودرز",
+        "نورآباد",
+        "پلدختر",
+        "ازنا"
+      ]
+    },
+    {
+      "name": "هرمزگان",
+      "cities": [
+        "بندرعباس",
+        "قشم",
+        "میناب",
+        "بندر لنگه",
+        "رودان",
+        "حاجی آباد",
+        "بستک",
+        "خمیر"
+      ]
+    },
+    {
+      "name": "یزد",
+      "cities": [
+        "یزد",
+        "میبد",
+        "اردکان",
+        "بافق",
+        "ابرکوه",
+        "تفت",
+        "مهریز",
+        "اشکذر"
+      ]
+    },
+    {
+      "name": "زنجان",
+      "cities": [
+        "زنجان",
+        "ابهر",
+        "خرمدره",
+        "قیدار",
+        "خدابنده",
+        "ماهنشان",
+        "طارم",
+        "سلطانیه"
+      ]
+    },
+    {
+      "name": "سیستان و بلوچستان",
+      "cities": [
+        "زاهدان",
+        "ایرانشهر",
+        "چابهار",
+        "خاش",
+        "زابل",
+        "سراوان",
+        "نیکشهر",
+        "کنارک"
+      ]
+    },
+    {
+      "name": "کرمانشاه",
+      "cities": [
+        "کرمانشاه",
+        "اسلام آباد غرب",
+        "سنقر",
+        "هرسین",
+        "کنگاور",
+        "جوانرود",
+        "قصر شیرین",
+        "پاوه"
+      ]
+    },
+    {
+      "name": "کهگیلویه و بویراحمد",
+      "cities": [
+        "یاسوج",
+        "گچساران",
+        "دهدشت",
+        "لیکک",
+        "سی سخت",
+        "چرام"
+      ]
+    },
+    {
+      "name": "بوشهر",
+      "cities": [
+        "بوشهر",
+        "برازجان",
+        "گناوه",
+        "خورموج",
+        "عسلویه",
+        "جم",
+        "کنگان",
+        "دیر"
+      ]
+    },
+    {
+      "name": "اردبیل",
+      "cities": [
+        "اردبیل",
+        "مشگین شهر",
+        "پارس آباد",
+        "خلخال",
+        "گرمی",
+        "نیر",
+        "نمین",
+        "بیله سوار"
+      ]
+    },
+    {
+      "name": "ایلام",
+      "cities": [
+        "ایلام",
+        "دهلران",
+        "آبدانان",
+        "مهران",
+        "دره شهر",
+        "ایوان",
+        "سرابله"
+      ]
+    },
+    {
+      "name": "سمنان",
+      "cities": [
+        "سمنان",
+        "شاهرود",
+        "دامغان",
+        "گرمسار",
+        "مهدی شهر",
+        "آرادان",
+        "میامی"
+      ]
+    },
+    {
+      "name": "چهارمحال و بختیاری",
+      "cities": [
+        "شهرکرد",
+        "بروجن",
+        "فارسان",
+        "لردگان",
+        "اردل",
+        "سامان",
+        "بن",
+        "کیار"
+      ]
+    },
+    {
+      "name": "خراسان شمالی",
+      "cities": [
+        "بجنورد",
+        "اسفراین",
+        "شیروان",
+        "آشخانه",
+        "جاجرم",
+        "فاروج",
+        "گرمه"
+      ]
+    },
+    {
+      "name": "خراسان جنوبی",
+      "cities": [
+        "بیرجند",
+        "قائن",
+        "فردوس",
+        "نهبندان",
+        "سربیشه",
+        "درمیان",
+        "طبس"
+      ]
+    },
+    {
+      "name": "گلستان",
+      "cities": [
+        "گرگان",
+        "گنبد کاووس",
+        "آق قلا",
+        "بندر گز",
+        "علی آباد",
+        "کردکوی",
+        "کلاله",
+        "مینودشت"
+      ]
+    }
+  ]
+});
+if (typeof globalThis !== 'undefined') {
+  if (!globalThis.__HDK_BOOTSTRAP_DATA__) {
+    globalThis.__HDK_BOOTSTRAP_DATA__ = EMBEDDED_DATA;
+  }
+}
+
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
@@ -322,6 +1106,265 @@ if (typeof document !== 'undefined') {
     }
 }
 
+// ---- toast.js ----
+/* ---------- Toast System ---------- */
+const TOAST_VARIANTS = {
+    success: {
+        icon: 'mdi:check-circle',
+        label: 'موفقیت',
+        className: 'toast--success',
+        duration: 3800
+    },
+    error: {
+        icon: 'mdi:alert-circle',
+        label: 'خطا',
+        className: 'toast--error',
+        duration: 5600
+    },
+    warning: {
+        icon: 'mdi:alert',
+        label: 'هشدار',
+        className: 'toast--warning',
+        duration: 4800
+    },
+    info: {
+        icon: 'mdi:information',
+        label: 'اطلاعیه',
+        className: 'toast--info',
+        duration: 4200
+    }
+};
+
+class ToastManager {
+    constructor() {
+        this.container = null;
+        this.activeToasts = new Map();
+        this.queue = [];
+        this.maxVisible = 3;
+        this.recentMessages = new Map();
+        this.recentMessageWindow = 1200;
+    }
+
+    ensureContainer() {
+        if (this.container && document.body.contains(this.container)) {
+            return this.container;
+        }
+
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        container.setAttribute('role', 'region');
+        container.setAttribute('aria-live', 'polite');
+        container.setAttribute('aria-atomic', 'false');
+        document.body.appendChild(container);
+        this.container = container;
+        return container;
+    }
+
+    normalizeVariant(variant) {
+        if (typeof variant === 'boolean') {
+            return variant ? 'error' : 'success';
+        }
+        if (typeof variant !== 'string') {
+            return 'info';
+        }
+        return TOAST_VARIANTS[variant] ? variant : 'info';
+    }
+
+    shouldThrottle(message) {
+        const key = message.trim();
+        const now = Date.now();
+        const last = this.recentMessages.get(key) || 0;
+        if (now - last < this.recentMessageWindow) {
+            return true;
+        }
+        this.recentMessages.set(key, now);
+        return false;
+    }
+
+    show(message, variant = 'info', options = {}) {
+        if (!message || typeof document === 'undefined') {
+            return null;
+        }
+
+        const text = String(message).trim();
+        if (!text) {
+            return null;
+        }
+
+        const normalizedVariant = this.normalizeVariant(variant);
+        const config = TOAST_VARIANTS[normalizedVariant] || TOAST_VARIANTS.info;
+        const duration = typeof options.duration === 'number' ? Math.max(options.duration, 1500) : config.duration;
+
+        if (!options.allowDuplicates && this.shouldThrottle(`${normalizedVariant}:${text}`)) {
+            return null;
+        }
+
+        const container = this.ensureContainer();
+        const id = options.id || uid('toast');
+        const toast = this.createToastElement({ id, text, config, duration, options });
+
+        if (this.activeToasts.size >= this.maxVisible) {
+            this.queue.push({ message: text, variant: normalizedVariant, options });
+            return id;
+        }
+
+        container.appendChild(toast.element);
+        requestAnimationFrame(() => {
+            toast.element.classList.add('toast--visible');
+        });
+
+        this.activeToasts.set(id, toast);
+        toast.startTimer();
+        return id;
+    }
+
+    createToastElement({ id, text, config, duration, options }) {
+        const element = document.createElement('div');
+        element.className = `toast ${config.className}`;
+        element.setAttribute('role', config === TOAST_VARIANTS.error ? 'alert' : 'status');
+        element.dataset.toastId = id;
+
+        const content = document.createElement('div');
+        content.className = 'toast__content';
+
+        const iconWrapper = document.createElement('div');
+        iconWrapper.className = 'toast__icon';
+        const icon = document.createElement('iconify-icon');
+        icon.setAttribute('icon', config.icon);
+        icon.setAttribute('width', '22');
+        iconWrapper.appendChild(icon);
+
+        const messageWrapper = document.createElement('div');
+        messageWrapper.className = 'toast__message';
+
+        const label = document.createElement('span');
+        label.className = 'toast__label';
+        label.textContent = config.label;
+
+        const textNode = document.createElement('div');
+        textNode.className = 'toast__text';
+        textNode.textContent = text;
+
+        messageWrapper.appendChild(label);
+        messageWrapper.appendChild(textNode);
+
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'toast__close';
+        closeButton.setAttribute('aria-label', 'بستن اعلان');
+        closeButton.appendChild(document.createTextNode('×'));
+
+        content.appendChild(iconWrapper);
+        content.appendChild(messageWrapper);
+        element.appendChild(content);
+        element.appendChild(closeButton);
+
+        const toast = {
+            id,
+            element,
+            duration,
+            timer: null,
+            pausedAt: null,
+            options,
+            startTimer: () => {
+                toast.clearTimer();
+                toast.timer = setTimeout(() => this.dismiss(id), duration);
+            },
+            clearTimer: () => {
+                if (toast.timer) {
+                    clearTimeout(toast.timer);
+                    toast.timer = null;
+                }
+            }
+        };
+
+        const pause = () => {
+            if (toast.timer) {
+                toast.pausedAt = Date.now();
+                toast.clearTimer();
+            }
+        };
+
+        const resume = () => {
+            if (!toast.pausedAt) {
+                toast.startTimer();
+                return;
+            }
+            const elapsed = Date.now() - toast.pausedAt;
+            const remaining = Math.max(duration - elapsed, 1000);
+            toast.clearTimer();
+            toast.timer = setTimeout(() => this.dismiss(id), remaining);
+            toast.pausedAt = null;
+        };
+
+        element.addEventListener('mouseenter', pause);
+        element.addEventListener('mouseleave', resume);
+        closeButton.addEventListener('click', () => this.dismiss(id, { userDismissed: true }));
+
+        return toast;
+    }
+
+    dismiss(id, meta = {}) {
+        const toast = this.activeToasts.get(id);
+        if (!toast) {
+            return;
+        }
+
+        toast.clearTimer();
+        this.activeToasts.delete(id);
+        const element = toast.element;
+        element.classList.remove('toast--visible');
+
+        const remove = () => {
+            element.removeEventListener('transitionend', remove);
+            if (element.parentElement) {
+                element.parentElement.removeChild(element);
+            }
+            this.flushQueue();
+        };
+
+        element.addEventListener('transitionend', remove);
+        setTimeout(remove, 260);
+
+        if (typeof toast.options.onClose === 'function') {
+            try {
+                toast.options.onClose({ id, ...meta });
+            } catch (error) {
+                console.error('Toast onClose handler error:', error);
+            }
+        }
+    }
+
+    flushQueue() {
+        if (this.queue.length === 0 || this.activeToasts.size >= this.maxVisible) {
+            return;
+        }
+
+        const next = this.queue.shift();
+        if (!next) {
+            return;
+        }
+        this.show(next.message, next.variant, next.options);
+    }
+
+    clearAll() {
+        Array.from(this.activeToasts.keys()).forEach(id => this.dismiss(id));
+        this.queue = [];
+    }
+}
+
+const toastManager = new ToastManager();
+
+function notify(message, variant = 'info', options = {}) {
+    return toastManager.show(message, variant, options);
+}
+
+if (typeof window !== 'undefined') {
+    window.notify = notify;
+    window.toastManager = toastManager;
+}
+
 // ---- storage.js ----
 /* ---------- Local Storage Helpers ---------- */
 const LS = {
@@ -352,6 +1395,17 @@ const DataService = (() => {
     });
 
     const cache = new Map();
+    const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+        ? globalThis.__HDK_BOOTSTRAP_DATA__
+        : null;
+
+    if (embeddedData && typeof embeddedData === 'object') {
+        Object.entries(embeddedData).forEach(([key, value]) => {
+            if (manifest[key] && typeof value !== 'undefined' && !cache.has(key)) {
+                cache.set(key, value);
+            }
+        });
+    }
     const eventTarget = typeof window !== 'undefined' && typeof window.EventTarget === 'function'
         ? new EventTarget()
         : { addEventListener() {}, removeEventListener() {}, dispatchEvent() {} };
@@ -386,7 +1440,14 @@ const DataService = (() => {
 
         const resourcePath = manifest[key];
         if (!resourcePath || !isBrowser()) {
+            if (cache.has(key)) {
+                return cache.get(key);
+            }
             throw new Error(`Resource "${key}" is not registered`);
+        }
+
+        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
+            return cache.get(key);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });
@@ -525,10 +1586,21 @@ const UIEventBus = (() => {
 
 // ---- state.js ----
 /* ---------- Sample Data ---------- */
-const defaultProducts = [];
+const BOOTSTRAP_DATA = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+    ? globalThis.__HDK_BOOTSTRAP_DATA__
+    : {};
+
+const defaultProducts = Array.isArray(BOOTSTRAP_DATA.products) ? BOOTSTRAP_DATA.products.slice() : [];
 
 
-const defaultBlogs = [];
+const defaultBlogs = Array.isArray(BOOTSTRAP_DATA.blogs) ? BOOTSTRAP_DATA.blogs.slice() : [];
+
+
+const defaultCategories = (BOOTSTRAP_DATA.categories && typeof BOOTSTRAP_DATA.categories === 'object')
+    ? { ...BOOTSTRAP_DATA.categories }
+    : {};
+
+const defaultProvinces = Array.isArray(BOOTSTRAP_DATA.provinces) ? BOOTSTRAP_DATA.provinces.slice() : [];
 
 
 // داده‌های جدید برای آدرس‌ها و اطلاع‌رسانی
@@ -636,7 +1708,7 @@ let products = LS.get('HDK_products', []);
 let cart = LS.get('HDK_cart', []);
 let orders = LS.get('HDK_orders', []);
 let user = normalizeUser(LS.get('HDK_user', null));
-let wishlist = LS.get('HDK_wishlist', []);
+let wishlist = (LS.get('HDK_wishlist', []) || []).map(item => String(item));
 let comments = LS.get('HDK_comments', {});
 let viewHistory = LS.get('HDK_viewHistory', []);
 let compareList = LS.get('HDK_compare', []);
@@ -858,6 +1930,118 @@ function updateWishlistBadge(){
     }
 }
 
+function normalizeProductId(productId) {
+    if (productId === null || typeof productId === 'undefined') {
+        return null;
+    }
+    return String(productId).trim();
+}
+
+function persistWishlist() {
+    wishlist = Array.isArray(wishlist) ? wishlist : [];
+    LS.set('HDK_wishlist', wishlist);
+    updateWishlistBadge();
+
+    if (typeof window !== 'undefined' && typeof window.refreshWishlistButtons === 'function') {
+        try {
+            window.refreshWishlistButtons(document);
+        } catch (error) {
+            /* ignore button refresh errors */
+        }
+    }
+
+    if (UIEventBus && typeof UIEventBus.emit === 'function') {
+        UIEventBus.emit('wishlist:update', { wishlist: wishlist.slice() });
+    }
+}
+
+function notifyWishlistChange(message, variant = 'info', options = {}) {
+    if (typeof notify === 'function' && message) {
+        notify(message, variant, options);
+    }
+}
+
+function refreshWishlistViewIfActive() {
+    if (typeof refreshCurrentRoute !== 'function' || typeof location === 'undefined') {
+        return;
+    }
+
+    const currentHash = location.hash ? location.hash.replace(/^#/, '').split('?')[0] : '';
+    const routeName = currentHash.split(':')[0];
+    if (routeName === 'wishlist') {
+        refreshCurrentRoute({ preserveScroll: true });
+    }
+}
+
+function addToWishlist(productId, { showToast = true } = {}) {
+    const id = normalizeProductId(productId);
+    if (!id) {
+        return false;
+    }
+
+    wishlist = Array.isArray(wishlist) ? wishlist : [];
+    if (wishlist.includes(id)) {
+        if (showToast) {
+            notifyWishlistChange('این محصول پیش از این به علاقه‌مندی اضافه شده است', 'info', { allowDuplicates: false });
+        }
+        return false;
+    }
+
+    const product = typeof getProductById === 'function' ? getProductById(id) : null;
+    if (!product) {
+        notifyWishlistChange('محصول مورد نظر برای افزودن یافت نشد', 'error', { allowDuplicates: false });
+        return false;
+    }
+
+    wishlist.push(id);
+    persistWishlist();
+
+    if (showToast) {
+        notifyWishlistChange(`«${product.name}» به علاقه‌مندی‌ها اضافه شد`, 'success', { allowDuplicates: false });
+    }
+
+    refreshWishlistViewIfActive();
+    return true;
+}
+
+function removeFromWishlist(productId, { showToast = true } = {}) {
+    const id = normalizeProductId(productId);
+    if (!id || !Array.isArray(wishlist) || wishlist.length === 0) {
+        return false;
+    }
+
+    const index = wishlist.indexOf(id);
+    if (index === -1) {
+        return false;
+    }
+
+    const product = typeof getProductById === 'function' ? getProductById(id) : null;
+    wishlist.splice(index, 1);
+    persistWishlist();
+
+    if (showToast) {
+        const message = product ? `«${product.name}» از علاقه‌مندی‌ها حذف شد` : 'محصول از علاقه‌مندی‌ها حذف شد';
+        notifyWishlistChange(message, 'info', { allowDuplicates: false });
+    }
+
+    refreshWishlistViewIfActive();
+    return true;
+}
+
+function toggleWishlist(productId, options = {}) {
+    const id = normalizeProductId(productId);
+    if (!id) {
+        return false;
+    }
+
+    if (Array.isArray(wishlist) && wishlist.includes(id)) {
+        removeFromWishlist(id, options);
+        return false;
+    }
+
+    return addToWishlist(id, options);
+}
+
 function updateCompareBadge() {
     if(compareList.length === 0) {
         compareCountEl.classList.add('hidden');
@@ -982,10 +2166,14 @@ DataService.bootstrap({
         prime: blogs
     },
     categories: {
-        fallback: DataService.getCached('categories') || {}
+        fallback: Object.keys(defaultCategories).length > 0
+            ? defaultCategories
+            : (DataService.getCached('categories') || {})
     },
     provinces: {
-        fallback: DataService.getCached('provinces') || []
+        fallback: defaultProvinces.length > 0
+            ? defaultProvinces
+            : (DataService.getCached('provinces') || [])
     }
 }).catch(error => {
     console.warn('Failed to bootstrap data', error);
@@ -995,6 +2183,2127 @@ DataService.bootstrap({
             setDataLoading(key, false);
         }
     });
+});
+
+// ---- cart.js ----
+/* ---------- Cart Functions ---------- */
+function updateCartDisplay() {
+    if (!cartItems) return;
+    cartItems.innerHTML = '';
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = createEmptyState({
+            icon: 'mdi:cart-off',
+            title: 'سبد خرید شما خالی است',
+            description: 'برای شروع خرید، محصولات مورد علاقه خود را به سبد اضافه کنید.',
+            actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="18"></iconify-icon><span>مشاهده محصولات</span></a>'
+        });
+        cartTotal.textContent = '۰ تومان';
+        cartDiscount.textContent = '۰ تومان';
+        cartFinalTotal.textContent = '۰ تومان';
+        return;
+    }
+    
+    let total = 0;
+    let totalDiscount = 0;
+    
+    cart.forEach(item => {
+        const product = getProductById(item.productId);
+        if (!product) return;
+        
+        const finalPrice = product.discount > 0 ? 
+            product.price * (1 - product.discount / 100) : product.price;
+        const itemTotal = finalPrice * item.qty;
+        const itemDiscount = (product.price - finalPrice) * item.qty;
+        
+        total += itemTotal;
+        totalDiscount += itemDiscount;
+        
+        const cartItemEl = document.createElement('div');
+        cartItemEl.className = 'flex gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
+        cartItemEl.innerHTML = `
+            <div class="flex-1">
+                <h4 class="font-medium">${product.name}</h4>
+                <div class="flex justify-between items-center mt-2">
+                    <div class="flex items-center gap-2">
+                        <button class="decrease-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">-</button>
+                        <span class="w-8 text-center">${item.qty}</span>
+                        <button class="increase-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">+</button>
+                    </div>
+                    <div class="text-primary font-medium">${formatPrice(finalPrice)}</div>
+                </div>
+                ${itemDiscount > 0 ? `
+                    <div class="text-green-500 text-xs mt-1">
+                        ${formatPrice(itemDiscount)} صرفه‌جویی
+                    </div>
+                ` : ''}
+            </div>
+            <button class="remove-from-cart text-red-500 hover:text-red-700 transition-colors" data-id="${product.id}">
+                <iconify-icon icon="mdi:trash-can-outline"></iconify-icon>
+            </button>
+        `;
+        cartItems.appendChild(cartItemEl);
+    });
+    
+    const shippingCost = total > 500000 ? 0 : 30000;
+    const finalTotal = total + shippingCost;
+    
+    cartTotal.textContent = formatPrice(total + totalDiscount);
+    cartDiscount.textContent = formatPrice(totalDiscount);
+    cartShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
+    cartFinalTotal.textContent = formatPrice(finalTotal);
+    
+    // Add event listeners for cart actions
+    $$('.decrease-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            updateCartItemQty(productId, -1);
+        });
+    });
+    
+    $$('.increase-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            updateCartItemQty(productId, 1);
+        });
+    });
+    
+    $$('.remove-from-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            removeFromCart(productId);
+        });
+    });
+}
+
+function updateCartItemQty(productId, change) {
+    const item = cart.find(i => i.productId === productId);
+    if (!item) return;
+    
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    if (change > 0 && item.qty >= product.stock) {
+        notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
+        return;
+    }
+    
+    item.qty += change;
+    if (item.qty <= 0) {
+        removeFromCart(productId);
+    } else {
+        LS.set('HDK_cart', cart);
+        updateCartBadge();
+        updateCartDisplay();
+        notify(change > 0 ? 'تعداد محصول افزایش یافت' : 'تعداد محصول کاهش یافت', 'info');
+    }
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(i => i.productId !== productId);
+    LS.set('HDK_cart', cart);
+    updateCartBadge();
+    updateCartDisplay();
+    notify('محصول از سبد خرید حذف شد', 'info');
+}
+
+function addToCart(productId, qty=1){
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    if (product.stock === 0) {
+        notify('این محصول در حال حاضر موجود نیست', 'warning');
+        return;
+    }
+    
+    const existing = cart.find(i => i.productId === productId);
+    if(existing) {
+        if (existing.qty + qty > product.stock) {
+            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
+            return;
+        }
+        existing.qty += qty;
+    } else {
+        if (qty > product.stock) {
+            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
+            return;
+        }
+        cart.push({ productId, qty });
+    }
+    
+    LS.set('HDK_cart', cart); 
+    updateCartBadge(); 
+    updateCartDisplay();
+    notify('محصول به سبد اضافه شد.', 'success');
+}
+
+/* ---------- Enhanced Compare Functions ---------- */
+function toggleCompare(productId) {
+    const index = compareList.indexOf(productId);
+    if (index > -1) {
+        compareList.splice(index, 1);
+        notify('محصول از لیست مقایسه حذف شد', 'info');
+    } else {
+        if (compareList.length >= 4) {
+            notify('حداکثر ۴ محصول قابل مقایسه هستند', 'warning');
+            return;
+        }
+        compareList.push(productId);
+        notify('محصول به لیست مقایسه اضافه شد', 'success');
+    }
+    LS.set('HDK_compare', compareList);
+    updateCompareBadge();
+    if (!compareModal.classList.contains('hidden')) {
+        renderCompareProducts();
+    }
+}
+
+let isCompareModalClosing = false;
+
+function openCompareModal() {
+    if (!compareModal) return;
+
+    isCompareModalClosing = false;
+    compareModal.classList.remove('hidden', 'modal-closing');
+    compareModal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+    requestAnimationFrame(() => compareModal.classList.add('modal-visible'));
+    renderCompareProducts();
+
+    if (compareList.length === 0) {
+        notify('برای مقایسه، ابتدا چند محصول را به لیست اضافه کنید', 'info', { allowDuplicates: false });
+    }
+
+    const dialog = compareModal.querySelector('[data-modal-dialog]');
+    if (dialog) {
+        dialog.focus({ preventScroll: true });
+    }
+}
+
+function closeCompareModalDialog() {
+    if (!compareModal || compareModal.classList.contains('hidden') || isCompareModalClosing) {
+        return;
+    }
+
+    isCompareModalClosing = true;
+    compareModal.setAttribute('aria-hidden', 'true');
+    compareModal.classList.remove('modal-visible');
+    compareModal.classList.add('modal-closing');
+    unlockBodyScroll();
+
+    const cleanup = () => {
+        compareModal.removeEventListener('transitionend', cleanup);
+        compareModal.classList.add('hidden');
+        compareModal.classList.remove('modal-closing');
+        isCompareModalClosing = false;
+    };
+
+    compareModal.addEventListener('transitionend', cleanup);
+    setTimeout(cleanup, 220);
+
+    if (compareBtn && typeof compareBtn.focus === 'function') {
+        compareBtn.focus();
+    }
+}
+
+function renderCompareProducts() {
+    compareProducts.innerHTML = '';
+    
+    if (compareList.length === 0) {
+        compareProducts.innerHTML = `
+            <div class="col-span-full text-center py-8 text-gray-500">
+                <iconify-icon icon="mdi:scale-off" width="48" class="mb-4"></iconify-icon>
+                <p>محصولی برای مقایسه وجود ندارد</p>
+            </div>
+        `;
+        return;
+    }
+    
+    compareProducts.className = `grid grid-cols-1 md:grid-cols-${Math.min(compareList.length, 4)} gap-6`;
+    
+    compareList.forEach(productId => {
+        const product = getProductById(productId);
+        if (!product) {
+            // حذف محصولاتی که وجود ندارند
+            compareList = compareList.filter(id => id !== productId);
+            LS.set('HDK_compare', compareList);
+            updateCompareBadge();
+            return;
+        }
+        
+        const productEl = document.createElement('div');
+        productEl.innerHTML = createCompareProduct(product);
+        compareProducts.appendChild(productEl);
+    });
+    
+    // Add event listeners for compare actions
+    $$('.remove-compare').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            removeFromCompare(productId);
+        });
+    });
+    
+    $$('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            addToCart(productId, 1);
+        });
+    });
+    
+    $$('.add-to-wishlist').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            toggleWishlist(productId);
+            renderCompareProducts(); // Refresh to update heart icon
+        });
+    });
+}
+
+function removeFromCompare(productId) {
+    compareList = compareList.filter(id => id !== productId);
+    LS.set('HDK_compare', compareList);
+    updateCompareBadge();
+    renderCompareProducts();
+    notify('محصول از مقایسه حذف شد', 'info');
+}
+
+/* ---------- Enhanced Checkout ---------- */
+let selectedCheckoutAddressId = null;
+let selectedShippingMethodId = (typeof shippingMethods !== 'undefined' && shippingMethods.length > 0)
+    ? shippingMethods[0].id
+    : 'standard';
+
+function renderEnhancedCheckoutPage() {
+    if (user) {
+        const userAddresses = addresses.filter(addr => addr.userId === user.id);
+        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0] || null;
+        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
+    } else {
+        selectedCheckoutAddressId = null;
+    }
+
+    const page = document.createElement('div');
+    page.innerHTML = `
+        <h1 class="text-2xl font-bold mb-6">تسویه حساب</h1>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <!-- اطلاعات ارسال -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                    <h2 class="text-lg font-bold mb-4">اطلاعات ارسال</h2>
+                    <div id="checkoutAddressSection">
+                        ${user ? '' : '<p class="text-gray-500">لطفا ابتدا وارد حساب کاربری خود شوید</p>'}
+                    </div>
+                </div>
+
+                <!-- روش ارسال -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                    <h2 class="text-lg font-bold mb-4">روش ارسال</h2>
+                    ${createShippingOptions(selectedShippingMethodId)}
+                </div>
+
+                <!-- روش پرداخت -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                    <h2 class="text-lg font-bold mb-4">روش پرداخت</h2>
+                    ${createPaymentOptions('online')}
+                </div>
+            </div>
+
+            <!-- خلاصه سفارش -->
+            <div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20 sticky top-4">
+                    <h2 class="text-lg font-bold mb-4">خلاصه سفارش</h2>
+                    <div id="checkoutItems" class="space-y-3 mb-4 max-h-64 overflow-y-auto custom-scrollbar"></div>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+                        <div class="flex justify-between">
+                            <span>جمع کل:</span>
+                            <span id="checkoutTotal">۰ تومان</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>تخفیف:</span>
+                            <span id="checkoutDiscount" class="text-green-500">۰ تومان</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>هزینه ارسال:</span>
+                            <span id="checkoutShipping">۰ تومان</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                            <span>مبلغ قابل پرداخت:</span>
+                            <span id="checkoutFinalTotal">۰ تومان</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors mt-6" id="finalCheckoutBtn">
+                        پرداخت و ثبت سفارش
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    contentRoot.appendChild(page);
+
+    if (user) {
+        refreshCheckoutAddressSection();
+    }
+
+    updateCheckoutDisplay();
+    setupCheckoutEvents();
+}
+
+function createUserAddressSection(userAddresses = []) {
+    if (!Array.isArray(userAddresses) || userAddresses.length === 0) {
+        return `
+            <div class="space-y-4">
+                <div class="text-center py-6 text-gray-500">
+                    <iconify-icon icon="mdi:map-marker-off" width="36" class="mb-2"></iconify-icon>
+                    <p class="mb-3">هیچ آدرسی ثبت نکرده‌اید</p>
+                    <button type="button" id="toggleCheckoutAddressForm" class="text-primary hover:text-primary/80 font-medium">
+                        افزودن آدرس جدید
+                    </button>
+                </div>
+                <div id="checkoutAddressFormContainer" class="hidden"></div>
+            </div>
+        `;
+    }
+
+    const options = userAddresses.map(address => `
+        <label class="checkout-address-option block p-4 border-2 rounded-xl transition-all cursor-pointer ${
+            address.id === selectedCheckoutAddressId
+                ? 'border-primary bg-primary/5'
+                : 'border-gray-200 hover:border-primary/60'
+        }" data-id="${address.id}">
+            <div class="flex items-start gap-3">
+                <input type="radio" name="checkoutAddress" value="${address.id}" ${address.id === selectedCheckoutAddressId ? 'checked' : ''}
+                       class="mt-1 text-primary focus:ring-primary">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-medium">${address.title}</span>
+                        ${address.isDefault ? '<span class="bg-primary text-white text-xs px-2 py-0.5 rounded-full">پیش‌فرض</span>' : ''}
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <div>${address.province}، ${address.city}</div>
+                        <div>${address.fullAddress}</div>
+                        <div>کد پستی: ${address.postalCode}</div>
+                        <div>تلفن: ${address.phone}</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+    `).join('');
+
+    return `
+        <div class="space-y-4">
+            <div class="space-y-3">
+                ${options}
+            </div>
+            <div class="flex flex-wrap gap-3 text-sm">
+                <button type="button" id="toggleCheckoutAddressForm" class="flex items-center gap-1 text-primary hover:text-primary/80">
+                    <iconify-icon icon="mdi:plus"></iconify-icon>
+                    افزودن آدرس جدید
+                </button>
+                <a href="#addresses" id="checkoutManageAddresses" class="flex items-center gap-1 text-primary/80 hover:text-primary">
+                    <iconify-icon icon="mdi:map-marker"></iconify-icon>
+                    مدیریت آدرس‌ها
+                </a>
+            </div>
+            <div id="checkoutAddressFormContainer" class="hidden"></div>
+        </div>
+    `;
+}
+
+function refreshCheckoutAddressSection() {
+    const container = $('#checkoutAddressSection');
+    if (!container || !user) return;
+
+    const userAddresses = addresses.filter(addr => addr.userId === user.id);
+    if (userAddresses.length === 0) {
+        selectedCheckoutAddressId = null;
+    } else if (!selectedCheckoutAddressId || !userAddresses.some(addr => addr.id === selectedCheckoutAddressId)) {
+        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0];
+        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
+    }
+
+    container.innerHTML = createUserAddressSection(userAddresses);
+    bindCheckoutAddressEvents();
+}
+
+function bindCheckoutAddressEvents() {
+    $$('input[name="checkoutAddress"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            selectedCheckoutAddressId = this.value;
+            updateCheckoutAddressHighlight();
+        });
+    });
+
+    const toggleBtn = $('#toggleCheckoutAddressForm');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            renderCheckoutAddressForm();
+        });
+    }
+
+    updateCheckoutAddressHighlight();
+}
+
+function updateCheckoutAddressHighlight() {
+    $$('.checkout-address-option').forEach(option => {
+        const isSelected = option.getAttribute('data-id') === selectedCheckoutAddressId;
+        option.classList.toggle('border-primary', isSelected);
+        option.classList.toggle('bg-primary/5', isSelected);
+        option.classList.toggle('border-gray-200', !isSelected);
+    });
+}
+
+function renderCheckoutAddressForm() {
+    const container = $('#checkoutAddressFormContainer');
+    if (!container) return;
+
+    container.innerHTML = createCheckoutAddressForm();
+    container.classList.remove('hidden');
+
+    const provinceSelect = $('#checkoutAddressProvince');
+    const citySelect = $('#checkoutAddressCity');
+
+    populateCheckoutProvinceOptions(provinceSelect);
+    provinceSelect.addEventListener('change', () => {
+        populateCheckoutCityOptions(provinceSelect.value, citySelect);
+    });
+
+    $('#checkoutCancelAddress').addEventListener('click', () => {
+        hideCheckoutAddressForm();
+    });
+
+    $('#checkoutAddressForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!user) {
+            notify('برای ثبت آدرس وارد حساب کاربری شوید', 'warning');
+            return;
+        }
+
+        const formData = {
+            title: $('#checkoutAddressTitle').value.trim(),
+            province: provinceSelect.value,
+            city: citySelect.value,
+            fullAddress: $('#checkoutAddressText').value.trim(),
+            postalCode: $('#checkoutAddressPostal').value.trim(),
+            phone: $('#checkoutAddressPhone').value.trim(),
+            isDefault: $('#checkoutAddressDefault').checked,
+            userId: user.id
+        };
+
+        if (!formData.title || !formData.province || !formData.city || !formData.fullAddress) {
+            notify('لطفا همه فیلدها را تکمیل کنید', 'error');
+            return;
+        }
+
+        if (typeof validatePostalCode === 'function' && !validatePostalCode(formData.postalCode)) {
+            notify('کد پستی باید ۱۰ رقمی باشد', 'error');
+            return;
+        }
+
+        if (typeof validatePhone === 'function' && !validatePhone(formData.phone)) {
+            notify('شماره تماس معتبر نیست', 'error');
+            return;
+        }
+
+        if (formData.isDefault) {
+            addresses.forEach(addr => {
+                if (addr.userId === user.id) {
+                    addr.isDefault = false;
+                }
+            });
+        }
+
+        const newAddress = {
+            id: uid('addr'),
+            ...formData
+        };
+
+        addresses.push(newAddress);
+        LS.set('HDK_addresses', addresses);
+
+        selectedCheckoutAddressId = newAddress.id;
+        hideCheckoutAddressForm();
+        notify('آدرس جدید با موفقیت اضافه شد', 'success');
+        refreshCheckoutAddressSection();
+    });
+}
+
+function hideCheckoutAddressForm() {
+    const container = $('#checkoutAddressFormContainer');
+    if (!container) return;
+    container.classList.add('hidden');
+    container.innerHTML = '';
+}
+
+function populateCheckoutProvinceOptions(select) {
+    if (!select) return;
+    select.innerHTML = '<option value="">انتخاب استان</option>';
+    provinces.forEach(province => {
+        const option = document.createElement('option');
+        option.value = province.name;
+        option.textContent = province.name;
+        select.appendChild(option);
+    });
+}
+
+function populateCheckoutCityOptions(provinceName, select) {
+    if (!select) return;
+    select.innerHTML = '<option value="">انتخاب شهر</option>';
+    select.disabled = !provinceName;
+
+    if (!provinceName) return;
+
+    getProvinceCities(provinceName).forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        select.appendChild(option);
+    });
+}
+
+function createCheckoutAddressForm() {
+    return `
+        <div class="bg-white dark:bg-gray-900 border border-primary/20 rounded-2xl p-4">
+            <form id="checkoutAddressForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">عنوان آدرس</label>
+                    <input id="checkoutAddressTitle" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="مثلا: منزل">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">استان</label>
+                        <select id="checkoutAddressProvince" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <option value="">انتخاب استان</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">شهر</label>
+                        <select id="checkoutAddressCity" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
+                            <option value="">ابتدا استان را انتخاب کنید</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">آدرس کامل</label>
+                    <textarea id="checkoutAddressText" rows="3" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="خیابان، پلاک، واحد"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">کد پستی</label>
+                        <input id="checkoutAddressPostal" type="text" maxlength="10" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">شماره تماس</label>
+                        <input id="checkoutAddressPhone" type="tel" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="checkoutAddressDefault" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                    <label for="checkoutAddressDefault" class="text-sm">تنظیم به عنوان آدرس پیش‌فرض</label>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" id="checkoutCancelAddress" class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">انصراف</button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">ذخیره آدرس</button>
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+function updateCheckoutDisplay() {
+    const checkoutItems = $('#checkoutItems');
+    const checkoutTotal = $('#checkoutTotal');
+    const checkoutDiscount = $('#checkoutDiscount');
+    const checkoutShipping = $('#checkoutShipping');
+    const checkoutFinalTotal = $('#checkoutFinalTotal');
+    
+    if (!checkoutItems) return;
+    
+    checkoutItems.innerHTML = '';
+    if (cart.length === 0) {
+        checkoutItems.innerHTML = '<p class="text-gray-500 text-center">سبد خرید خالی است</p>';
+        checkoutTotal.textContent = '۰ تومان';
+        checkoutDiscount.textContent = '۰ تومان';
+        checkoutShipping.textContent = '۰ تومان';
+        checkoutFinalTotal.textContent = '۰ تومان';
+        return;
+    }
+    
+    let total = 0;
+    let totalDiscount = 0;
+    
+    cart.forEach(item => {
+        const product = getProductById(item.productId);
+        if (!product) return;
+        
+        const finalPrice = product.discount > 0 ? 
+            product.price * (1 - product.discount / 100) : product.price;
+        const itemTotal = finalPrice * item.qty;
+        const itemDiscount = (product.price - finalPrice) * item.qty;
+        
+        total += itemTotal;
+        totalDiscount += itemDiscount;
+        
+        const itemEl = document.createElement('div');
+        itemEl.className = 'flex justify-between items-center text-sm border-b border-gray-100 dark:border-gray-700 pb-2';
+        itemEl.innerHTML = `
+            <div class="flex-1">
+                <div class="font-medium">${product.name}</div>
+                <div class="text-gray-500">${item.qty} × ${formatPrice(finalPrice)}</div>
+            </div>
+            <div class="font-medium">${formatPrice(itemTotal)}</div>
+        `;
+        checkoutItems.appendChild(itemEl);
+    });
+    
+    const shippingCost = getCheckoutShippingCost(total);
+    const finalTotal = total + shippingCost;
+
+    checkoutTotal.textContent = formatPrice(total + totalDiscount);
+    checkoutDiscount.textContent = formatPrice(totalDiscount);
+    checkoutShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
+    checkoutFinalTotal.textContent = formatPrice(finalTotal);
+}
+
+function getCheckoutShippingCost(orderTotal) {
+    if (typeof getShippingMethod !== 'function') {
+        return orderTotal > 500000 ? 0 : 30000;
+    }
+
+    const method = getShippingMethod(selectedShippingMethodId);
+    if (!method) {
+        return orderTotal > 500000 ? 0 : 30000;
+    }
+
+    let cost = method.price || 0;
+    if (method.freeThreshold && orderTotal >= method.freeThreshold) {
+        cost = 0;
+    }
+
+    return cost;
+}
+
+function setupCheckoutEvents() {
+    // Payment method selection
+    $$('input[name="payment"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Update UI for selected payment method
+            $$('.payment-option').forEach(option => {
+                option.classList.remove('border-green-500', 'bg-green-50');
+                option.classList.add('border-gray-300');
+            });
+
+            this.closest('.payment-option').classList.add('border-green-500', 'bg-green-50');
+            this.closest('.payment-option').classList.remove('border-gray-300');
+        });
+    });
+
+    const checkedPayment = $('input[name="payment"]:checked');
+    if (checkedPayment) {
+        checkedPayment.dispatchEvent(new Event('change'));
+    }
+
+    // Shipping method selection
+    const shippingRadios = $$('input[name="shipping"]');
+    if (shippingRadios.length > 0) {
+        const checkedShipping = $('input[name="shipping"]:checked');
+        if (checkedShipping) {
+            selectedShippingMethodId = checkedShipping.value;
+        }
+
+        const applyShippingStyles = () => {
+            $$('.shipping-option').forEach(option => {
+                const isSelected = option.getAttribute('data-id') === selectedShippingMethodId;
+                option.classList.toggle('border-blue-500', isSelected);
+                option.classList.toggle('bg-blue-50', isSelected);
+                option.classList.toggle('dark:bg-blue-500/10', isSelected);
+                option.classList.toggle('border-gray-300', !isSelected);
+            });
+        };
+
+        shippingRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                selectedShippingMethodId = this.value;
+                applyShippingStyles();
+                updateCheckoutDisplay();
+            });
+        });
+
+        applyShippingStyles();
+    }
+
+    // Final checkout
+    $('#finalCheckoutBtn').addEventListener('click', function() {
+        if (cart.length === 0) {
+            notify('سبد خرید شما خالی است', 'warning');
+            return;
+        }
+
+        if (!user) {
+            notify('لطفا برای ثبت سفارش وارد حساب کاربری شوید', 'warning');
+            location.hash = 'login';
+            return;
+        }
+
+        const paymentInput = $('input[name="payment"]:checked');
+        const selectedPayment = paymentInput ? paymentInput.value : 'online';
+        const address = addresses.find(addr => addr.userId === user.id && addr.id === selectedCheckoutAddressId);
+
+        if (!address) {
+            notify('لطفا یک آدرس برای ارسال انتخاب کنید', 'warning');
+            return;
+        }
+
+        const totals = calculateCartTotal();
+        const shippingCost = getCheckoutShippingCost(totals.total);
+        const finalTotal = totals.total + shippingCost;
+        const shippingInfo = typeof getShippingMethod === 'function' ? getShippingMethod(selectedShippingMethodId) : null;
+
+        const order = {
+            id: uid('o'),
+            userId: user.id,
+            items: cart.map(item => ({ ...item })),
+            total: finalTotal,
+            subtotal: totals.total,
+            discount: totals.totalDiscount || 0,
+            shippingCost,
+            paymentMethod: selectedPayment,
+            shippingMethod: shippingInfo ? shippingInfo.id : selectedShippingMethodId,
+            shippingTitle: shippingInfo ? shippingInfo.name : '',
+            address: {
+                id: address.id,
+                title: address.title,
+                province: address.province,
+                city: address.city,
+                fullAddress: address.fullAddress,
+                postalCode: address.postalCode,
+                phone: address.phone
+            },
+            status: 'در حال پردازش',
+            date: new Date().toISOString()
+        };
+
+        orders.push(order);
+        LS.set('HDK_orders', orders);
+
+        // Clear cart
+        cart = [];
+        LS.set('HDK_cart', cart);
+        updateCartBadge();
+        updateCheckoutDisplay();
+
+        notify('سفارش شما با موفقیت ثبت شد!', 'success');
+        location.hash = `order-success:${order.id}`;
+    });
+}
+
+function openCartSidebar() {
+    if (!cartSidebar || cartSidebar.classList.contains('open')) {
+        return;
+    }
+
+    cartSidebar.classList.add('open');
+    cartSidebar.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+
+    if (cartOverlay) {
+        cartOverlay.classList.remove('hidden');
+        cartOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    cartSidebar.focus({ preventScroll: true });
+}
+
+function closeCartSidebar() {
+    if (!cartSidebar || !cartSidebar.classList.contains('open')) {
+        return;
+    }
+
+    cartSidebar.classList.remove('open');
+    cartSidebar.setAttribute('aria-hidden', 'true');
+
+    if (cartOverlay) {
+        cartOverlay.classList.add('hidden');
+        cartOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    unlockBodyScroll();
+
+    if (cartBtn && typeof cartBtn.focus === 'function') {
+        cartBtn.focus();
+    }
+}
+
+// Cart and Compare event listeners
+if (closeCart) {
+    closeCart.addEventListener('click', closeCartSidebar);
+}
+
+if (cartOverlay) {
+    cartOverlay.addEventListener('click', closeCartSidebar);
+}
+
+if (compareBtn) {
+    compareBtn.addEventListener('click', openCompareModal);
+}
+
+if (closeCompareModal) {
+    closeCompareModal.addEventListener('click', closeCompareModalDialog);
+}
+
+if (compareModal) {
+    compareModal.addEventListener('click', (event) => {
+        if (event.target === compareModal) {
+            closeCompareModalDialog();
+        }
+    });
+}
+
+const handleEscapeKey = (event) => {
+    if (event.key !== 'Escape') return;
+
+    if (cartSidebar && cartSidebar.classList.contains('open')) {
+        event.preventDefault();
+        closeCartSidebar();
+        return;
+    }
+
+    if (compareModal && !compareModal.classList.contains('hidden')) {
+        event.preventDefault();
+        closeCompareModalDialog();
+    }
+};
+
+document.addEventListener('keydown', handleEscapeKey);
+
+checkoutBtn.addEventListener('click', () => {
+    if (cart.length === 0) {
+        notify('سبد خرید شما خالی است', 'warning');
+        return;
+    }
+    location.hash = 'checkout';
+    closeCartSidebar();
+});
+
+// Replace original checkout with enhanced version
+const originalRenderCheckoutPage = renderCheckoutPage;
+renderCheckoutPage = renderEnhancedCheckoutPage;
+
+// ---- admin.js ----
+/* ---------- Admin Panel Functions ---------- */
+let pendingProductImage = '';
+
+function openAdminPanel() {
+    if (!ensureAdminAccess()) {
+        return;
+    }
+    adminModal.classList.remove('hidden');
+    renderAdminProducts();
+    setupAdminInputHandlers();
+}
+
+function closeAdminPanel() {
+    adminModal.classList.add('hidden');
+    productForm.classList.add('hidden');
+    editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
+}
+
+function renderAdminProducts() {
+    adminProductsList.innerHTML = '';
+    let filteredProducts = products;
+    const searchTerm = adminSearch.value.toLowerCase().trim();
+    if (searchTerm) {
+        filteredProducts = products.filter(product => 
+            product.name.toLowerCase().includes(searchTerm) ||
+            (product.brand && product.brand.toLowerCase().includes(searchTerm)) ||
+            product.category.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (filteredProducts.length === 0) {
+        adminProductsList.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <iconify-icon icon="mdi:package-variant-remove" width="48" class="mb-4"></iconify-icon>
+                <p>محصولی یافت نشد</p>
+            </div>
+        `;
+        return;
+    }
+    
+    filteredProducts.forEach(product => {
+        const finalPrice = product.discount > 0 ? 
+            product.price * (1 - product.discount / 100) : product.price;
+        const productEl = document.createElement('div');
+        productEl.className = 'bg-white dark:bg-gray-700 p-4 rounded-lg border border-primary/20';
+        productEl.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                        ${product.img ? 
+                            `<img src="${product.img}" alt="${product.name}" class="w-16 h-16 object-cover rounded-lg">` :
+                            `<iconify-icon icon="mdi:image-off" width="24" class="text-gray-400"></iconify-icon>`
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-primary">${product.name}</h4>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1 space-y-1">
+                            <div class="flex flex-wrap gap-4">
+                                <span>قیمت: ${formatPrice(product.price)}</span>
+                                ${product.discount > 0 ? `
+                                    <span>تخفیف: ${product.discount}% → ${formatPrice(finalPrice)}</span>
+                                ` : ''}
+                                <span>موجودی: ${product.stock}</span>
+                                <span>دسته: ${getCategoryName(product.category)}</span>
+                                ${product.brand ? `<span>برند: ${product.brand}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="edit-product bg-primary/20 text-primary px-3 py-1 rounded-lg hover:bg-primary/30 transition-colors" data-id="${product.id}">
+                        ویرایش
+                    </button>
+                    <button class="delete-product bg-red-500/20 text-red-500 px-3 py-1 rounded-lg hover:bg-red-500/30 transition-colors" data-id="${product.id}">
+                        حذف
+                    </button>
+                </div>
+            </div>
+        `;
+        adminProductsList.appendChild(productEl);
+    });
+    
+    // Add event listeners for edit and delete buttons
+    $$('.edit-product').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.getAttribute('data-id');
+            editProduct(productId);
+        });
+    });
+    
+    $$('.delete-product').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.getAttribute('data-id');
+            deleteProduct(productId);
+        });
+    });
+    
+    // Update stats
+    updateAdminStats();
+}
+
+function updateAdminStats() {
+    adminProductCount.textContent = products.length;
+    adminInStockCount.textContent = products.filter(p => p.stock > 0).length;
+    adminDiscountCount.textContent = products.filter(p => p.discount > 0).length;
+    adminOrderCount.textContent = orders.length;
+}
+
+function showProductForm() {
+    productForm.classList.remove('hidden');
+    formTitle.textContent = editingProductId ? 'ویرایش محصول' : 'افزودن محصول جدید';
+    
+    if (editingProductId) {
+        const product = getProductById(editingProductId);
+        pendingProductImage = product?.img || '';
+        $('#productName').value = product.name;
+        $('#productPrice').value = product.price;
+        $('#productDesc').value = product.desc;
+        $('#productCategory').value = product.category;
+        $('#productBrand').value = product.brand || '';
+        $('#productDiscount').value = product.discount;
+        $('#productStock').value = product.stock;
+        $('#productStatus').value = product.status || '';
+        $('#productRating').value = product.rating;
+        
+        // Set image preview if exists
+        if (product.img) {
+            $('#imagePreview').innerHTML = `
+                <img src="${product.img}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+            `;
+        }
+    } else {
+        pendingProductImage = '';
+        // Reset form for new product
+        $('#productName').value = '';
+        $('#productPrice').value = '';
+        $('#productDesc').value = '';
+        $('#productCategory').value = 'electronics';
+        $('#productBrand').value = '';
+        $('#productDiscount').value = '0';
+        $('#productStock').value = '0';
+        $('#productStatus').value = '';
+        $('#productRating').value = '5';
+        $('#imagePreview').innerHTML = '';
+    }
+}
+
+function setupAdminInputHandlers() {
+    // Auto-clear zero values
+    $$('#productForm input[type="number"]').forEach(input => {
+        input.addEventListener('focus', function() {
+            if (this.value === '0' || this.value === '00') {
+                this.value = '';
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.value = '0';
+            }
+        });
+    });
+    
+    // Image upload handler
+    $('#productImage').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                pendingProductImage = e.target.result;
+                $('#imagePreview').innerHTML = `
+                    <img src="${pendingProductImage}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function editProduct(productId) {
+    editingProductId = productId;
+    showProductForm();
+}
+
+function deleteProduct(productId) {
+    if (confirm('آیا از حذف این محصول مطمئن هستید؟')) {
+        products = products.filter(p => p.id !== productId);
+        LS.set('HDK_products', products);
+        renderAdminProducts();
+        notify('محصول با موفقیت حذف شد', 'success');
+        // Update main products view if on products page
+        if (currentPage === 'home' || currentPage === 'products') {
+            renderProducts(products);
+            updateBrandFilter();
+        }
+    }
+}
+
+function saveProduct() {
+    const name = $('#productName').value.trim();
+    const price = parseInt($('#productPrice').value) || 0;
+    const desc = $('#productDesc').value.trim();
+    const category = $('#productCategory').value;
+    const brand = $('#productBrand').value.trim();
+    const discount = parseInt($('#productDiscount').value) || 0;
+    const stock = parseInt($('#productStock').value) || 0;
+    const status = $('#productStatus').value;
+    const rating = parseInt($('#productRating').value) || 5;
+    
+    if (!name || !price) {
+        notify('لطفا نام و قیمت محصول را وارد کنید', 'error');
+        return;
+    }
+    
+    if (discount < 0 || discount > 100) {
+        notify('تخفیف باید بین 0 تا 100 باشد', 'error');
+        return;
+    }
+    
+    if (stock < 0) {
+        notify('موجودی نمی‌تواند منفی باشد', 'error');
+        return;
+    }
+    
+    // Get image data
+    const imagePreview = $('#imagePreview img');
+    const img = pendingProductImage || (imagePreview ? imagePreview.src : '');
+    
+    const wasEditing = Boolean(editingProductId);
+
+    if (editingProductId) {
+        // Update existing product
+        const index = products.findIndex(p => p.id === editingProductId);
+        if (index !== -1) {
+            products[index] = {
+                ...products[index],
+                name,
+                price,
+                desc,
+                category,
+                brand,
+                discount,
+                stock,
+                status,
+                rating,
+                img: img || products[index].img
+            };
+        }
+    } else {
+        // Add new product
+        const newProduct = {
+            id: uid('p'),
+            name,
+            price,
+            desc,
+            img: img,
+            rating,
+            discount,
+            category,
+            status,
+            stock,
+            brand,
+            features: [],
+            colors: [],
+            specifications: {},
+            created: new Date().toISOString()
+        };
+        products.push(newProduct);
+    }
+
+    LS.set('HDK_products', products);
+    renderAdminProducts();
+    productForm.classList.add('hidden');
+    editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
+    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد', 'success');
+    
+    // Update main products view if on products page
+    if (currentPage === 'home' || currentPage === 'products') {
+        renderProducts(products);
+        updateBrandFilter();
+    }
+}
+
+/* ---------- Blog Management ---------- */
+function setupBlogManagement() {
+    $('#addBlogBtn').addEventListener('click', showBlogForm);
+    
+    // Edit blog handlers
+    $$('.edit-blog').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const blogId = e.target.getAttribute('data-id');
+            editBlog(blogId);
+        });
+    });
+    
+    // Delete blog handlers
+    $$('.delete-blog').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const blogId = e.target.getAttribute('data-id');
+            deleteBlog(blogId);
+        });
+    });
+}
+
+function showBlogForm(blog = null) {
+    const isEdit = !!blog;
+    
+    const formHTML = `
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold">${isEdit ? 'ویرایش مقاله' : 'افزودن مقاله جدید'}</h3>
+                    <button class="close-blog-form p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                        <iconify-icon icon="mdi:close"></iconify-icon>
+                    </button>
+                </div>
+                
+                <form class="p-6 space-y-4" id="blogForm">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">عنوان مقاله</label>
+                        <input type="text" required 
+                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                               value="${blog?.title || ''}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">دسته‌بندی</label>
+                        <input type="text" required 
+                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                               value="${blog?.category || ''}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">خلاصه مقاله</label>
+                        <textarea required rows="3" 
+                                  class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">${blog?.excerpt || ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">محتوای کامل</label>
+                        <textarea required rows="6" 
+                                  class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">${blog?.content || ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">آدرس تصویر (اختیاری)</label>
+                        <input type="url" 
+                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                               value="${blog?.image || ''}">
+                    </div>
+                    
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" class="close-blog-form flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            انصراف
+                        </button>
+                        <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                            ${isEdit ? 'ویرایش مقاله' : 'ذخیره مقاله'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    const formContainer = document.createElement('div');
+    formContainer.innerHTML = formHTML;
+    document.body.appendChild(formContainer);
+    
+    // Event listeners
+    $('.close-blog-form').addEventListener('click', () => {
+        formContainer.remove();
+    });
+    
+    $('#blogForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveBlog(blog?.id, formContainer);
+    });
+}
+
+function saveBlog(blogId = null, formContainer) {
+    const form = $('#blogForm');
+    const formData = new FormData(form);
+    
+    const blogData = {
+        title: form.querySelector('input[type="text"]').value,
+        category: form.querySelectorAll('input[type="text"]')[1].value,
+        excerpt: form.querySelector('textarea').value,
+        content: form.querySelectorAll('textarea')[1].value,
+        image: form.querySelector('input[type="url"]').value,
+        date: new Date().toLocaleDateString('fa-IR')
+    };
+    
+    if (blogId) {
+        // Edit existing blog
+        const index = blogs.findIndex(b => b.id === blogId);
+        if (index !== -1) {
+            blogs[index] = { ...blogs[index], ...blogData };
+        }
+    } else {
+        // Add new blog
+        const newBlog = {
+            id: uid('b'),
+            ...blogData
+        };
+        blogs.push(newBlog);
+    }
+    
+    LS.set('HDK_blogs', blogs);
+    formContainer.remove();
+    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد', 'success');
+    
+    // Refresh blog management view
+    if (currentPage === 'admin') {
+        renderAdminPage();
+    }
+}
+
+function editBlog(blogId) {
+    const blog = blogs.find(b => b.id === blogId);
+    if (blog) {
+        showBlogForm(blog);
+    }
+}
+
+function deleteBlog(blogId) {
+    if (confirm('آیا از حذف این مقاله مطمئن هستید؟')) {
+        blogs = blogs.filter(b => b.id !== blogId);
+        LS.set('HDK_blogs', blogs);
+        notify('مقاله با موفقیت حذف شد', 'success');
+        
+        // Refresh blog management view
+        if (currentPage === 'admin') {
+            renderAdminPage();
+        }
+    }
+}
+
+/* ---------- Product Image Upload Fix ---------- */
+function setupImageUpload() {
+    // این تابع مشکل آپلود عکس را برطرف می‌کند
+    document.addEventListener('change', (e) => {
+        if (e.target.type === 'file' && e.target.accept.includes('image')) {
+            const file = e.target.files[0];
+            if (file) {
+                // بررسی نوع فایل
+                if (!file.type.startsWith('image/')) {
+                    notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // بررسی سایز فایل (حداکثر 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
+                    e.target.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // نمایش پیش‌نمایش
+                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
+                        if (previewContainer) {
+                            previewContainer.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                                <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
+                                    <iconify-icon icon="mdi:close"></iconify-icon>
+                                </button>
+                            `;
+                            
+                            // دکمه حذف عکس
+                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
+                                previewContainer.innerHTML = '';
+                                e.target.value = '';
+                            });
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+}
+
+// Admin panel event listeners
+if (adminBtn) {
+    adminBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (isAdminUser()) {
+            openAdminPanel();
+            return;
+        }
+
+        if (typeof navigate === 'function') {
+            navigate('admin-login');
+        } else {
+            location.hash = 'admin-login';
+        }
+    });
+}
+closeAdminModal.addEventListener('click', closeAdminPanel);
+addProductBtn.addEventListener('click', () => {
+    editingProductId = null;
+    showProductForm();
+});
+saveProductBtn.addEventListener('click', saveProduct);
+cancelProductBtn.addEventListener('click', () => {
+    productForm.classList.add('hidden');
+    editingProductId = null;
+    pendingProductImage = '';
+    $('#imagePreview').innerHTML = '';
+});
+adminSearch.addEventListener('input', renderAdminProducts);
+
+// Initialize image upload
+document.addEventListener('DOMContentLoaded', setupImageUpload);
+
+// ---- auth.js ----
+/* ---------- User Dropdown ---------- */
+function updateUserDropdown() {
+    if (user) {
+        userDropdownContent.innerHTML = `
+            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                <div class="font-medium text-primary">${user.name}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">${user.phone}</div>
+            </div>
+            <a href="#profile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">پروفایل من</a>
+            <a href="#orders" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">سفارش‌های من</a>
+            <a href="#wishlist" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">لیست علاقه‌مندی‌ها</a>
+            <a href="#addresses" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">آدرس‌های من</a>
+            <button id="logoutBtn" class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500 transition-colors">خروج</button>
+        `;
+    } else {
+        userDropdownContent.innerHTML = `
+            <button id="loginBtn" class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">ورود / ثبت‌نام</button>
+        `;
+    }
+}
+
+/* ---------- Authentication System ---------- */
+function renderLoginPage(initialMode = 'login') {
+    let currentMode = initialMode;
+
+    const page = document.createElement('div');
+    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    page.innerHTML = `
+        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div class="space-y-4">
+                <div class="flex justify-center">
+                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
+                        HDKALA
+                    </a>
+                </div>
+                <div class="text-center space-y-2">
+                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">ورود یا ثبت‌نام</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">با شماره تماس خود وارد شوید یا حساب جدید بسازید</p>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/40 p-1 rounded-xl" role="tablist">
+                    <button type="button" data-mode="login" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
+                        ورود کاربران
+                    </button>
+                    <button type="button" data-mode="signup" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
+                        ثبت‌نام سریع
+                    </button>
+                </div>
+            </div>
+
+            <form class="space-y-5" id="authForm" novalidate>
+                <div>
+                    <label for="authPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس <span class="text-red-500">*</span></label>
+                    <input id="authPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="09xxxxxxxxx">
+                    <div id="phoneError" class="text-red-500 text-xs mt-1 hidden">شماره تلفن باید با 09 شروع شده و 11 رقمی باشد</div>
+                </div>
+
+                <div>
+                    <label for="authEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل (اختیاری)</label>
+                    <input id="authEmail" type="email" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="example@email.com">
+                </div>
+
+                <div id="passwordGroup" class="space-y-1">
+                    <label for="authPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">رمز عبور (اختیاری)</label>
+                    <input id="authPassword" type="password" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="••••••">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">در صورت نداشتن رمز عبور، از ورود با کد تأیید استفاده کنید.</p>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    دریافت کد تأیید
+                </button>
+            </form>
+
+            <div id="authHint" class="text-center text-xs text-gray-500 dark:text-gray-400">
+                حساب کاربری ندارید؟ شماره خود را وارد کنید تا ثبت‌نام انجام شود.
+            </div>
+        </div>
+    `;
+
+    contentRoot.innerHTML = '';
+    contentRoot.appendChild(page);
+
+    const tabs = $$('.auth-tab', page);
+    const passwordGroup = $('#passwordGroup', page);
+    const phoneInput = $('#authPhone', page);
+    const emailInput = $('#authEmail', page);
+    const passwordInput = $('#authPassword', page);
+    const phoneError = $('#phoneError', page);
+    const authHint = $('#authHint', page);
+
+    function updateTabStyles() {
+        tabs.forEach(tab => {
+            const isActive = tab.getAttribute('data-mode') === currentMode;
+            tab.classList.toggle('bg-primary', isActive);
+            tab.classList.toggle('text-white', isActive);
+            tab.classList.toggle('shadow-md', isActive);
+            tab.classList.toggle('bg-white', !isActive);
+            tab.classList.toggle('dark:bg-gray-800', !isActive);
+            tab.classList.toggle('text-gray-600', !isActive);
+            tab.classList.toggle('dark:text-gray-300', !isActive);
+            tab.classList.toggle('hover:bg-gray-100', !isActive);
+            tab.classList.toggle('dark:hover:bg-gray-700', !isActive);
+        });
+
+        if (currentMode === 'login') {
+            passwordGroup.classList.remove('hidden');
+            authHint.textContent = 'اگر رمز عبور ندارید، کد تأیید برای ورود ارسال می‌شود.';
+        } else {
+            passwordGroup.classList.add('hidden');
+            passwordInput.value = '';
+            authHint.textContent = 'با وارد کردن شماره تماس، کد تأیید برای ثبت‌نام ارسال خواهد شد.';
+        }
+    }
+
+    updateTabStyles();
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentMode = tab.getAttribute('data-mode');
+            updateTabStyles();
+        });
+    });
+
+    phoneInput.addEventListener('input', () => {
+        phoneError.classList.add('hidden');
+    });
+
+    $('#authForm', page).addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const phone = phoneInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!validatePhone(phone)) {
+            phoneError.classList.remove('hidden');
+            return;
+        }
+
+        phoneError.classList.add('hidden');
+
+        if (currentMode === 'login' && password) {
+            const existingUser = normalizeUser(LS.get('HDK_user'));
+            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
+                if (!existingUser.password) {
+                    notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', 'warning');
+                    return;
+                }
+                if (existingUser.password !== password) {
+                    notify('رمز عبور وارد شده نادرست است', 'error');
+                    return;
+                }
+
+                const nextUser = { ...existingUser };
+                if (email && email !== existingUser.email) {
+                    nextUser.email = email;
+                }
+                user = syncUserSession(nextUser);
+                notify('با موفقیت وارد شدید!', 'success');
+                navigate('home');
+                return;
+            }
+
+            notify('حسابی با این مشخصات یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
+            return;
+        }
+
+        renderVerifyPage({ phone, mode: currentMode, email });
+    });
+
+    phoneInput.focus();
+}
+
+function renderAdminLoginPage() {
+    const page = document.createElement('div');
+    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    page.innerHTML = `
+        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div class="space-y-4 text-center">
+                <a href="#home" class="text-2xl font-extrabold text-primary flex items-center justify-center gap-2">
+                    <iconify-icon icon="mdi:shield-account" width="30"></iconify-icon>
+                    ورود مدیر سیستم
+                </a>
+                <div class="space-y-2">
+                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">پنل مدیریت HDKALA</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">برای ورود به داشبورد مدیریتی، اطلاعات امنیتی خود را وارد کنید</p>
+                </div>
+            </div>
+
+            <form class="space-y-5" id="adminLoginForm" novalidate>
+                <div>
+                    <label for="adminPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس مدیر <span class="text-red-500">*</span></label>
+                    <input id="adminPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="09120000000">
+                </div>
+
+                <div>
+                    <label for="adminEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل سازمانی <span class="text-red-500">*</span></label>
+                    <input id="adminEmail" type="email" required
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="admin@hdkala.com">
+                </div>
+
+                <div>
+                    <label for="adminPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رمز عبور امنیتی <span class="text-red-500">*</span></label>
+                    <input id="adminPassword" type="password" required minlength="6"
+                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="••••••">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">رمز عبور باید حداقل ۶ کاراکتر باشد.</p>
+                </div>
+
+                <div id="adminLoginError" class="hidden text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    ارسال کد ورود
+                </button>
+            </form>
+
+            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+                با وارد کردن اطلاعات فوق، یک کد تأیید یکبار مصرف برای شما ارسال می‌شود.
+            </div>
+
+            <div class="text-center">
+                <button type="button" id="backToHome" class="text-sm text-primary hover:text-primary/80 transition-colors">
+                    بازگشت به صفحه اصلی
+                </button>
+            </div>
+        </div>
+    `;
+
+    contentRoot.innerHTML = '';
+    contentRoot.appendChild(page);
+
+    const form = $('#adminLoginForm', page);
+    const phoneInput = $('#adminPhone', page);
+    const emailInput = $('#adminEmail', page);
+    const passwordInput = $('#adminPassword', page);
+    const errorBox = $('#adminLoginError', page);
+
+    const clearError = () => {
+        if (!errorBox) return;
+        errorBox.textContent = '';
+        errorBox.classList.add('hidden');
+    };
+
+    const showError = (message) => {
+        if (!errorBox) return;
+        errorBox.textContent = message;
+        errorBox.classList.remove('hidden');
+    };
+
+    [phoneInput, emailInput, passwordInput].forEach(input => {
+        if (!input) return;
+        input.addEventListener('input', clearError);
+    });
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        clearError();
+
+        const phone = phoneInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!validatePhone(phone)) {
+            showError('شماره تماس مدیر باید با 09 شروع شده و 11 رقم باشد.');
+            phoneInput.focus();
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            showError('ایمیل وارد شده معتبر نیست.');
+            emailInput.focus();
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            showError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+            passwordInput.focus();
+            return;
+        }
+
+        const credential = typeof findAdminCredential === 'function'
+            ? findAdminCredential({ phone, email, password })
+            : null;
+
+        if (!credential) {
+            showError('اطلاعات وارد شده با مدیر ثبت‌شده مطابقت ندارد.');
+            return;
+        }
+
+        renderVerifyPage({
+            phone: credential.phone,
+            email: credential.email,
+            mode: 'admin',
+            title: 'تأیید ورود مدیر سیستم',
+            subtitle: `کد ۴ رقمی ارسال شده به ${credential.phone} را وارد کنید`,
+            onSuccess: () => {
+                const adminUser = normalizeUser({
+                    ...credential,
+                    role: 'admin',
+                    isAdmin: true,
+                    permissions: Array.isArray(ADMIN_PERMISSIONS) ? ADMIN_PERMISSIONS.slice() : ['products.manage']
+                });
+                user = syncUserSession(adminUser);
+                notify('ورود مدیر با موفقیت انجام شد', 'success');
+
+                if (typeof navigate === 'function') {
+                    navigate('admin');
+                } else {
+                    location.hash = 'admin';
+                }
+
+                setTimeout(() => {
+                    if (typeof openAdminPanel === 'function') {
+                        openAdminPanel();
+                    }
+                }, 0);
+            }
+        });
+    });
+
+    $('#backToHome', page).addEventListener('click', () => {
+        if (typeof navigate === 'function') {
+            navigate('home');
+        } else {
+            location.hash = 'home';
+        }
+    });
+
+    phoneInput.focus();
+}
+
+function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null, title: customTitle = '', subtitle: customSubtitle = '' }) {
+    const operator = getOperatorLogo(phone);
+    const operatorLogos = {
+        'irancell': '<iconify-icon icon="mdi:signal" class="text-blue-500"></iconify-icon>',
+        'mci': '<iconify-icon icon="mdi:sim" class="text-green-500"></iconify-icon>',
+        'rightel': '<iconify-icon icon="mdi:wifi" class="text-red-500"></iconify-icon>',
+        'unknown': '<iconify-icon icon="mdi:phone" class="text-gray-500"></iconify-icon>'
+    };
+
+    const page = document.createElement('div');
+    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
+    const isSignup = mode === 'signup';
+    const pageTitle = customTitle || (isSignup ? 'تأیید شماره برای ثبت‌نام' : 'تأیید شماره تلفن');
+    const pageSubtitle = customSubtitle || `کد ۴ رقمی ارسال شده به ${phone} را وارد کنید`;
+
+    page.innerHTML = `
+        <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
+            <div>
+                <div class="flex justify-center">
+                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
+                        HDKALA
+                    </a>
+                </div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+                    ${pageTitle}
+                </h2>
+                <div class="flex items-center justify-center gap-2 mt-2">
+                    ${operatorLogos[operator]}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        ${pageSubtitle}
+                    </p>
+                </div>
+            </div>
+            <form class="mt-8 space-y-6" id="verifyForm">
+                <div class="flex justify-center gap-2" dir="ltr">
+                    ${[0,1,2,3].map(i => `
+                        <input type="tel"
+                               maxlength="1"
+                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white"
+                               dir="ltr"
+                               inputmode="numeric"
+                               pattern="[0-9]"
+                               autocomplete="one-time-code">
+                    `).join('')}
+                </div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                        تأیید و ورود
+                    </button>
+                </div>
+            </form>
+            <div class="text-center">
+                <button type="button" id="backToLogin" class="text-sm text-primary hover:text-primary/80 transition-colors">
+                    تغییر شماره تلفن
+                </button>
+            </div>
+        </div>
+    `;
+    contentRoot.innerHTML = '';
+    contentRoot.appendChild(page);
+    
+    // Setup OTP inputs
+    setupOtpInputs(page);
+    
+    $('#verifyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const code = getOtpCode(page);
+
+        if (code.length !== 4) {
+            highlightOtpInputs(page, false);
+            notify('کد تأیید باید ۴ رقم باشد', 'error');
+            return;
+        }
+
+        highlightOtpInputs(page, true);
+
+        if (typeof onSuccess === 'function') {
+            onSuccess({ phone, email, code, mode });
+            return;
+        }
+
+        // Check if user exists (login) or new (signup)
+        const existingUser = normalizeUser(LS.get('HDK_user'));
+        if (mode === 'login') {
+            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
+                const nextUser = { ...existingUser };
+                if (email && email !== existingUser.email) {
+                    nextUser.email = email;
+                }
+                user = syncUserSession(nextUser);
+                notify('با موفقیت وارد شدید!', 'success');
+                navigate('home');
+            } else {
+                notify('حسابی با این شماره یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
+                renderLoginPage('signup');
+            }
+        } else {
+            renderUserInfoForm({ phone, email });
+        }
+    });
+
+    $('#backToLogin').addEventListener('click', () => {
+        if (mode === 'admin') {
+            renderAdminLoginPage();
+            return;
+        }
+        renderLoginPage(mode);
+    });
+}
+
+function renderUserInfoForm({ phone, email = '' }) {
+    const page = document.createElement('div');
+    page.className = 'min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8';
+    page.innerHTML = `
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-primary/30 p-8">
+                <div class="flex justify-center mb-6">
+                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
+                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
+                        HDKALA
+                    </a>
+                </div>
+                <h2 class="text-2xl font-bold text-center mb-6">تکمیل اطلاعات کاربری</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
+                    لطفا اطلاعات خود را برای تکمیل ثبت‌نام وارد کنید
+                </p>
+
+                <form class="space-y-6" id="userInfoForm" novalidate>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium mb-2">نام <span class="text-red-500">*</span></label>
+                            <input id="firstName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium mb-2">نام خانوادگی <span class="text-red-500">*</span></label>
+                            <input id="lastName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="nationalCode" class="block text-sm font-medium mb-2">کد ملی <span class="text-red-500">*</span></label>
+                        <input id="nationalCode" type="text" data-national required
+                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                               maxlength="10"
+                               pattern="[0-9]{10}">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2" for="provinceSelect">استان محل سکونت <span class="text-red-500">*</span></label>
+                            <select id="provinceSelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                                <option value="">انتخاب استان</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2" for="citySelect">شهر محل سکونت <span class="text-red-500">*</span></label>
+                            <select id="citySelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
+                                <option value="">ابتدا استان را انتخاب کنید</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="addressText" class="block text-sm font-medium mb-2">آدرس دقیق <span class="text-red-500">*</span></label>
+                        <textarea id="addressText" required rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="postalCode" class="block text-sm font-medium mb-2">کد پستی (اختیاری)</label>
+                        <input id="postalCode" type="text" data-postal
+                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                               maxlength="10"
+                               pattern="[0-9]{10}">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="birthDate" class="block text-sm font-medium mb-2">تاریخ تولد</label>
+                            <input id="birthDate" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
+                        </div>
+                        <div>
+                            <label for="fatherName" class="block text-sm font-medium mb-2">نام پدر</label>
+                            <input id="fatherName" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="userEmail" class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
+                        <input id="userEmail" type="email" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${email || ''}">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="userPassword" class="block text-sm font-medium mb-2">رمز عبور (اختیاری)</label>
+                            <input id="userPassword" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="حداقل ۴ کاراکتر">
+                        </div>
+                        <div>
+                            <label for="userPasswordConfirm" class="block text-sm font-medium mb-2">تکرار رمز عبور</label>
+                            <input id="userPasswordConfirm" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="تکرار رمز">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="button" id="backToVerify" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                            بازگشت
+                        </button>
+                        <button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                            تکمیل ثبت‌نام
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    contentRoot.innerHTML = '';
+    contentRoot.appendChild(page);
+
+    loadProvinces();
+
+    $('#provinceSelect').addEventListener('change', function() {
+        const province = this.value;
+        loadCities(province);
+    });
+
+    $('#userInfoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const nationalCode = $('#nationalCode').value.trim();
+        if (!validateNationalCode(nationalCode)) {
+            notify('کد ملی نامعتبر است', 'error');
+            return;
+        }
+
+        const postalCode = $('#postalCode').value.trim();
+        if (postalCode && !validatePostalCode(postalCode)) {
+            notify('کد پستی باید 10 رقمی باشد', 'error');
+            return;
+        }
+
+        const passwordValue = $('#userPassword').value.trim();
+        const passwordConfirm = $('#userPasswordConfirm').value.trim();
+        if (passwordValue && passwordValue.length < 4) {
+            notify('رمز عبور باید حداقل ۴ کاراکتر باشد', 'error');
+            return;
+        }
+        if (passwordValue && passwordValue !== passwordConfirm) {
+            notify('تکرار رمز عبور با رمز اصلی یکسان نیست', 'error');
+            return;
+        }
+
+        const firstName = $('#firstName').value.trim();
+        const lastName = $('#lastName').value.trim();
+        const provinceValue = $('#provinceSelect').value;
+        const cityValue = $('#citySelect').value;
+        const addressValue = $('#addressText').value.trim();
+        const emailValue = $('#userEmail').value.trim();
+        const birthDate = $('#birthDate').value.trim();
+        const fatherName = $('#fatherName').value.trim();
+
+        const newUser = {
+            id: uid('u'),
+            name: `${firstName} ${lastName}`.trim(),
+            firstName,
+            lastName,
+            phone,
+            nationalCode,
+            province: provinceValue,
+            city: cityValue,
+            address: addressValue,
+            postalCode: postalCode || null,
+            birthDate,
+            fatherName,
+            email: emailValue,
+            password: passwordValue || null,
+            created: new Date().toISOString()
+        };
+        user = syncUserSession(newUser);
+        notify('ثبت‌نام با موفقیت انجام شد!', 'success');
+        navigate('home');
+    });
+
+    $('#backToVerify').addEventListener('click', () => {
+        const currentEmail = $('#userEmail').value.trim();
+        renderVerifyPage({ phone, mode: 'signup', email: currentEmail || email });
+    });
+}
+
+function loadProvinces() {
+    const provinceSelect = $('#provinceSelect');
+    if (!provinceSelect) return;
+
+    provinceSelect.innerHTML = '<option value="">انتخاب استان</option>';
+
+    provinces.forEach(province => {
+        const option = document.createElement('option');
+        option.value = province.name;
+        option.textContent = province.name;
+        provinceSelect.appendChild(option);
+    });
+}
+
+function loadCities(provinceName) {
+    const citySelect = $('#citySelect');
+    if (!citySelect) return;
+    
+    citySelect.innerHTML = '<option value="">انتخاب شهر</option>';
+    citySelect.disabled = true;
+    
+    const province = provinces.find(p => p.name === provinceName);
+    if (province) {
+        province.cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+        citySelect.disabled = false;
+    }
+}
+
+// User dropdown event listeners
+userButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (user) {
+        userDropdown.classList.toggle('open');
+    } else {
+        location.hash = 'login';
+    }
+});
+
+document.addEventListener('click', () => {
+    userDropdown.classList.remove('open');
+});
+
+// User Dropdown Delegation
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'loginBtn' || e.target.closest('#loginBtn')) {
+        location.hash = 'login';
+    }
+    if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
+        if (confirm('آیا از خروج مطمئن هستید؟')) {
+            clearUserSession();
+            notify('خروج انجام شد', 'info');
+            navigate('home');
+        }
+    }
 });
 
 // ---- router.js ----
@@ -2436,2386 +5745,6 @@ function renderProducts(list) {
         productsCount.textContent = `${list.length} محصول`;
         productsGrid.addEventListener('click', handleProductActions);
     }
-}
-
-// ---- admin.js ----
-/* ---------- Admin Panel Functions ---------- */
-let pendingProductImage = '';
-
-function openAdminPanel() {
-    if (!ensureAdminAccess()) {
-        return;
-    }
-    adminModal.classList.remove('hidden');
-    renderAdminProducts();
-    setupAdminInputHandlers();
-}
-
-function closeAdminPanel() {
-    adminModal.classList.add('hidden');
-    productForm.classList.add('hidden');
-    editingProductId = null;
-    pendingProductImage = '';
-    $('#imagePreview').innerHTML = '';
-}
-
-function renderAdminProducts() {
-    adminProductsList.innerHTML = '';
-    let filteredProducts = products;
-    const searchTerm = adminSearch.value.toLowerCase().trim();
-    if (searchTerm) {
-        filteredProducts = products.filter(product => 
-            product.name.toLowerCase().includes(searchTerm) ||
-            (product.brand && product.brand.toLowerCase().includes(searchTerm)) ||
-            product.category.toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    if (filteredProducts.length === 0) {
-        adminProductsList.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <iconify-icon icon="mdi:package-variant-remove" width="48" class="mb-4"></iconify-icon>
-                <p>محصولی یافت نشد</p>
-            </div>
-        `;
-        return;
-    }
-    
-    filteredProducts.forEach(product => {
-        const finalPrice = product.discount > 0 ? 
-            product.price * (1 - product.discount / 100) : product.price;
-        const productEl = document.createElement('div');
-        productEl.className = 'bg-white dark:bg-gray-700 p-4 rounded-lg border border-primary/20';
-        productEl.innerHTML = `
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4 flex-1">
-                    <div class="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                        ${product.img ? 
-                            `<img src="${product.img}" alt="${product.name}" class="w-16 h-16 object-cover rounded-lg">` :
-                            `<iconify-icon icon="mdi:image-off" width="24" class="text-gray-400"></iconify-icon>`
-                        }
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="font-semibold text-primary">${product.name}</h4>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1 space-y-1">
-                            <div class="flex flex-wrap gap-4">
-                                <span>قیمت: ${formatPrice(product.price)}</span>
-                                ${product.discount > 0 ? `
-                                    <span>تخفیف: ${product.discount}% → ${formatPrice(finalPrice)}</span>
-                                ` : ''}
-                                <span>موجودی: ${product.stock}</span>
-                                <span>دسته: ${getCategoryName(product.category)}</span>
-                                ${product.brand ? `<span>برند: ${product.brand}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button class="edit-product bg-primary/20 text-primary px-3 py-1 rounded-lg hover:bg-primary/30 transition-colors" data-id="${product.id}">
-                        ویرایش
-                    </button>
-                    <button class="delete-product bg-red-500/20 text-red-500 px-3 py-1 rounded-lg hover:bg-red-500/30 transition-colors" data-id="${product.id}">
-                        حذف
-                    </button>
-                </div>
-            </div>
-        `;
-        adminProductsList.appendChild(productEl);
-    });
-    
-    // Add event listeners for edit and delete buttons
-    $$('.edit-product').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.getAttribute('data-id');
-            editProduct(productId);
-        });
-    });
-    
-    $$('.delete-product').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.getAttribute('data-id');
-            deleteProduct(productId);
-        });
-    });
-    
-    // Update stats
-    updateAdminStats();
-}
-
-function updateAdminStats() {
-    adminProductCount.textContent = products.length;
-    adminInStockCount.textContent = products.filter(p => p.stock > 0).length;
-    adminDiscountCount.textContent = products.filter(p => p.discount > 0).length;
-    adminOrderCount.textContent = orders.length;
-}
-
-function showProductForm() {
-    productForm.classList.remove('hidden');
-    formTitle.textContent = editingProductId ? 'ویرایش محصول' : 'افزودن محصول جدید';
-    
-    if (editingProductId) {
-        const product = getProductById(editingProductId);
-        pendingProductImage = product?.img || '';
-        $('#productName').value = product.name;
-        $('#productPrice').value = product.price;
-        $('#productDesc').value = product.desc;
-        $('#productCategory').value = product.category;
-        $('#productBrand').value = product.brand || '';
-        $('#productDiscount').value = product.discount;
-        $('#productStock').value = product.stock;
-        $('#productStatus').value = product.status || '';
-        $('#productRating').value = product.rating;
-        
-        // Set image preview if exists
-        if (product.img) {
-            $('#imagePreview').innerHTML = `
-                <img src="${product.img}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
-            `;
-        }
-    } else {
-        pendingProductImage = '';
-        // Reset form for new product
-        $('#productName').value = '';
-        $('#productPrice').value = '';
-        $('#productDesc').value = '';
-        $('#productCategory').value = 'electronics';
-        $('#productBrand').value = '';
-        $('#productDiscount').value = '0';
-        $('#productStock').value = '0';
-        $('#productStatus').value = '';
-        $('#productRating').value = '5';
-        $('#imagePreview').innerHTML = '';
-    }
-}
-
-function setupAdminInputHandlers() {
-    // Auto-clear zero values
-    $$('#productForm input[type="number"]').forEach(input => {
-        input.addEventListener('focus', function() {
-            if (this.value === '0' || this.value === '00') {
-                this.value = '';
-            }
-        });
-        
-        input.addEventListener('blur', function() {
-            if (this.value === '') {
-                this.value = '0';
-            }
-        });
-    });
-    
-    // Image upload handler
-    $('#productImage').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                pendingProductImage = e.target.result;
-                $('#imagePreview').innerHTML = `
-                    <img src="${pendingProductImage}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
-                `;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-}
-
-function editProduct(productId) {
-    editingProductId = productId;
-    showProductForm();
-}
-
-function deleteProduct(productId) {
-    if (confirm('آیا از حذف این محصول مطمئن هستید؟')) {
-        products = products.filter(p => p.id !== productId);
-        LS.set('HDK_products', products);
-        renderAdminProducts();
-        notify('محصول با موفقیت حذف شد', 'success');
-        // Update main products view if on products page
-        if (currentPage === 'home' || currentPage === 'products') {
-            renderProducts(products);
-            updateBrandFilter();
-        }
-    }
-}
-
-function saveProduct() {
-    const name = $('#productName').value.trim();
-    const price = parseInt($('#productPrice').value) || 0;
-    const desc = $('#productDesc').value.trim();
-    const category = $('#productCategory').value;
-    const brand = $('#productBrand').value.trim();
-    const discount = parseInt($('#productDiscount').value) || 0;
-    const stock = parseInt($('#productStock').value) || 0;
-    const status = $('#productStatus').value;
-    const rating = parseInt($('#productRating').value) || 5;
-    
-    if (!name || !price) {
-        notify('لطفا نام و قیمت محصول را وارد کنید', 'error');
-        return;
-    }
-    
-    if (discount < 0 || discount > 100) {
-        notify('تخفیف باید بین 0 تا 100 باشد', 'error');
-        return;
-    }
-    
-    if (stock < 0) {
-        notify('موجودی نمی‌تواند منفی باشد', 'error');
-        return;
-    }
-    
-    // Get image data
-    const imagePreview = $('#imagePreview img');
-    const img = pendingProductImage || (imagePreview ? imagePreview.src : '');
-    
-    const wasEditing = Boolean(editingProductId);
-
-    if (editingProductId) {
-        // Update existing product
-        const index = products.findIndex(p => p.id === editingProductId);
-        if (index !== -1) {
-            products[index] = {
-                ...products[index],
-                name,
-                price,
-                desc,
-                category,
-                brand,
-                discount,
-                stock,
-                status,
-                rating,
-                img: img || products[index].img
-            };
-        }
-    } else {
-        // Add new product
-        const newProduct = {
-            id: uid('p'),
-            name,
-            price,
-            desc,
-            img: img,
-            rating,
-            discount,
-            category,
-            status,
-            stock,
-            brand,
-            features: [],
-            colors: [],
-            specifications: {},
-            created: new Date().toISOString()
-        };
-        products.push(newProduct);
-    }
-
-    LS.set('HDK_products', products);
-    renderAdminProducts();
-    productForm.classList.add('hidden');
-    editingProductId = null;
-    pendingProductImage = '';
-    $('#imagePreview').innerHTML = '';
-    notify(wasEditing ? 'محصول با موفقیت ویرایش شد' : 'محصول جدید با موفقیت اضافه شد', 'success');
-    
-    // Update main products view if on products page
-    if (currentPage === 'home' || currentPage === 'products') {
-        renderProducts(products);
-        updateBrandFilter();
-    }
-}
-
-/* ---------- Blog Management ---------- */
-function setupBlogManagement() {
-    $('#addBlogBtn').addEventListener('click', showBlogForm);
-    
-    // Edit blog handlers
-    $$('.edit-blog').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const blogId = e.target.getAttribute('data-id');
-            editBlog(blogId);
-        });
-    });
-    
-    // Delete blog handlers
-    $$('.delete-blog').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const blogId = e.target.getAttribute('data-id');
-            deleteBlog(blogId);
-        });
-    });
-}
-
-function showBlogForm(blog = null) {
-    const isEdit = !!blog;
-    
-    const formHTML = `
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold">${isEdit ? 'ویرایش مقاله' : 'افزودن مقاله جدید'}</h3>
-                    <button class="close-blog-form p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                        <iconify-icon icon="mdi:close"></iconify-icon>
-                    </button>
-                </div>
-                
-                <form class="p-6 space-y-4" id="blogForm">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">عنوان مقاله</label>
-                        <input type="text" required 
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               value="${blog?.title || ''}">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">دسته‌بندی</label>
-                        <input type="text" required 
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               value="${blog?.category || ''}">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">خلاصه مقاله</label>
-                        <textarea required rows="3" 
-                                  class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">${blog?.excerpt || ''}</textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">محتوای کامل</label>
-                        <textarea required rows="6" 
-                                  class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">${blog?.content || ''}</textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">آدرس تصویر (اختیاری)</label>
-                        <input type="url" 
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               value="${blog?.image || ''}">
-                    </div>
-                    
-                    <div class="flex gap-3 pt-4">
-                        <button type="button" class="close-blog-form flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                            انصراف
-                        </button>
-                        <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
-                            ${isEdit ? 'ویرایش مقاله' : 'ذخیره مقاله'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-    
-    const formContainer = document.createElement('div');
-    formContainer.innerHTML = formHTML;
-    document.body.appendChild(formContainer);
-    
-    // Event listeners
-    $('.close-blog-form').addEventListener('click', () => {
-        formContainer.remove();
-    });
-    
-    $('#blogForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        saveBlog(blog?.id, formContainer);
-    });
-}
-
-function saveBlog(blogId = null, formContainer) {
-    const form = $('#blogForm');
-    const formData = new FormData(form);
-    
-    const blogData = {
-        title: form.querySelector('input[type="text"]').value,
-        category: form.querySelectorAll('input[type="text"]')[1].value,
-        excerpt: form.querySelector('textarea').value,
-        content: form.querySelectorAll('textarea')[1].value,
-        image: form.querySelector('input[type="url"]').value,
-        date: new Date().toLocaleDateString('fa-IR')
-    };
-    
-    if (blogId) {
-        // Edit existing blog
-        const index = blogs.findIndex(b => b.id === blogId);
-        if (index !== -1) {
-            blogs[index] = { ...blogs[index], ...blogData };
-        }
-    } else {
-        // Add new blog
-        const newBlog = {
-            id: uid('b'),
-            ...blogData
-        };
-        blogs.push(newBlog);
-    }
-    
-    LS.set('HDK_blogs', blogs);
-    formContainer.remove();
-    notify(blogId ? 'مقاله با موفقیت ویرایش شد' : 'مقاله جدید با موفقیت اضافه شد', 'success');
-    
-    // Refresh blog management view
-    if (currentPage === 'admin') {
-        renderAdminPage();
-    }
-}
-
-function editBlog(blogId) {
-    const blog = blogs.find(b => b.id === blogId);
-    if (blog) {
-        showBlogForm(blog);
-    }
-}
-
-function deleteBlog(blogId) {
-    if (confirm('آیا از حذف این مقاله مطمئن هستید؟')) {
-        blogs = blogs.filter(b => b.id !== blogId);
-        LS.set('HDK_blogs', blogs);
-        notify('مقاله با موفقیت حذف شد', 'success');
-        
-        // Refresh blog management view
-        if (currentPage === 'admin') {
-            renderAdminPage();
-        }
-    }
-}
-
-/* ---------- Product Image Upload Fix ---------- */
-function setupImageUpload() {
-    // این تابع مشکل آپلود عکس را برطرف می‌کند
-    document.addEventListener('change', (e) => {
-        if (e.target.type === 'file' && e.target.accept.includes('image')) {
-            const file = e.target.files[0];
-            if (file) {
-                // بررسی نوع فایل
-                if (!file.type.startsWith('image/')) {
-                    notify('لطفا فقط فایل تصویری انتخاب کنید', 'error');
-                    e.target.value = '';
-                    return;
-                }
-                
-                // بررسی سایز فایل (حداکثر 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    notify('حجم فایل نباید بیشتر از 5 مگابایت باشد', 'error');
-                    e.target.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // نمایش پیش‌نمایش
-                        const previewContainer = e.target.parentElement.querySelector('.image-preview');
-                        if (previewContainer) {
-                            previewContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
-                                <button type="button" class="remove-image absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
-                                    <iconify-icon icon="mdi:close"></iconify-icon>
-                                </button>
-                            `;
-                            
-                            // دکمه حذف عکس
-                            previewContainer.querySelector('.remove-image').addEventListener('click', function() {
-                                previewContainer.innerHTML = '';
-                                e.target.value = '';
-                            });
-                        }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    });
-}
-
-// Admin panel event listeners
-if (adminBtn) {
-    adminBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        if (isAdminUser()) {
-            openAdminPanel();
-            return;
-        }
-
-        if (typeof navigate === 'function') {
-            navigate('admin-login');
-        } else {
-            location.hash = 'admin-login';
-        }
-    });
-}
-closeAdminModal.addEventListener('click', closeAdminPanel);
-addProductBtn.addEventListener('click', () => {
-    editingProductId = null;
-    showProductForm();
-});
-saveProductBtn.addEventListener('click', saveProduct);
-cancelProductBtn.addEventListener('click', () => {
-    productForm.classList.add('hidden');
-    editingProductId = null;
-    pendingProductImage = '';
-    $('#imagePreview').innerHTML = '';
-});
-adminSearch.addEventListener('input', renderAdminProducts);
-
-// Initialize image upload
-document.addEventListener('DOMContentLoaded', setupImageUpload);
-
-// ---- cart.js ----
-/* ---------- Cart Functions ---------- */
-function updateCartDisplay() {
-    if (!cartItems) return;
-    cartItems.innerHTML = '';
-    
-    if (cart.length === 0) {
-        cartItems.innerHTML = createEmptyState({
-            icon: 'mdi:cart-off',
-            title: 'سبد خرید شما خالی است',
-            description: 'برای شروع خرید، محصولات مورد علاقه خود را به سبد اضافه کنید.',
-            actions: '<a href="#products" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"><iconify-icon icon="mdi:shopping-outline" width="18"></iconify-icon><span>مشاهده محصولات</span></a>'
-        });
-        cartTotal.textContent = '۰ تومان';
-        cartDiscount.textContent = '۰ تومان';
-        cartFinalTotal.textContent = '۰ تومان';
-        return;
-    }
-    
-    let total = 0;
-    let totalDiscount = 0;
-    
-    cart.forEach(item => {
-        const product = getProductById(item.productId);
-        if (!product) return;
-        
-        const finalPrice = product.discount > 0 ? 
-            product.price * (1 - product.discount / 100) : product.price;
-        const itemTotal = finalPrice * item.qty;
-        const itemDiscount = (product.price - finalPrice) * item.qty;
-        
-        total += itemTotal;
-        totalDiscount += itemDiscount;
-        
-        const cartItemEl = document.createElement('div');
-        cartItemEl.className = 'flex gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
-        cartItemEl.innerHTML = `
-            <div class="flex-1">
-                <h4 class="font-medium">${product.name}</h4>
-                <div class="flex justify-between items-center mt-2">
-                    <div class="flex items-center gap-2">
-                        <button class="decrease-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">-</button>
-                        <span class="w-8 text-center">${item.qty}</span>
-                        <button class="increase-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">+</button>
-                    </div>
-                    <div class="text-primary font-medium">${formatPrice(finalPrice)}</div>
-                </div>
-                ${itemDiscount > 0 ? `
-                    <div class="text-green-500 text-xs mt-1">
-                        ${formatPrice(itemDiscount)} صرفه‌جویی
-                    </div>
-                ` : ''}
-            </div>
-            <button class="remove-from-cart text-red-500 hover:text-red-700 transition-colors" data-id="${product.id}">
-                <iconify-icon icon="mdi:trash-can-outline"></iconify-icon>
-            </button>
-        `;
-        cartItems.appendChild(cartItemEl);
-    });
-    
-    const shippingCost = total > 500000 ? 0 : 30000;
-    const finalTotal = total + shippingCost;
-    
-    cartTotal.textContent = formatPrice(total + totalDiscount);
-    cartDiscount.textContent = formatPrice(totalDiscount);
-    cartShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
-    cartFinalTotal.textContent = formatPrice(finalTotal);
-    
-    // Add event listeners for cart actions
-    $$('.decrease-qty').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            updateCartItemQty(productId, -1);
-        });
-    });
-    
-    $$('.increase-qty').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            updateCartItemQty(productId, 1);
-        });
-    });
-    
-    $$('.remove-from-cart').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            removeFromCart(productId);
-        });
-    });
-}
-
-function updateCartItemQty(productId, change) {
-    const item = cart.find(i => i.productId === productId);
-    if (!item) return;
-    
-    const product = getProductById(productId);
-    if (!product) return;
-    
-    if (change > 0 && item.qty >= product.stock) {
-        notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
-        return;
-    }
-    
-    item.qty += change;
-    if (item.qty <= 0) {
-        removeFromCart(productId);
-    } else {
-        LS.set('HDK_cart', cart);
-        updateCartBadge();
-        updateCartDisplay();
-        notify(change > 0 ? 'تعداد محصول افزایش یافت' : 'تعداد محصول کاهش یافت', 'info');
-    }
-}
-
-function removeFromCart(productId) {
-    cart = cart.filter(i => i.productId !== productId);
-    LS.set('HDK_cart', cart);
-    updateCartBadge();
-    updateCartDisplay();
-    notify('محصول از سبد خرید حذف شد', 'info');
-}
-
-function addToCart(productId, qty=1){
-    const product = getProductById(productId);
-    if (!product) return;
-    
-    if (product.stock === 0) {
-        notify('این محصول در حال حاضر موجود نیست', 'warning');
-        return;
-    }
-    
-    const existing = cart.find(i => i.productId === productId);
-    if(existing) {
-        if (existing.qty + qty > product.stock) {
-            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
-            return;
-        }
-        existing.qty += qty;
-    } else {
-        if (qty > product.stock) {
-            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, 'warning');
-            return;
-        }
-        cart.push({ productId, qty });
-    }
-    
-    LS.set('HDK_cart', cart); 
-    updateCartBadge(); 
-    updateCartDisplay();
-    notify('محصول به سبد اضافه شد.', 'success');
-}
-
-/* ---------- Enhanced Compare Functions ---------- */
-function toggleCompare(productId) {
-    const index = compareList.indexOf(productId);
-    if (index > -1) {
-        compareList.splice(index, 1);
-        notify('محصول از لیست مقایسه حذف شد', 'info');
-    } else {
-        if (compareList.length >= 4) {
-            notify('حداکثر ۴ محصول قابل مقایسه هستند', 'warning');
-            return;
-        }
-        compareList.push(productId);
-        notify('محصول به لیست مقایسه اضافه شد', 'success');
-    }
-    LS.set('HDK_compare', compareList);
-    updateCompareBadge();
-    if (!compareModal.classList.contains('hidden')) {
-        renderCompareProducts();
-    }
-}
-
-let isCompareModalClosing = false;
-
-function openCompareModal() {
-    if (!compareModal) return;
-
-    isCompareModalClosing = false;
-    compareModal.classList.remove('hidden', 'modal-closing');
-    compareModal.setAttribute('aria-hidden', 'false');
-    lockBodyScroll();
-    requestAnimationFrame(() => compareModal.classList.add('modal-visible'));
-    renderCompareProducts();
-
-    if (compareList.length === 0) {
-        notify('برای مقایسه، ابتدا چند محصول را به لیست اضافه کنید', 'info', { allowDuplicates: false });
-    }
-
-    const dialog = compareModal.querySelector('[data-modal-dialog]');
-    if (dialog) {
-        dialog.focus({ preventScroll: true });
-    }
-}
-
-function closeCompareModalDialog() {
-    if (!compareModal || compareModal.classList.contains('hidden') || isCompareModalClosing) {
-        return;
-    }
-
-    isCompareModalClosing = true;
-    compareModal.setAttribute('aria-hidden', 'true');
-    compareModal.classList.remove('modal-visible');
-    compareModal.classList.add('modal-closing');
-    unlockBodyScroll();
-
-    const cleanup = () => {
-        compareModal.removeEventListener('transitionend', cleanup);
-        compareModal.classList.add('hidden');
-        compareModal.classList.remove('modal-closing');
-        isCompareModalClosing = false;
-    };
-
-    compareModal.addEventListener('transitionend', cleanup);
-    setTimeout(cleanup, 220);
-
-    if (compareBtn && typeof compareBtn.focus === 'function') {
-        compareBtn.focus();
-    }
-}
-
-function renderCompareProducts() {
-    compareProducts.innerHTML = '';
-    
-    if (compareList.length === 0) {
-        compareProducts.innerHTML = `
-            <div class="col-span-full text-center py-8 text-gray-500">
-                <iconify-icon icon="mdi:scale-off" width="48" class="mb-4"></iconify-icon>
-                <p>محصولی برای مقایسه وجود ندارد</p>
-            </div>
-        `;
-        return;
-    }
-    
-    compareProducts.className = `grid grid-cols-1 md:grid-cols-${Math.min(compareList.length, 4)} gap-6`;
-    
-    compareList.forEach(productId => {
-        const product = getProductById(productId);
-        if (!product) {
-            // حذف محصولاتی که وجود ندارند
-            compareList = compareList.filter(id => id !== productId);
-            LS.set('HDK_compare', compareList);
-            updateCompareBadge();
-            return;
-        }
-        
-        const productEl = document.createElement('div');
-        productEl.innerHTML = createCompareProduct(product);
-        compareProducts.appendChild(productEl);
-    });
-    
-    // Add event listeners for compare actions
-    $$('.remove-compare').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            removeFromCompare(productId);
-        });
-    });
-    
-    $$('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            addToCart(productId, 1);
-        });
-    });
-    
-    $$('.add-to-wishlist').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            toggleWishlist(productId);
-            renderCompareProducts(); // Refresh to update heart icon
-        });
-    });
-}
-
-function removeFromCompare(productId) {
-    compareList = compareList.filter(id => id !== productId);
-    LS.set('HDK_compare', compareList);
-    updateCompareBadge();
-    renderCompareProducts();
-    notify('محصول از مقایسه حذف شد', 'info');
-}
-
-/* ---------- Enhanced Checkout ---------- */
-let selectedCheckoutAddressId = null;
-let selectedShippingMethodId = (typeof shippingMethods !== 'undefined' && shippingMethods.length > 0)
-    ? shippingMethods[0].id
-    : 'standard';
-
-function renderEnhancedCheckoutPage() {
-    if (user) {
-        const userAddresses = addresses.filter(addr => addr.userId === user.id);
-        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0] || null;
-        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
-    } else {
-        selectedCheckoutAddressId = null;
-    }
-
-    const page = document.createElement('div');
-    page.innerHTML = `
-        <h1 class="text-2xl font-bold mb-6">تسویه حساب</h1>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <!-- اطلاعات ارسال -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                    <h2 class="text-lg font-bold mb-4">اطلاعات ارسال</h2>
-                    <div id="checkoutAddressSection">
-                        ${user ? '' : '<p class="text-gray-500">لطفا ابتدا وارد حساب کاربری خود شوید</p>'}
-                    </div>
-                </div>
-
-                <!-- روش ارسال -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                    <h2 class="text-lg font-bold mb-4">روش ارسال</h2>
-                    ${createShippingOptions(selectedShippingMethodId)}
-                </div>
-
-                <!-- روش پرداخت -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                    <h2 class="text-lg font-bold mb-4">روش پرداخت</h2>
-                    ${createPaymentOptions('online')}
-                </div>
-            </div>
-
-            <!-- خلاصه سفارش -->
-            <div>
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20 sticky top-4">
-                    <h2 class="text-lg font-bold mb-4">خلاصه سفارش</h2>
-                    <div id="checkoutItems" class="space-y-3 mb-4 max-h-64 overflow-y-auto custom-scrollbar"></div>
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
-                        <div class="flex justify-between">
-                            <span>جمع کل:</span>
-                            <span id="checkoutTotal">۰ تومان</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>تخفیف:</span>
-                            <span id="checkoutDiscount" class="text-green-500">۰ تومان</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>هزینه ارسال:</span>
-                            <span id="checkoutShipping">۰ تومان</span>
-                        </div>
-                        <div class="flex justify-between font-bold text-lg border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                            <span>مبلغ قابل پرداخت:</span>
-                            <span id="checkoutFinalTotal">۰ تومان</span>
-                        </div>
-                    </div>
-                    <button class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors mt-6" id="finalCheckoutBtn">
-                        پرداخت و ثبت سفارش
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    contentRoot.appendChild(page);
-
-    if (user) {
-        refreshCheckoutAddressSection();
-    }
-
-    updateCheckoutDisplay();
-    setupCheckoutEvents();
-}
-
-function createUserAddressSection(userAddresses = []) {
-    if (!Array.isArray(userAddresses) || userAddresses.length === 0) {
-        return `
-            <div class="space-y-4">
-                <div class="text-center py-6 text-gray-500">
-                    <iconify-icon icon="mdi:map-marker-off" width="36" class="mb-2"></iconify-icon>
-                    <p class="mb-3">هیچ آدرسی ثبت نکرده‌اید</p>
-                    <button type="button" id="toggleCheckoutAddressForm" class="text-primary hover:text-primary/80 font-medium">
-                        افزودن آدرس جدید
-                    </button>
-                </div>
-                <div id="checkoutAddressFormContainer" class="hidden"></div>
-            </div>
-        `;
-    }
-
-    const options = userAddresses.map(address => `
-        <label class="checkout-address-option block p-4 border-2 rounded-xl transition-all cursor-pointer ${
-            address.id === selectedCheckoutAddressId
-                ? 'border-primary bg-primary/5'
-                : 'border-gray-200 hover:border-primary/60'
-        }" data-id="${address.id}">
-            <div class="flex items-start gap-3">
-                <input type="radio" name="checkoutAddress" value="${address.id}" ${address.id === selectedCheckoutAddressId ? 'checked' : ''}
-                       class="mt-1 text-primary focus:ring-primary">
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2">
-                        <span class="font-medium">${address.title}</span>
-                        ${address.isDefault ? '<span class="bg-primary text-white text-xs px-2 py-0.5 rounded-full">پیش‌فرض</span>' : ''}
-                    </div>
-                    <div class="text-sm text-gray-600 space-y-1">
-                        <div>${address.province}، ${address.city}</div>
-                        <div>${address.fullAddress}</div>
-                        <div>کد پستی: ${address.postalCode}</div>
-                        <div>تلفن: ${address.phone}</div>
-                    </div>
-                </div>
-            </div>
-        </label>
-    `).join('');
-
-    return `
-        <div class="space-y-4">
-            <div class="space-y-3">
-                ${options}
-            </div>
-            <div class="flex flex-wrap gap-3 text-sm">
-                <button type="button" id="toggleCheckoutAddressForm" class="flex items-center gap-1 text-primary hover:text-primary/80">
-                    <iconify-icon icon="mdi:plus"></iconify-icon>
-                    افزودن آدرس جدید
-                </button>
-                <a href="#addresses" id="checkoutManageAddresses" class="flex items-center gap-1 text-primary/80 hover:text-primary">
-                    <iconify-icon icon="mdi:map-marker"></iconify-icon>
-                    مدیریت آدرس‌ها
-                </a>
-            </div>
-            <div id="checkoutAddressFormContainer" class="hidden"></div>
-        </div>
-    `;
-}
-
-function refreshCheckoutAddressSection() {
-    const container = $('#checkoutAddressSection');
-    if (!container || !user) return;
-
-    const userAddresses = addresses.filter(addr => addr.userId === user.id);
-    if (userAddresses.length === 0) {
-        selectedCheckoutAddressId = null;
-    } else if (!selectedCheckoutAddressId || !userAddresses.some(addr => addr.id === selectedCheckoutAddressId)) {
-        const defaultAddress = userAddresses.find(addr => addr.isDefault) || userAddresses[0];
-        selectedCheckoutAddressId = defaultAddress ? defaultAddress.id : null;
-    }
-
-    container.innerHTML = createUserAddressSection(userAddresses);
-    bindCheckoutAddressEvents();
-}
-
-function bindCheckoutAddressEvents() {
-    $$('input[name="checkoutAddress"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            selectedCheckoutAddressId = this.value;
-            updateCheckoutAddressHighlight();
-        });
-    });
-
-    const toggleBtn = $('#toggleCheckoutAddressForm');
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            renderCheckoutAddressForm();
-        });
-    }
-
-    updateCheckoutAddressHighlight();
-}
-
-function updateCheckoutAddressHighlight() {
-    $$('.checkout-address-option').forEach(option => {
-        const isSelected = option.getAttribute('data-id') === selectedCheckoutAddressId;
-        option.classList.toggle('border-primary', isSelected);
-        option.classList.toggle('bg-primary/5', isSelected);
-        option.classList.toggle('border-gray-200', !isSelected);
-    });
-}
-
-function renderCheckoutAddressForm() {
-    const container = $('#checkoutAddressFormContainer');
-    if (!container) return;
-
-    container.innerHTML = createCheckoutAddressForm();
-    container.classList.remove('hidden');
-
-    const provinceSelect = $('#checkoutAddressProvince');
-    const citySelect = $('#checkoutAddressCity');
-
-    populateCheckoutProvinceOptions(provinceSelect);
-    provinceSelect.addEventListener('change', () => {
-        populateCheckoutCityOptions(provinceSelect.value, citySelect);
-    });
-
-    $('#checkoutCancelAddress').addEventListener('click', () => {
-        hideCheckoutAddressForm();
-    });
-
-    $('#checkoutAddressForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        if (!user) {
-            notify('برای ثبت آدرس وارد حساب کاربری شوید', 'warning');
-            return;
-        }
-
-        const formData = {
-            title: $('#checkoutAddressTitle').value.trim(),
-            province: provinceSelect.value,
-            city: citySelect.value,
-            fullAddress: $('#checkoutAddressText').value.trim(),
-            postalCode: $('#checkoutAddressPostal').value.trim(),
-            phone: $('#checkoutAddressPhone').value.trim(),
-            isDefault: $('#checkoutAddressDefault').checked,
-            userId: user.id
-        };
-
-        if (!formData.title || !formData.province || !formData.city || !formData.fullAddress) {
-            notify('لطفا همه فیلدها را تکمیل کنید', 'error');
-            return;
-        }
-
-        if (typeof validatePostalCode === 'function' && !validatePostalCode(formData.postalCode)) {
-            notify('کد پستی باید ۱۰ رقمی باشد', 'error');
-            return;
-        }
-
-        if (typeof validatePhone === 'function' && !validatePhone(formData.phone)) {
-            notify('شماره تماس معتبر نیست', 'error');
-            return;
-        }
-
-        if (formData.isDefault) {
-            addresses.forEach(addr => {
-                if (addr.userId === user.id) {
-                    addr.isDefault = false;
-                }
-            });
-        }
-
-        const newAddress = {
-            id: uid('addr'),
-            ...formData
-        };
-
-        addresses.push(newAddress);
-        LS.set('HDK_addresses', addresses);
-
-        selectedCheckoutAddressId = newAddress.id;
-        hideCheckoutAddressForm();
-        notify('آدرس جدید با موفقیت اضافه شد', 'success');
-        refreshCheckoutAddressSection();
-    });
-}
-
-function hideCheckoutAddressForm() {
-    const container = $('#checkoutAddressFormContainer');
-    if (!container) return;
-    container.classList.add('hidden');
-    container.innerHTML = '';
-}
-
-function populateCheckoutProvinceOptions(select) {
-    if (!select) return;
-    select.innerHTML = '<option value="">انتخاب استان</option>';
-    provinces.forEach(province => {
-        const option = document.createElement('option');
-        option.value = province.name;
-        option.textContent = province.name;
-        select.appendChild(option);
-    });
-}
-
-function populateCheckoutCityOptions(provinceName, select) {
-    if (!select) return;
-    select.innerHTML = '<option value="">انتخاب شهر</option>';
-    select.disabled = !provinceName;
-
-    if (!provinceName) return;
-
-    getProvinceCities(provinceName).forEach(city => {
-        const option = document.createElement('option');
-        option.value = city;
-        option.textContent = city;
-        select.appendChild(option);
-    });
-}
-
-function createCheckoutAddressForm() {
-    return `
-        <div class="bg-white dark:bg-gray-900 border border-primary/20 rounded-2xl p-4">
-            <form id="checkoutAddressForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-2">عنوان آدرس</label>
-                    <input id="checkoutAddressTitle" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="مثلا: منزل">
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">استان</label>
-                        <select id="checkoutAddressProvince" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                            <option value="">انتخاب استان</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">شهر</label>
-                        <select id="checkoutAddressCity" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
-                            <option value="">ابتدا استان را انتخاب کنید</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-2">آدرس کامل</label>
-                    <textarea id="checkoutAddressText" rows="3" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="خیابان، پلاک، واحد"></textarea>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">کد پستی</label>
-                        <input id="checkoutAddressPostal" type="text" maxlength="10" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">شماره تماس</label>
-                        <input id="checkoutAddressPhone" type="tel" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input id="checkoutAddressDefault" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
-                    <label for="checkoutAddressDefault" class="text-sm">تنظیم به عنوان آدرس پیش‌فرض</label>
-                </div>
-                <div class="flex gap-3">
-                    <button type="button" id="checkoutCancelAddress" class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">انصراف</button>
-                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">ذخیره آدرس</button>
-                </div>
-            </form>
-        </div>
-    `;
-}
-
-function updateCheckoutDisplay() {
-    const checkoutItems = $('#checkoutItems');
-    const checkoutTotal = $('#checkoutTotal');
-    const checkoutDiscount = $('#checkoutDiscount');
-    const checkoutShipping = $('#checkoutShipping');
-    const checkoutFinalTotal = $('#checkoutFinalTotal');
-    
-    if (!checkoutItems) return;
-    
-    checkoutItems.innerHTML = '';
-    if (cart.length === 0) {
-        checkoutItems.innerHTML = '<p class="text-gray-500 text-center">سبد خرید خالی است</p>';
-        checkoutTotal.textContent = '۰ تومان';
-        checkoutDiscount.textContent = '۰ تومان';
-        checkoutShipping.textContent = '۰ تومان';
-        checkoutFinalTotal.textContent = '۰ تومان';
-        return;
-    }
-    
-    let total = 0;
-    let totalDiscount = 0;
-    
-    cart.forEach(item => {
-        const product = getProductById(item.productId);
-        if (!product) return;
-        
-        const finalPrice = product.discount > 0 ? 
-            product.price * (1 - product.discount / 100) : product.price;
-        const itemTotal = finalPrice * item.qty;
-        const itemDiscount = (product.price - finalPrice) * item.qty;
-        
-        total += itemTotal;
-        totalDiscount += itemDiscount;
-        
-        const itemEl = document.createElement('div');
-        itemEl.className = 'flex justify-between items-center text-sm border-b border-gray-100 dark:border-gray-700 pb-2';
-        itemEl.innerHTML = `
-            <div class="flex-1">
-                <div class="font-medium">${product.name}</div>
-                <div class="text-gray-500">${item.qty} × ${formatPrice(finalPrice)}</div>
-            </div>
-            <div class="font-medium">${formatPrice(itemTotal)}</div>
-        `;
-        checkoutItems.appendChild(itemEl);
-    });
-    
-    const shippingCost = getCheckoutShippingCost(total);
-    const finalTotal = total + shippingCost;
-
-    checkoutTotal.textContent = formatPrice(total + totalDiscount);
-    checkoutDiscount.textContent = formatPrice(totalDiscount);
-    checkoutShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
-    checkoutFinalTotal.textContent = formatPrice(finalTotal);
-}
-
-function getCheckoutShippingCost(orderTotal) {
-    if (typeof getShippingMethod !== 'function') {
-        return orderTotal > 500000 ? 0 : 30000;
-    }
-
-    const method = getShippingMethod(selectedShippingMethodId);
-    if (!method) {
-        return orderTotal > 500000 ? 0 : 30000;
-    }
-
-    let cost = method.price || 0;
-    if (method.freeThreshold && orderTotal >= method.freeThreshold) {
-        cost = 0;
-    }
-
-    return cost;
-}
-
-function setupCheckoutEvents() {
-    // Payment method selection
-    $$('input[name="payment"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            // Update UI for selected payment method
-            $$('.payment-option').forEach(option => {
-                option.classList.remove('border-green-500', 'bg-green-50');
-                option.classList.add('border-gray-300');
-            });
-
-            this.closest('.payment-option').classList.add('border-green-500', 'bg-green-50');
-            this.closest('.payment-option').classList.remove('border-gray-300');
-        });
-    });
-
-    const checkedPayment = $('input[name="payment"]:checked');
-    if (checkedPayment) {
-        checkedPayment.dispatchEvent(new Event('change'));
-    }
-
-    // Shipping method selection
-    const shippingRadios = $$('input[name="shipping"]');
-    if (shippingRadios.length > 0) {
-        const checkedShipping = $('input[name="shipping"]:checked');
-        if (checkedShipping) {
-            selectedShippingMethodId = checkedShipping.value;
-        }
-
-        const applyShippingStyles = () => {
-            $$('.shipping-option').forEach(option => {
-                const isSelected = option.getAttribute('data-id') === selectedShippingMethodId;
-                option.classList.toggle('border-blue-500', isSelected);
-                option.classList.toggle('bg-blue-50', isSelected);
-                option.classList.toggle('dark:bg-blue-500/10', isSelected);
-                option.classList.toggle('border-gray-300', !isSelected);
-            });
-        };
-
-        shippingRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                selectedShippingMethodId = this.value;
-                applyShippingStyles();
-                updateCheckoutDisplay();
-            });
-        });
-
-        applyShippingStyles();
-    }
-
-    // Final checkout
-    $('#finalCheckoutBtn').addEventListener('click', function() {
-        if (cart.length === 0) {
-            notify('سبد خرید شما خالی است', 'warning');
-            return;
-        }
-
-        if (!user) {
-            notify('لطفا برای ثبت سفارش وارد حساب کاربری شوید', 'warning');
-            location.hash = 'login';
-            return;
-        }
-
-        const paymentInput = $('input[name="payment"]:checked');
-        const selectedPayment = paymentInput ? paymentInput.value : 'online';
-        const address = addresses.find(addr => addr.userId === user.id && addr.id === selectedCheckoutAddressId);
-
-        if (!address) {
-            notify('لطفا یک آدرس برای ارسال انتخاب کنید', 'warning');
-            return;
-        }
-
-        const totals = calculateCartTotal();
-        const shippingCost = getCheckoutShippingCost(totals.total);
-        const finalTotal = totals.total + shippingCost;
-        const shippingInfo = typeof getShippingMethod === 'function' ? getShippingMethod(selectedShippingMethodId) : null;
-
-        const order = {
-            id: uid('o'),
-            userId: user.id,
-            items: cart.map(item => ({ ...item })),
-            total: finalTotal,
-            subtotal: totals.total,
-            discount: totals.totalDiscount || 0,
-            shippingCost,
-            paymentMethod: selectedPayment,
-            shippingMethod: shippingInfo ? shippingInfo.id : selectedShippingMethodId,
-            shippingTitle: shippingInfo ? shippingInfo.name : '',
-            address: {
-                id: address.id,
-                title: address.title,
-                province: address.province,
-                city: address.city,
-                fullAddress: address.fullAddress,
-                postalCode: address.postalCode,
-                phone: address.phone
-            },
-            status: 'در حال پردازش',
-            date: new Date().toISOString()
-        };
-
-        orders.push(order);
-        LS.set('HDK_orders', orders);
-
-        // Clear cart
-        cart = [];
-        LS.set('HDK_cart', cart);
-        updateCartBadge();
-        updateCheckoutDisplay();
-
-        notify('سفارش شما با موفقیت ثبت شد!', 'success');
-        location.hash = `order-success:${order.id}`;
-    });
-}
-
-function openCartSidebar() {
-    if (!cartSidebar || cartSidebar.classList.contains('open')) {
-        return;
-    }
-
-    cartSidebar.classList.add('open');
-    cartSidebar.setAttribute('aria-hidden', 'false');
-    lockBodyScroll();
-
-    if (cartOverlay) {
-        cartOverlay.classList.remove('hidden');
-        cartOverlay.setAttribute('aria-hidden', 'false');
-    }
-
-    cartSidebar.focus({ preventScroll: true });
-}
-
-function closeCartSidebar() {
-    if (!cartSidebar || !cartSidebar.classList.contains('open')) {
-        return;
-    }
-
-    cartSidebar.classList.remove('open');
-    cartSidebar.setAttribute('aria-hidden', 'true');
-
-    if (cartOverlay) {
-        cartOverlay.classList.add('hidden');
-        cartOverlay.setAttribute('aria-hidden', 'true');
-    }
-
-    unlockBodyScroll();
-
-    if (cartBtn && typeof cartBtn.focus === 'function') {
-        cartBtn.focus();
-    }
-}
-
-// Cart and Compare event listeners
-if (closeCart) {
-    closeCart.addEventListener('click', closeCartSidebar);
-}
-
-if (cartOverlay) {
-    cartOverlay.addEventListener('click', closeCartSidebar);
-}
-
-if (compareBtn) {
-    compareBtn.addEventListener('click', openCompareModal);
-}
-
-if (closeCompareModal) {
-    closeCompareModal.addEventListener('click', closeCompareModalDialog);
-}
-
-if (compareModal) {
-    compareModal.addEventListener('click', (event) => {
-        if (event.target === compareModal) {
-            closeCompareModalDialog();
-        }
-    });
-}
-
-const handleEscapeKey = (event) => {
-    if (event.key !== 'Escape') return;
-
-    if (cartSidebar && cartSidebar.classList.contains('open')) {
-        event.preventDefault();
-        closeCartSidebar();
-        return;
-    }
-
-    if (compareModal && !compareModal.classList.contains('hidden')) {
-        event.preventDefault();
-        closeCompareModalDialog();
-    }
-};
-
-document.addEventListener('keydown', handleEscapeKey);
-
-checkoutBtn.addEventListener('click', () => {
-    if (cart.length === 0) {
-        notify('سبد خرید شما خالی است', 'warning');
-        return;
-    }
-    location.hash = 'checkout';
-    closeCartSidebar();
-});
-
-// Replace original checkout with enhanced version
-const originalRenderCheckoutPage = renderCheckoutPage;
-renderCheckoutPage = renderEnhancedCheckoutPage;
-
-// ---- auth.js ----
-/* ---------- User Dropdown ---------- */
-function updateUserDropdown() {
-    if (user) {
-        userDropdownContent.innerHTML = `
-            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                <div class="font-medium text-primary">${user.name}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">${user.phone}</div>
-            </div>
-            <a href="#profile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">پروفایل من</a>
-            <a href="#orders" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">سفارش‌های من</a>
-            <a href="#wishlist" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">لیست علاقه‌مندی‌ها</a>
-            <a href="#addresses" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">آدرس‌های من</a>
-            <button id="logoutBtn" class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500 transition-colors">خروج</button>
-        `;
-    } else {
-        userDropdownContent.innerHTML = `
-            <button id="loginBtn" class="w-full text-right px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">ورود / ثبت‌نام</button>
-        `;
-    }
-}
-
-/* ---------- Authentication System ---------- */
-function renderLoginPage(initialMode = 'login') {
-    let currentMode = initialMode;
-
-    const page = document.createElement('div');
-    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
-    page.innerHTML = `
-        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
-            <div class="space-y-4">
-                <div class="flex justify-center">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
-                        HDKALA
-                    </a>
-                </div>
-                <div class="text-center space-y-2">
-                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">ورود یا ثبت‌نام</h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">با شماره تماس خود وارد شوید یا حساب جدید بسازید</p>
-                </div>
-                <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/40 p-1 rounded-xl" role="tablist">
-                    <button type="button" data-mode="login" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
-                        ورود کاربران
-                    </button>
-                    <button type="button" data-mode="signup" class="auth-tab flex-1 py-2 rounded-lg font-medium transition-colors">
-                        ثبت‌نام سریع
-                    </button>
-                </div>
-            </div>
-
-            <form class="space-y-5" id="authForm" novalidate>
-                <div>
-                    <label for="authPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس <span class="text-red-500">*</span></label>
-                    <input id="authPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
-                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                           placeholder="09xxxxxxxxx">
-                    <div id="phoneError" class="text-red-500 text-xs mt-1 hidden">شماره تلفن باید با 09 شروع شده و 11 رقمی باشد</div>
-                </div>
-
-                <div>
-                    <label for="authEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل (اختیاری)</label>
-                    <input id="authEmail" type="email" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="example@email.com">
-                </div>
-
-                <div id="passwordGroup" class="space-y-1">
-                    <label for="authPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">رمز عبور (اختیاری)</label>
-                    <input id="authPassword" type="password" class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="••••••">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">در صورت نداشتن رمز عبور، از ورود با کد تأیید استفاده کنید.</p>
-                </div>
-
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
-                    دریافت کد تأیید
-                </button>
-            </form>
-
-            <div id="authHint" class="text-center text-xs text-gray-500 dark:text-gray-400">
-                حساب کاربری ندارید؟ شماره خود را وارد کنید تا ثبت‌نام انجام شود.
-            </div>
-        </div>
-    `;
-
-    contentRoot.innerHTML = '';
-    contentRoot.appendChild(page);
-
-    const tabs = $$('.auth-tab', page);
-    const passwordGroup = $('#passwordGroup', page);
-    const phoneInput = $('#authPhone', page);
-    const emailInput = $('#authEmail', page);
-    const passwordInput = $('#authPassword', page);
-    const phoneError = $('#phoneError', page);
-    const authHint = $('#authHint', page);
-
-    function updateTabStyles() {
-        tabs.forEach(tab => {
-            const isActive = tab.getAttribute('data-mode') === currentMode;
-            tab.classList.toggle('bg-primary', isActive);
-            tab.classList.toggle('text-white', isActive);
-            tab.classList.toggle('shadow-md', isActive);
-            tab.classList.toggle('bg-white', !isActive);
-            tab.classList.toggle('dark:bg-gray-800', !isActive);
-            tab.classList.toggle('text-gray-600', !isActive);
-            tab.classList.toggle('dark:text-gray-300', !isActive);
-            tab.classList.toggle('hover:bg-gray-100', !isActive);
-            tab.classList.toggle('dark:hover:bg-gray-700', !isActive);
-        });
-
-        if (currentMode === 'login') {
-            passwordGroup.classList.remove('hidden');
-            authHint.textContent = 'اگر رمز عبور ندارید، کد تأیید برای ورود ارسال می‌شود.';
-        } else {
-            passwordGroup.classList.add('hidden');
-            passwordInput.value = '';
-            authHint.textContent = 'با وارد کردن شماره تماس، کد تأیید برای ثبت‌نام ارسال خواهد شد.';
-        }
-    }
-
-    updateTabStyles();
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            currentMode = tab.getAttribute('data-mode');
-            updateTabStyles();
-        });
-    });
-
-    phoneInput.addEventListener('input', () => {
-        phoneError.classList.add('hidden');
-    });
-
-    $('#authForm', page).addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const phone = phoneInput.value.trim();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        if (!validatePhone(phone)) {
-            phoneError.classList.remove('hidden');
-            return;
-        }
-
-        phoneError.classList.add('hidden');
-
-        if (currentMode === 'login' && password) {
-            const existingUser = normalizeUser(LS.get('HDK_user'));
-            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
-                if (!existingUser.password) {
-                    notify('برای این حساب رمز عبوری ثبت نشده است. از ورود با کد استفاده کنید.', 'warning');
-                    return;
-                }
-                if (existingUser.password !== password) {
-                    notify('رمز عبور وارد شده نادرست است', 'error');
-                    return;
-                }
-
-                const nextUser = { ...existingUser };
-                if (email && email !== existingUser.email) {
-                    nextUser.email = email;
-                }
-                user = syncUserSession(nextUser);
-                notify('با موفقیت وارد شدید!', 'success');
-                navigate('home');
-                return;
-            }
-
-            notify('حسابی با این مشخصات یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
-            return;
-        }
-
-        renderVerifyPage({ phone, mode: currentMode, email });
-    });
-
-    phoneInput.focus();
-}
-
-function renderAdminLoginPage() {
-    const page = document.createElement('div');
-    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
-    page.innerHTML = `
-        <div class="max-w-lg w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
-            <div class="space-y-4 text-center">
-                <a href="#home" class="text-2xl font-extrabold text-primary flex items-center justify-center gap-2">
-                    <iconify-icon icon="mdi:shield-account" width="30"></iconify-icon>
-                    ورود مدیر سیستم
-                </a>
-                <div class="space-y-2">
-                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">پنل مدیریت HDKALA</h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">برای ورود به داشبورد مدیریتی، اطلاعات امنیتی خود را وارد کنید</p>
-                </div>
-            </div>
-
-            <form class="space-y-5" id="adminLoginForm" novalidate>
-                <div>
-                    <label for="adminPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره تماس مدیر <span class="text-red-500">*</span></label>
-                    <input id="adminPhone" type="tel" required pattern="09[0-9]{9}" maxlength="11"
-                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                           placeholder="09120000000">
-                </div>
-
-                <div>
-                    <label for="adminEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل سازمانی <span class="text-red-500">*</span></label>
-                    <input id="adminEmail" type="email" required
-                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                           placeholder="admin@hdkala.com">
-                </div>
-
-                <div>
-                    <label for="adminPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رمز عبور امنیتی <span class="text-red-500">*</span></label>
-                    <input id="adminPassword" type="password" required minlength="6"
-                           class="w-full px-3 py-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                           placeholder="••••••">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">رمز عبور باید حداقل ۶ کاراکتر باشد.</p>
-                </div>
-
-                <div id="adminLoginError" class="hidden text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
-
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
-                    ارسال کد ورود
-                </button>
-            </form>
-
-            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
-                با وارد کردن اطلاعات فوق، یک کد تأیید یکبار مصرف برای شما ارسال می‌شود.
-            </div>
-
-            <div class="text-center">
-                <button type="button" id="backToHome" class="text-sm text-primary hover:text-primary/80 transition-colors">
-                    بازگشت به صفحه اصلی
-                </button>
-            </div>
-        </div>
-    `;
-
-    contentRoot.innerHTML = '';
-    contentRoot.appendChild(page);
-
-    const form = $('#adminLoginForm', page);
-    const phoneInput = $('#adminPhone', page);
-    const emailInput = $('#adminEmail', page);
-    const passwordInput = $('#adminPassword', page);
-    const errorBox = $('#adminLoginError', page);
-
-    const clearError = () => {
-        if (!errorBox) return;
-        errorBox.textContent = '';
-        errorBox.classList.add('hidden');
-    };
-
-    const showError = (message) => {
-        if (!errorBox) return;
-        errorBox.textContent = message;
-        errorBox.classList.remove('hidden');
-    };
-
-    [phoneInput, emailInput, passwordInput].forEach(input => {
-        if (!input) return;
-        input.addEventListener('input', clearError);
-    });
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        clearError();
-
-        const phone = phoneInput.value.trim();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        if (!validatePhone(phone)) {
-            showError('شماره تماس مدیر باید با 09 شروع شده و 11 رقم باشد.');
-            phoneInput.focus();
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            showError('ایمیل وارد شده معتبر نیست.');
-            emailInput.focus();
-            return;
-        }
-
-        if (!validatePassword(password)) {
-            showError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
-            passwordInput.focus();
-            return;
-        }
-
-        const credential = typeof findAdminCredential === 'function'
-            ? findAdminCredential({ phone, email, password })
-            : null;
-
-        if (!credential) {
-            showError('اطلاعات وارد شده با مدیر ثبت‌شده مطابقت ندارد.');
-            return;
-        }
-
-        renderVerifyPage({
-            phone: credential.phone,
-            email: credential.email,
-            mode: 'admin',
-            title: 'تأیید ورود مدیر سیستم',
-            subtitle: `کد ۴ رقمی ارسال شده به ${credential.phone} را وارد کنید`,
-            onSuccess: () => {
-                const adminUser = normalizeUser({
-                    ...credential,
-                    role: 'admin',
-                    isAdmin: true,
-                    permissions: Array.isArray(ADMIN_PERMISSIONS) ? ADMIN_PERMISSIONS.slice() : ['products.manage']
-                });
-                user = syncUserSession(adminUser);
-                notify('ورود مدیر با موفقیت انجام شد', 'success');
-
-                if (typeof navigate === 'function') {
-                    navigate('admin');
-                } else {
-                    location.hash = 'admin';
-                }
-
-                setTimeout(() => {
-                    if (typeof openAdminPanel === 'function') {
-                        openAdminPanel();
-                    }
-                }, 0);
-            }
-        });
-    });
-
-    $('#backToHome', page).addEventListener('click', () => {
-        if (typeof navigate === 'function') {
-            navigate('home');
-        } else {
-            location.hash = 'home';
-        }
-    });
-
-    phoneInput.focus();
-}
-
-function renderVerifyPage({ phone, mode = 'login', email = '', onSuccess = null, title: customTitle = '', subtitle: customSubtitle = '' }) {
-    const operator = getOperatorLogo(phone);
-    const operatorLogos = {
-        'irancell': '<iconify-icon icon="mdi:signal" class="text-blue-500"></iconify-icon>',
-        'mci': '<iconify-icon icon="mdi:sim" class="text-green-500"></iconify-icon>',
-        'rightel': '<iconify-icon icon="mdi:wifi" class="text-red-500"></iconify-icon>',
-        'unknown': '<iconify-icon icon="mdi:phone" class="text-gray-500"></iconify-icon>'
-    };
-
-    const page = document.createElement('div');
-    page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
-    const isSignup = mode === 'signup';
-    const pageTitle = customTitle || (isSignup ? 'تأیید شماره برای ثبت‌نام' : 'تأیید شماره تلفن');
-    const pageSubtitle = customSubtitle || `کد ۴ رقمی ارسال شده به ${phone} را وارد کنید`;
-
-    page.innerHTML = `
-        <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-primary/30">
-            <div>
-                <div class="flex justify-center">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
-                        HDKALA
-                    </a>
-                </div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    ${pageTitle}
-                </h2>
-                <div class="flex items-center justify-center gap-2 mt-2">
-                    ${operatorLogos[operator]}
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        ${pageSubtitle}
-                    </p>
-                </div>
-            </div>
-            <form class="mt-8 space-y-6" id="verifyForm">
-                <div class="flex justify-center gap-2" dir="ltr">
-                    ${[0,1,2,3].map(i => `
-                        <input type="tel"
-                               maxlength="1"
-                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white"
-                               dir="ltr"
-                               inputmode="numeric"
-                               pattern="[0-9]"
-                               autocomplete="one-time-code">
-                    `).join('')}
-                </div>
-                <div>
-                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
-                        تأیید و ورود
-                    </button>
-                </div>
-            </form>
-            <div class="text-center">
-                <button type="button" id="backToLogin" class="text-sm text-primary hover:text-primary/80 transition-colors">
-                    تغییر شماره تلفن
-                </button>
-            </div>
-        </div>
-    `;
-    contentRoot.innerHTML = '';
-    contentRoot.appendChild(page);
-    
-    // Setup OTP inputs
-    setupOtpInputs(page);
-    
-    $('#verifyForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const code = getOtpCode(page);
-
-        if (code.length !== 4) {
-            highlightOtpInputs(page, false);
-            notify('کد تأیید باید ۴ رقم باشد', 'error');
-            return;
-        }
-
-        highlightOtpInputs(page, true);
-
-        if (typeof onSuccess === 'function') {
-            onSuccess({ phone, email, code, mode });
-            return;
-        }
-
-        // Check if user exists (login) or new (signup)
-        const existingUser = normalizeUser(LS.get('HDK_user'));
-        if (mode === 'login') {
-            if (existingUser && (existingUser.phone === phone || (email && existingUser.email === email))) {
-                const nextUser = { ...existingUser };
-                if (email && email !== existingUser.email) {
-                    nextUser.email = email;
-                }
-                user = syncUserSession(nextUser);
-                notify('با موفقیت وارد شدید!', 'success');
-                navigate('home');
-            } else {
-                notify('حسابی با این شماره یافت نشد. لطفا ثبت‌نام کنید.', 'warning');
-                renderLoginPage('signup');
-            }
-        } else {
-            renderUserInfoForm({ phone, email });
-        }
-    });
-
-    $('#backToLogin').addEventListener('click', () => {
-        if (mode === 'admin') {
-            renderAdminLoginPage();
-            return;
-        }
-        renderLoginPage(mode);
-    });
-}
-
-function renderUserInfoForm({ phone, email = '' }) {
-    const page = document.createElement('div');
-    page.className = 'min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8';
-    page.innerHTML = `
-        <div class="max-w-2xl mx-auto">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-primary/30 p-8">
-                <div class="flex justify-center mb-6">
-                    <a href="#home" class="text-2xl font-extrabold text-primary flex items-center gap-2">
-                        <iconify-icon icon="mdi:cart" width="26"></iconify-icon>
-                        HDKALA
-                    </a>
-                </div>
-                <h2 class="text-2xl font-bold text-center mb-6">تکمیل اطلاعات کاربری</h2>
-                <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
-                    لطفا اطلاعات خود را برای تکمیل ثبت‌نام وارد کنید
-                </p>
-
-                <form class="space-y-6" id="userInfoForm" novalidate>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="firstName" class="block text-sm font-medium mb-2">نام <span class="text-red-500">*</span></label>
-                            <input id="firstName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                        </div>
-                        <div>
-                            <label for="lastName" class="block text-sm font-medium mb-2">نام خانوادگی <span class="text-red-500">*</span></label>
-                            <input id="lastName" type="text" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="nationalCode" class="block text-sm font-medium mb-2">کد ملی <span class="text-red-500">*</span></label>
-                        <input id="nationalCode" type="text" data-national required
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               maxlength="10"
-                               pattern="[0-9]{10}">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2" for="provinceSelect">استان محل سکونت <span class="text-red-500">*</span></label>
-                            <select id="provinceSelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                                <option value="">انتخاب استان</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2" for="citySelect">شهر محل سکونت <span class="text-red-500">*</span></label>
-                            <select id="citySelect" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" disabled>
-                                <option value="">ابتدا استان را انتخاب کنید</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="addressText" class="block text-sm font-medium mb-2">آدرس دقیق <span class="text-red-500">*</span></label>
-                        <textarea id="addressText" required rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
-                    </div>
-
-                    <div>
-                        <label for="postalCode" class="block text-sm font-medium mb-2">کد پستی (اختیاری)</label>
-                        <input id="postalCode" type="text" data-postal
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               maxlength="10"
-                               pattern="[0-9]{10}">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="birthDate" class="block text-sm font-medium mb-2">تاریخ تولد</label>
-                            <input id="birthDate" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
-                        </div>
-                        <div>
-                            <label for="fatherName" class="block text-sm font-medium mb-2">نام پدر</label>
-                            <input id="fatherName" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="userEmail" class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
-                        <input id="userEmail" type="email" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${email || ''}">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="userPassword" class="block text-sm font-medium mb-2">رمز عبور (اختیاری)</label>
-                            <input id="userPassword" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="حداقل ۴ کاراکتر">
-                        </div>
-                        <div>
-                            <label for="userPasswordConfirm" class="block text-sm font-medium mb-2">تکرار رمز عبور</label>
-                            <input id="userPasswordConfirm" type="password" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="تکرار رمز">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4">
-                        <button type="button" id="backToVerify" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                            بازگشت
-                        </button>
-                        <button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
-                            تکمیل ثبت‌نام
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-    contentRoot.innerHTML = '';
-    contentRoot.appendChild(page);
-
-    loadProvinces();
-
-    $('#provinceSelect').addEventListener('change', function() {
-        const province = this.value;
-        loadCities(province);
-    });
-
-    $('#userInfoForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const nationalCode = $('#nationalCode').value.trim();
-        if (!validateNationalCode(nationalCode)) {
-            notify('کد ملی نامعتبر است', 'error');
-            return;
-        }
-
-        const postalCode = $('#postalCode').value.trim();
-        if (postalCode && !validatePostalCode(postalCode)) {
-            notify('کد پستی باید 10 رقمی باشد', 'error');
-            return;
-        }
-
-        const passwordValue = $('#userPassword').value.trim();
-        const passwordConfirm = $('#userPasswordConfirm').value.trim();
-        if (passwordValue && passwordValue.length < 4) {
-            notify('رمز عبور باید حداقل ۴ کاراکتر باشد', 'error');
-            return;
-        }
-        if (passwordValue && passwordValue !== passwordConfirm) {
-            notify('تکرار رمز عبور با رمز اصلی یکسان نیست', 'error');
-            return;
-        }
-
-        const firstName = $('#firstName').value.trim();
-        const lastName = $('#lastName').value.trim();
-        const provinceValue = $('#provinceSelect').value;
-        const cityValue = $('#citySelect').value;
-        const addressValue = $('#addressText').value.trim();
-        const emailValue = $('#userEmail').value.trim();
-        const birthDate = $('#birthDate').value.trim();
-        const fatherName = $('#fatherName').value.trim();
-
-        const newUser = {
-            id: uid('u'),
-            name: `${firstName} ${lastName}`.trim(),
-            firstName,
-            lastName,
-            phone,
-            nationalCode,
-            province: provinceValue,
-            city: cityValue,
-            address: addressValue,
-            postalCode: postalCode || null,
-            birthDate,
-            fatherName,
-            email: emailValue,
-            password: passwordValue || null,
-            created: new Date().toISOString()
-        };
-        user = syncUserSession(newUser);
-        notify('ثبت‌نام با موفقیت انجام شد!', 'success');
-        navigate('home');
-    });
-
-    $('#backToVerify').addEventListener('click', () => {
-        const currentEmail = $('#userEmail').value.trim();
-        renderVerifyPage({ phone, mode: 'signup', email: currentEmail || email });
-    });
-}
-
-function loadProvinces() {
-    const provinceSelect = $('#provinceSelect');
-    if (!provinceSelect) return;
-
-    provinceSelect.innerHTML = '<option value="">انتخاب استان</option>';
-
-    provinces.forEach(province => {
-        const option = document.createElement('option');
-        option.value = province.name;
-        option.textContent = province.name;
-        provinceSelect.appendChild(option);
-    });
-}
-
-function loadCities(provinceName) {
-    const citySelect = $('#citySelect');
-    if (!citySelect) return;
-    
-    citySelect.innerHTML = '<option value="">انتخاب شهر</option>';
-    citySelect.disabled = true;
-    
-    const province = provinces.find(p => p.name === provinceName);
-    if (province) {
-        province.cities.forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-        });
-        citySelect.disabled = false;
-    }
-}
-
-// User dropdown event listeners
-userButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (user) {
-        userDropdown.classList.toggle('open');
-    } else {
-        location.hash = 'login';
-    }
-});
-
-document.addEventListener('click', () => {
-    userDropdown.classList.remove('open');
-});
-
-// User Dropdown Delegation
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'loginBtn' || e.target.closest('#loginBtn')) {
-        location.hash = 'login';
-    }
-    if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
-        if (confirm('آیا از خروج مطمئن هستید؟')) {
-            clearUserSession();
-            notify('خروج انجام شد', 'info');
-            navigate('home');
-        }
-    }
-});
-
-// ---- toast.js ----
-/* ---------- Toast System ---------- */
-const TOAST_VARIANTS = {
-    success: {
-        icon: 'mdi:check-circle',
-        label: 'موفقیت',
-        className: 'toast--success',
-        duration: 3800
-    },
-    error: {
-        icon: 'mdi:alert-circle',
-        label: 'خطا',
-        className: 'toast--error',
-        duration: 5600
-    },
-    warning: {
-        icon: 'mdi:alert',
-        label: 'هشدار',
-        className: 'toast--warning',
-        duration: 4800
-    },
-    info: {
-        icon: 'mdi:information',
-        label: 'اطلاعیه',
-        className: 'toast--info',
-        duration: 4200
-    }
-};
-
-class ToastManager {
-    constructor() {
-        this.container = null;
-        this.activeToasts = new Map();
-        this.queue = [];
-        this.maxVisible = 3;
-        this.recentMessages = new Map();
-        this.recentMessageWindow = 1200;
-    }
-
-    ensureContainer() {
-        if (this.container && document.body.contains(this.container)) {
-            return this.container;
-        }
-
-        const container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        container.setAttribute('role', 'region');
-        container.setAttribute('aria-live', 'polite');
-        container.setAttribute('aria-atomic', 'false');
-        document.body.appendChild(container);
-        this.container = container;
-        return container;
-    }
-
-    normalizeVariant(variant) {
-        if (typeof variant === 'boolean') {
-            return variant ? 'error' : 'success';
-        }
-        if (typeof variant !== 'string') {
-            return 'info';
-        }
-        return TOAST_VARIANTS[variant] ? variant : 'info';
-    }
-
-    shouldThrottle(message) {
-        const key = message.trim();
-        const now = Date.now();
-        const last = this.recentMessages.get(key) || 0;
-        if (now - last < this.recentMessageWindow) {
-            return true;
-        }
-        this.recentMessages.set(key, now);
-        return false;
-    }
-
-    show(message, variant = 'info', options = {}) {
-        if (!message || typeof document === 'undefined') {
-            return null;
-        }
-
-        const text = String(message).trim();
-        if (!text) {
-            return null;
-        }
-
-        const normalizedVariant = this.normalizeVariant(variant);
-        const config = TOAST_VARIANTS[normalizedVariant] || TOAST_VARIANTS.info;
-        const duration = typeof options.duration === 'number' ? Math.max(options.duration, 1500) : config.duration;
-
-        if (!options.allowDuplicates && this.shouldThrottle(`${normalizedVariant}:${text}`)) {
-            return null;
-        }
-
-        const container = this.ensureContainer();
-        const id = options.id || uid('toast');
-        const toast = this.createToastElement({ id, text, config, duration, options });
-
-        if (this.activeToasts.size >= this.maxVisible) {
-            this.queue.push({ message: text, variant: normalizedVariant, options });
-            return id;
-        }
-
-        container.appendChild(toast.element);
-        requestAnimationFrame(() => {
-            toast.element.classList.add('toast--visible');
-        });
-
-        this.activeToasts.set(id, toast);
-        toast.startTimer();
-        return id;
-    }
-
-    createToastElement({ id, text, config, duration, options }) {
-        const element = document.createElement('div');
-        element.className = `toast ${config.className}`;
-        element.setAttribute('role', config === TOAST_VARIANTS.error ? 'alert' : 'status');
-        element.dataset.toastId = id;
-
-        const content = document.createElement('div');
-        content.className = 'toast__content';
-
-        const iconWrapper = document.createElement('div');
-        iconWrapper.className = 'toast__icon';
-        const icon = document.createElement('iconify-icon');
-        icon.setAttribute('icon', config.icon);
-        icon.setAttribute('width', '22');
-        iconWrapper.appendChild(icon);
-
-        const messageWrapper = document.createElement('div');
-        messageWrapper.className = 'toast__message';
-
-        const label = document.createElement('span');
-        label.className = 'toast__label';
-        label.textContent = config.label;
-
-        const textNode = document.createElement('div');
-        textNode.className = 'toast__text';
-        textNode.textContent = text;
-
-        messageWrapper.appendChild(label);
-        messageWrapper.appendChild(textNode);
-
-        const closeButton = document.createElement('button');
-        closeButton.type = 'button';
-        closeButton.className = 'toast__close';
-        closeButton.setAttribute('aria-label', 'بستن اعلان');
-        closeButton.appendChild(document.createTextNode('×'));
-
-        content.appendChild(iconWrapper);
-        content.appendChild(messageWrapper);
-        element.appendChild(content);
-        element.appendChild(closeButton);
-
-        const toast = {
-            id,
-            element,
-            duration,
-            timer: null,
-            pausedAt: null,
-            options,
-            startTimer: () => {
-                toast.clearTimer();
-                toast.timer = setTimeout(() => this.dismiss(id), duration);
-            },
-            clearTimer: () => {
-                if (toast.timer) {
-                    clearTimeout(toast.timer);
-                    toast.timer = null;
-                }
-            }
-        };
-
-        const pause = () => {
-            if (toast.timer) {
-                toast.pausedAt = Date.now();
-                toast.clearTimer();
-            }
-        };
-
-        const resume = () => {
-            if (!toast.pausedAt) {
-                toast.startTimer();
-                return;
-            }
-            const elapsed = Date.now() - toast.pausedAt;
-            const remaining = Math.max(duration - elapsed, 1000);
-            toast.clearTimer();
-            toast.timer = setTimeout(() => this.dismiss(id), remaining);
-            toast.pausedAt = null;
-        };
-
-        element.addEventListener('mouseenter', pause);
-        element.addEventListener('mouseleave', resume);
-        closeButton.addEventListener('click', () => this.dismiss(id, { userDismissed: true }));
-
-        return toast;
-    }
-
-    dismiss(id, meta = {}) {
-        const toast = this.activeToasts.get(id);
-        if (!toast) {
-            return;
-        }
-
-        toast.clearTimer();
-        this.activeToasts.delete(id);
-        const element = toast.element;
-        element.classList.remove('toast--visible');
-
-        const remove = () => {
-            element.removeEventListener('transitionend', remove);
-            if (element.parentElement) {
-                element.parentElement.removeChild(element);
-            }
-            this.flushQueue();
-        };
-
-        element.addEventListener('transitionend', remove);
-        setTimeout(remove, 260);
-
-        if (typeof toast.options.onClose === 'function') {
-            try {
-                toast.options.onClose({ id, ...meta });
-            } catch (error) {
-                console.error('Toast onClose handler error:', error);
-            }
-        }
-    }
-
-    flushQueue() {
-        if (this.queue.length === 0 || this.activeToasts.size >= this.maxVisible) {
-            return;
-        }
-
-        const next = this.queue.shift();
-        if (!next) {
-            return;
-        }
-        this.show(next.message, next.variant, next.options);
-    }
-
-    clearAll() {
-        Array.from(this.activeToasts.keys()).forEach(id => this.dismiss(id));
-        this.queue = [];
-    }
-}
-
-const toastManager = new ToastManager();
-
-function notify(message, variant = 'info', options = {}) {
-    return toastManager.show(message, variant, options);
-}
-
-if (typeof window !== 'undefined') {
-    window.notify = notify;
-    window.toastManager = toastManager;
 }
 
 // ---- filters.js ----
