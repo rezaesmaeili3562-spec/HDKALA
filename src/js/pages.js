@@ -692,7 +692,12 @@ function renderComparePage(){
 
 /* ---------- Cart Page ---------- */
 function renderCartPage(){
-    cartSidebar.classList.add('open');
+    if (typeof openCartSidebar === 'function') {
+        openCartSidebar();
+    } else if (cartSidebar) {
+        cartSidebar.classList.add('open');
+        cartSidebar.setAttribute('aria-hidden', 'false');
+    }
     navigate('products');
 }
 

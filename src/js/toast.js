@@ -34,11 +34,28 @@ class ToastManager {
         this.maxVisible = 3;
         this.recentMessages = new Map();
         this.recentMessageWindow = 1200;
+        this.containerInitRequested = false;
     }
 
     ensureContainer() {
-        if (this.container && document.body.contains(this.container)) {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+
+        if (this.container && document.body && document.body.contains(this.container)) {
             return this.container;
+        }
+
+        if (!document.body) {
+            if (!this.containerInitRequested) {
+                this.containerInitRequested = true;
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.containerInitRequested = false;
+                    this.ensureContainer();
+                    this.flushQueue();
+                }, { once: true });
+            }
+            return null;
         }
 
         const container = document.createElement('div');
@@ -95,8 +112,13 @@ class ToastManager {
         const id = options.id || uid('toast');
         const toast = this.createToastElement({ id, text, config, duration, options });
 
+        if (!container) {
+            this.queue.push({ message: text, variant: normalizedVariant, options: { ...options, id } });
+            return id;
+        }
+
         if (this.activeToasts.size >= this.maxVisible) {
-            this.queue.push({ message: text, variant: normalizedVariant, options });
+            this.queue.push({ message: text, variant: normalizedVariant, options: { ...options, id } });
             return id;
         }
 
@@ -236,7 +258,7 @@ class ToastManager {
         if (!next) {
             return;
         }
-        this.show(next.message, next.variant, next.options);
+        this.show(next.message, next.variant, next.options || {});
     }
 
     clearAll() {
@@ -247,7 +269,25 @@ class ToastManager {
 
 let toastManagerInstance = null;
 
+function resolveExistingToastManager() {
+    if (toastManagerInstance && typeof toastManagerInstance.show === 'function') {
+        return toastManagerInstance;
+    }
+
+    if (typeof window !== 'undefined' && window.toastManager && typeof window.toastManager.show === 'function') {
+        toastManagerInstance = window.toastManager;
+        return toastManagerInstance;
+    }
+
+    return null;
+}
+
 function getToastManager() {
+    const existing = resolveExistingToastManager();
+    if (existing) {
+        return existing;
+    }
+
     if (!toastManagerInstance) {
         toastManagerInstance = new ToastManager();
 
@@ -260,8 +300,18 @@ function getToastManager() {
 }
 
 function notify(message, variant = 'info', options = {}) {
-    const manager = getToastManager();
-    return manager ? manager.show(message, variant, options) : null;
+    try {
+        const manager = getToastManager();
+        if (!manager || typeof manager.show !== 'function') {
+            console.warn('[Toast] Toast manager is not available.');
+            return null;
+        }
+
+        return manager.show(message, variant, options);
+    } catch (error) {
+        console.error('[Toast] Failed to display toast:', error);
+        return null;
+    }
 }
 
 if (typeof window !== 'undefined') {

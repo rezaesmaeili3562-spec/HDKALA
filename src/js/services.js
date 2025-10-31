@@ -8,9 +8,26 @@ const DataService = (() => {
     });
 
     const cache = new Map();
-    const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
-        ? globalThis.__HDK_BOOTSTRAP_DATA__
-        : null;
+    const embeddedData = (() => {
+        const runtimeData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+            ? globalThis.__HDK_BOOTSTRAP_DATA__
+            : (typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null);
+
+        const scriptData = readEmbeddedDataFromDom();
+        const resolved = runtimeData || scriptData;
+
+        if (!runtimeData && resolved && typeof globalThis !== 'undefined') {
+            try {
+                if (!globalThis.__HDK_BOOTSTRAP_DATA__) {
+                    globalThis.__HDK_BOOTSTRAP_DATA__ = resolved;
+                }
+            } catch (error) {
+                /* ignore global assignment errors */
+            }
+        }
+
+        return resolved;
+    })();
 
     if (embeddedData && typeof embeddedData === 'object') {
         Object.entries(embeddedData).forEach(([key, value]) => {
@@ -27,6 +44,48 @@ const DataService = (() => {
 
     function isBrowser() {
         return typeof window !== 'undefined' && typeof window.fetch === 'function';
+    }
+
+    function readEmbeddedDataFromDom() {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+
+        const script = document.getElementById('hdk-bootstrap-data');
+        if (!script) {
+            return null;
+        }
+
+        const text = script.textContent || script.innerText || '';
+        if (!text.trim()) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            console.warn('[DataService] Failed to parse embedded bootstrap data:', error);
+            return null;
+        }
+    }
+
+    function resolveEmbeddedDataset(key) {
+        const sources = [
+            embeddedData,
+            (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+                ? globalThis.__HDK_BOOTSTRAP_DATA__
+                : null,
+            (typeof EMBEDDED_DATA !== 'undefined') ? EMBEDDED_DATA : null,
+            readEmbeddedDataFromDom()
+        ];
+
+        for (const source of sources) {
+            if (source && Object.prototype.hasOwnProperty.call(source, key)) {
+                return source[key];
+            }
+        }
+
+        return undefined;
     }
 
     function buildRequestUrl(path) {
@@ -64,10 +123,10 @@ const DataService = (() => {
                 return cache.get(key);
             }
 
-            if (embeddedData && Object.prototype.hasOwnProperty.call(embeddedData, key)) {
-                const data = embeddedData[key];
-                cache.set(key, data);
-                return data;
+            const fallbackData = resolveEmbeddedDataset(key);
+            if (typeof fallbackData !== 'undefined') {
+                cache.set(key, fallbackData);
+                return fallbackData;
             }
 
             throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);

@@ -81,6 +81,8 @@ function buildBundle() {
 
   fs.writeFileSync(outputFile, bundle, 'utf8');
   console.log(`Bundled ${sources.length} files into ${path.relative(projectRoot, outputFile)}`);
+
+  return embeddedData;
 }
 
 function copyStaticData() {
@@ -109,5 +111,38 @@ function copyStaticData() {
   console.log(`Copied static data to ${path.relative(projectRoot, distDataDir)}`);
 }
 
-buildBundle();
+function injectEmbeddedDataIntoHtml(embeddedData) {
+  if (!embeddedData) {
+    return;
+  }
+
+  const indexFile = path.join(distDir, 'index.html');
+  if (!fs.existsSync(indexFile)) {
+    return;
+  }
+
+  const scriptId = 'hdk-bootstrap-data';
+  const serialized = JSON.stringify(embeddedData);
+  const scriptTag = `<script id="${scriptId}" type="application/json">${serialized}</script>`;
+
+  let html = fs.readFileSync(indexFile, 'utf8');
+  const scriptPattern = new RegExp(`<script id="${scriptId}"[\s\S]*?<\/script>`, 'i');
+
+  if (scriptPattern.test(html)) {
+    html = html.replace(scriptPattern, scriptTag);
+  } else {
+    const marker = '<!-- Main JavaScript Files -->';
+    if (html.includes(marker)) {
+      html = html.replace(marker, `${scriptTag}\n  ${marker}`);
+    } else {
+      html = html.replace('</body>', `  ${scriptTag}\n</body>`);
+    }
+  }
+
+  fs.writeFileSync(indexFile, html, 'utf8');
+  console.log(`Embedded bootstrap data into ${path.relative(projectRoot, indexFile)}`);
+}
+
+const embeddedData = buildBundle();
 copyStaticData();
+injectEmbeddedDataIntoHtml(embeddedData);
