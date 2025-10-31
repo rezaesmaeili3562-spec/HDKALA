@@ -19,13 +19,26 @@ const $$ = (s, ctx=document) => {
     }
 };
 const notifyEl = document.getElementById('notification');
+const notifyMessageEl = document.getElementById('notificationMessage');
 
 function notify(msg, isError=false){
-    notifyEl.textContent = msg;
-    notifyEl.classList.toggle('error', isError);
+    if (!notifyEl) return;
+
+    if (notifyMessageEl) {
+        notifyMessageEl.textContent = msg;
+    } else {
+        notifyEl.textContent = msg;
+    }
+
+    notifyEl.classList.remove('notification--error', 'notification--success', 'show');
+    void notifyEl.offsetWidth;
+    notifyEl.classList.add(isError ? 'notification--error' : 'notification--success');
     notifyEl.classList.add('show');
+
     clearTimeout(notifyEl._t);
-    notifyEl._t = setTimeout(()=> notifyEl.classList.remove('show'), 3500);
+    notifyEl._t = setTimeout(() => {
+        notifyEl.classList.remove('show');
+    }, 3500);
 }
 
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }

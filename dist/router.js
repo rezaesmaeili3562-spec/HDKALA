@@ -324,7 +324,7 @@ function renderAddressesPage() {
 function renderAdminPage() {
     const adminSession = typeof getAdminSession === 'function' ? getAdminSession() : null;
     const adminInfo = adminSession && adminSession.info ? adminSession.info : {};
-    const adminName = adminInfo.fullName || 'مدیر HDKALA';
+    const adminName = (adminInfo.fullName && adminInfo.fullName.trim()) ? adminInfo.fullName : 'ادمین سیستم';
     const adminPhone = adminInfo.phone || '---';
     const adminEmail = adminInfo.email || '---';
 

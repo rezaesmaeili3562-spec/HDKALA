@@ -376,20 +376,28 @@ function updateUserLabel(){
     if (isAdminActive) {
         const adminInfo = hasAdminSession.info || {};
         if (userLabel) {
-            userLabel.textContent = adminInfo.fullName || 'مدیریت HDKALA';
+            userLabel.textContent = (adminInfo.fullName && adminInfo.fullName.trim()) ? adminInfo.fullName : 'ادمین سیستم';
         }
         if (userButton) {
             userButton.classList.remove('hidden');
             userButton.classList.add('flex');
+        }
+        if (adminAccessLink) {
+            adminAccessLink.classList.remove('hidden');
+            adminAccessLink.textContent = 'پنل مدیریت';
         }
         toggleAuthButtons(false);
     } else if (user) {
         if (userLabel) {
-            userLabel.textContent = user.name || 'کاربر HDKALA';
+            userLabel.textContent = (user.name && user.name.trim()) ? user.name : 'کاربر HDKALA';
         }
         if (userButton) {
             userButton.classList.remove('hidden');
             userButton.classList.add('flex');
+        }
+        if (adminAccessLink) {
+            adminAccessLink.classList.remove('hidden');
+            adminAccessLink.textContent = 'ورود مدیریت';
         }
         toggleAuthButtons(false);
     } else {
@@ -399,6 +407,10 @@ function updateUserLabel(){
         if (userButton) {
             userButton.classList.add('hidden');
             userButton.classList.remove('flex');
+        }
+        if (adminAccessLink) {
+            adminAccessLink.classList.remove('hidden');
+            adminAccessLink.textContent = 'ورود مدیریت';
         }
         toggleAuthButtons(true);
     }
