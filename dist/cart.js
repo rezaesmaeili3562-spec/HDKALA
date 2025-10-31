@@ -463,5 +463,23 @@ checkoutBtn.addEventListener('click', () => {
 });
 
 // Replace original checkout with enhanced version
-const originalRenderCheckoutPage = renderCheckoutPage;
-renderCheckoutPage = renderEnhancedCheckoutPage;
+function enhanceCheckoutRendering() {
+    if (typeof window === 'undefined') return false;
+
+    const currentRender = window.renderCheckoutPage;
+
+    if (typeof currentRender !== 'function') {
+        return false;
+    }
+
+    if (currentRender === renderEnhancedCheckoutPage) {
+        return true;
+    }
+
+    window.renderCheckoutPage = renderEnhancedCheckoutPage;
+    return true;
+}
+
+if (!enhanceCheckoutRendering()) {
+    window.addEventListener('load', enhanceCheckoutRendering, { once: true });
+}
