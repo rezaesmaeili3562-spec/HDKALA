@@ -462,6 +462,5 @@ checkoutBtn.addEventListener('click', () => {
     cartSidebar.classList.remove('open');
 });
 
-// Replace original checkout with enhanced version
-const originalRenderCheckoutPage = renderCheckoutPage;
-renderCheckoutPage = renderEnhancedCheckoutPage;
+// Expose enhanced checkout renderer for other modules
+window.renderEnhancedCheckoutPage = renderEnhancedCheckoutPage;

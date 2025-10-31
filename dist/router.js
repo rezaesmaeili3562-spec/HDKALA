@@ -307,12 +307,17 @@ function renderAdminPage() {
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
-                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors mb-4" onclick="openAdminPanel()">
-                        مدیریت محصولات
-                    </button>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
+                        <h3 class="text-lg font-semibold mb-3">پنل ادمین</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                            برای مدیریت محصولات، سفارشات و موجودی فروشگاه از این بخش وارد پنل ادمین شوید.
+                        </p>
+                        <button id="adminBtn" data-open-admin-access class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                            ورود به پنل ادمین
+                        </button>
+                    </div>
                 </div>
-                
+
                 <div>
                     <h3 class="text-lg font-semibold mb-4">مدیریت بلاگ</h3>
                     ${createBlogManagement()}
@@ -323,6 +328,7 @@ function renderAdminPage() {
     
     contentRoot.appendChild(page);
     setupBlogManagement();
+
 }
 
 /* ---------- Render products ---------- */
@@ -339,16 +345,12 @@ function renderProducts(list) {
 
 // اضافه کردن route جدید به navigation
 function setupAdminNavigation() {
-    // اضافه کردن لینک ادمین به navigation (فقط برای توسعه)
-    const adminLink = document.createElement('a');
-    adminLink.href = '#admin';
-    adminLink.className = 'text-gray-700 dark:text-gray-300 hover:text-primary transition-colors';
-    adminLink.textContent = 'پنل مدیریت';
-    adminLink.style.marginRight = 'auto';
-    
-    const nav = $('nav .hidden.md\\:flex');
-    if (nav) {
-        nav.insertBefore(adminLink, nav.firstChild);
+    if (adminNavLink && !adminNavLink.hasAttribute('data-open-admin-access')) {
+        adminNavLink.setAttribute('data-open-admin-access', '');
+    }
+
+    if (mobileAdminAccessBtn && !mobileAdminAccessBtn.hasAttribute('data-open-admin-access')) {
+        mobileAdminAccessBtn.setAttribute('data-open-admin-access', '');
     }
 }
 
