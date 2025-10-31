@@ -833,7 +833,6 @@ function closeCartSidebar() {
     }
 
     cartSidebar.classList.remove('open');
-    cartSidebar.setAttribute('aria-hidden', 'true');
 
     if (cartOverlay) {
         cartOverlay.classList.add('hidden');
@@ -842,9 +841,28 @@ function closeCartSidebar() {
 
     unlockBodyScroll();
 
-    if (cartBtn && typeof cartBtn.focus === 'function') {
-        cartBtn.focus();
-    }
+    const restoreFocus = () => {
+        if (cartBtn && typeof cartBtn.focus === 'function') {
+            cartBtn.focus({ preventScroll: true });
+            return true;
+        }
+
+        if (typeof document !== 'undefined' && cartSidebar.contains(document.activeElement)) {
+            try {
+                document.activeElement.blur();
+            } catch (error) {
+                /* ignore blur errors */
+            }
+        }
+
+        return false;
+    };
+
+    restoreFocus();
+
+    requestAnimationFrame(() => {
+        cartSidebar.setAttribute('aria-hidden', 'true');
+    });
 }
 
 // Cart and Compare event listeners

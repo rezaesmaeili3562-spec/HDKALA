@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-31T10:54:57.110Z */
+/* HDKALA bundle generated: 2025-10-31T13:00:43.454Z */
 // ---- embedded-data ----
 const EMBEDDED_DATA = Object.freeze({
   "products": [
@@ -1143,11 +1143,28 @@ class ToastManager {
         this.maxVisible = 3;
         this.recentMessages = new Map();
         this.recentMessageWindow = 1200;
+        this.containerInitRequested = false;
     }
 
     ensureContainer() {
-        if (this.container && document.body.contains(this.container)) {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+
+        if (this.container && document.body && document.body.contains(this.container)) {
             return this.container;
+        }
+
+        if (!document.body) {
+            if (!this.containerInitRequested) {
+                this.containerInitRequested = true;
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.containerInitRequested = false;
+                    this.ensureContainer();
+                    this.flushQueue();
+                }, { once: true });
+            }
+            return null;
         }
 
         const container = document.createElement('div');
@@ -1204,8 +1221,13 @@ class ToastManager {
         const id = options.id || uid('toast');
         const toast = this.createToastElement({ id, text, config, duration, options });
 
+        if (!container) {
+            this.queue.push({ message: text, variant: normalizedVariant, options: { ...options, id } });
+            return id;
+        }
+
         if (this.activeToasts.size >= this.maxVisible) {
-            this.queue.push({ message: text, variant: normalizedVariant, options });
+            this.queue.push({ message: text, variant: normalizedVariant, options: { ...options, id } });
             return id;
         }
 
@@ -1345,7 +1367,7 @@ class ToastManager {
         if (!next) {
             return;
         }
-        this.show(next.message, next.variant, next.options);
+        this.show(next.message, next.variant, next.options || {});
     }
 
     clearAll() {
@@ -1356,7 +1378,25 @@ class ToastManager {
 
 let toastManagerInstance = null;
 
+function resolveExistingToastManager() {
+    if (toastManagerInstance && typeof toastManagerInstance.show === 'function') {
+        return toastManagerInstance;
+    }
+
+    if (typeof window !== 'undefined' && window.toastManager && typeof window.toastManager.show === 'function') {
+        toastManagerInstance = window.toastManager;
+        return toastManagerInstance;
+    }
+
+    return null;
+}
+
 function getToastManager() {
+    const existing = resolveExistingToastManager();
+    if (existing) {
+        return existing;
+    }
+
     if (!toastManagerInstance) {
         toastManagerInstance = new ToastManager();
 
@@ -1369,8 +1409,18 @@ function getToastManager() {
 }
 
 function notify(message, variant = 'info', options = {}) {
-    const manager = getToastManager();
-    return manager ? manager.show(message, variant, options) : null;
+    try {
+        const manager = getToastManager();
+        if (!manager || typeof manager.show !== 'function') {
+            console.warn('[Toast] Toast manager is not available.');
+            return null;
+        }
+
+        return manager.show(message, variant, options);
+    } catch (error) {
+        console.error('[Toast] Failed to display toast:', error);
+        return null;
+    }
 }
 
 if (typeof window !== 'undefined') {
@@ -1408,9 +1458,26 @@ const DataService = (() => {
     });
 
     const cache = new Map();
-    const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
-        ? globalThis.__HDK_BOOTSTRAP_DATA__
-        : null;
+    const embeddedData = (() => {
+        const runtimeData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+            ? globalThis.__HDK_BOOTSTRAP_DATA__
+            : (typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null);
+
+        const scriptData = readEmbeddedDataFromDom();
+        const resolved = runtimeData || scriptData;
+
+        if (!runtimeData && resolved && typeof globalThis !== 'undefined') {
+            try {
+                if (!globalThis.__HDK_BOOTSTRAP_DATA__) {
+                    globalThis.__HDK_BOOTSTRAP_DATA__ = resolved;
+                }
+            } catch (error) {
+                /* ignore global assignment errors */
+            }
+        }
+
+        return resolved;
+    })();
 
     if (embeddedData && typeof embeddedData === 'object') {
         Object.entries(embeddedData).forEach(([key, value]) => {
@@ -1427,6 +1494,48 @@ const DataService = (() => {
 
     function isBrowser() {
         return typeof window !== 'undefined' && typeof window.fetch === 'function';
+    }
+
+    function readEmbeddedDataFromDom() {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+
+        const script = document.getElementById('hdk-bootstrap-data');
+        if (!script) {
+            return null;
+        }
+
+        const text = script.textContent || script.innerText || '';
+        if (!text.trim()) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            console.warn('[DataService] Failed to parse embedded bootstrap data:', error);
+            return null;
+        }
+    }
+
+    function resolveEmbeddedDataset(key) {
+        const sources = [
+            embeddedData,
+            (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
+                ? globalThis.__HDK_BOOTSTRAP_DATA__
+                : null,
+            (typeof EMBEDDED_DATA !== 'undefined') ? EMBEDDED_DATA : null,
+            readEmbeddedDataFromDom()
+        ];
+
+        for (const source of sources) {
+            if (source && Object.prototype.hasOwnProperty.call(source, key)) {
+                return source[key];
+            }
+        }
+
+        return undefined;
     }
 
     function buildRequestUrl(path) {
@@ -1464,10 +1573,10 @@ const DataService = (() => {
                 return cache.get(key);
             }
 
-            if (embeddedData && Object.prototype.hasOwnProperty.call(embeddedData, key)) {
-                const data = embeddedData[key];
-                cache.set(key, data);
-                return data;
+            const fallbackData = resolveEmbeddedDataset(key);
+            if (typeof fallbackData !== 'undefined') {
+                cache.set(key, fallbackData);
+                return fallbackData;
             }
 
             throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
@@ -3044,7 +3153,6 @@ function closeCartSidebar() {
     }
 
     cartSidebar.classList.remove('open');
-    cartSidebar.setAttribute('aria-hidden', 'true');
 
     if (cartOverlay) {
         cartOverlay.classList.add('hidden');
@@ -3053,9 +3161,28 @@ function closeCartSidebar() {
 
     unlockBodyScroll();
 
-    if (cartBtn && typeof cartBtn.focus === 'function') {
-        cartBtn.focus();
-    }
+    const restoreFocus = () => {
+        if (cartBtn && typeof cartBtn.focus === 'function') {
+            cartBtn.focus({ preventScroll: true });
+            return true;
+        }
+
+        if (typeof document !== 'undefined' && cartSidebar.contains(document.activeElement)) {
+            try {
+                document.activeElement.blur();
+            } catch (error) {
+                /* ignore blur errors */
+            }
+        }
+
+        return false;
+    };
+
+    restoreFocus();
+
+    requestAnimationFrame(() => {
+        cartSidebar.setAttribute('aria-hidden', 'true');
+    });
 }
 
 // Cart and Compare event listeners
@@ -6933,7 +7060,12 @@ function renderComparePage(){
 
 /* ---------- Cart Page ---------- */
 function renderCartPage(){
-    cartSidebar.classList.add('open');
+    if (typeof openCartSidebar === 'function') {
+        openCartSidebar();
+    } else if (cartSidebar) {
+        cartSidebar.classList.add('open');
+        cartSidebar.setAttribute('aria-hidden', 'false');
+    }
     navigate('products');
 }
 
