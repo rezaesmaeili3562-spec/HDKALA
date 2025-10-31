@@ -57,6 +57,14 @@ function renderPage(){
             renderAddressesPage();
             break;
         case 'admin':
+            if (typeof ensureAdminAccess === 'function' && !ensureAdminAccess()) {
+                if (location.hash !== '#home') {
+                    location.hash = '#home';
+                } else {
+                    renderHomePage();
+                }
+                return;
+            }
             renderAdminPage();
             break;
         default:
