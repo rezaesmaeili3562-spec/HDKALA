@@ -307,6 +307,15 @@ function renderAddressesPage() {
 }
 
 function renderAdminPage() {
+    if (typeof isAdminAuthenticated === 'function' && !isAdminAuthenticated()) {
+        notify('لطفا ابتدا احراز هویت مدیر را انجام دهید', true);
+        if (typeof openAdminLoginModal === 'function') {
+            openAdminLoginModal();
+        }
+        location.hash = 'home';
+        return;
+    }
+
     const page = document.createElement('div');
     page.innerHTML = `
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
