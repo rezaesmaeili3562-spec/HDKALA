@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-31T10:26:42.822Z */
+/* HDKALA bundle generated: 2025-10-31T11:21:29.778Z */
 // ---- embedded-data ----
 const EMBEDDED_DATA = Object.freeze({
   "products": [
@@ -1354,15 +1354,53 @@ class ToastManager {
     }
 }
 
-const toastManager = new ToastManager();
+const globalToastScope = typeof globalThis !== 'undefined'
+    ? globalThis
+    : (typeof window !== 'undefined' ? window : null);
+
+var toastManagerInstance = (globalToastScope && globalToastScope.__HDK_TOAST_MANAGER__)
+    ? globalToastScope.__HDK_TOAST_MANAGER__
+    : null;
+
+function getToastManager() {
+    if (toastManagerInstance) {
+        return toastManagerInstance;
+    }
+
+    const manager = new ToastManager();
+    toastManagerInstance = manager;
+
+    if (globalToastScope) {
+        if (!globalToastScope.__HDK_TOAST_MANAGER__) {
+            Object.defineProperty(globalToastScope, '__HDK_TOAST_MANAGER__', {
+                value: manager,
+                configurable: true,
+                writable: false,
+                enumerable: false
+            });
+        }
+
+        if (!globalToastScope.toastManager) {
+            Object.defineProperty(globalToastScope, 'toastManager', {
+                get() {
+                    return manager;
+                },
+                configurable: true
+            });
+        }
+    }
+
+    return manager;
+}
 
 function notify(message, variant = 'info', options = {}) {
-    return toastManager.show(message, variant, options);
+    const manager = getToastManager();
+    return manager ? manager.show(message, variant, options) : null;
 }
 
 if (typeof window !== 'undefined') {
     window.notify = notify;
-    window.toastManager = toastManager;
+    getToastManager();
 }
 
 // ---- storage.js ----
@@ -1397,7 +1435,7 @@ const DataService = (() => {
     const cache = new Map();
     const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
         ? globalThis.__HDK_BOOTSTRAP_DATA__
-        : null;
+        : (typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null);
 
     if (embeddedData && typeof embeddedData === 'object') {
         Object.entries(embeddedData).forEach(([key, value]) => {
@@ -1433,6 +1471,24 @@ const DataService = (() => {
         return `${base}${normalized}`;
     }
 
+    function getEmbeddedEntry(key) {
+        if (!embeddedData || typeof embeddedData !== 'object') {
+            return undefined;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(embeddedData, key)) {
+            return undefined;
+        }
+
+        const value = embeddedData[key];
+        cache.set(key, value);
+        return value;
+    }
+
+    function isFileProtocol() {
+        return typeof window !== 'undefined' && window.location?.protocol === 'file:';
+    }
+
     async function fetchJson(key) {
         if (cache.has(key)) {
             return cache.get(key);
@@ -1446,8 +1502,13 @@ const DataService = (() => {
             throw new Error(`Resource "${key}" is not registered`);
         }
 
-        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
-            return cache.get(key);
+        if (isFileProtocol()) {
+            const embedded = getEmbeddedEntry(key);
+            if (typeof embedded !== 'undefined') {
+                return embedded;
+            }
+
+            throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });
@@ -2040,6 +2101,10 @@ function toggleWishlist(productId, options = {}) {
     }
 
     return addToWishlist(id, options);
+}
+
+if (typeof window !== 'undefined') {
+    window.toggleWishlist = toggleWishlist;
 }
 
 function updateCompareBadge() {
@@ -3004,20 +3069,31 @@ function openCartSidebar() {
     }
 
     cartSidebar.classList.add('open');
-    cartSidebar.setAttribute('aria-hidden', 'false');
+    cartSidebar.removeAttribute('aria-hidden');
     lockBodyScroll();
 
     if (cartOverlay) {
         cartOverlay.classList.remove('hidden');
-        cartOverlay.setAttribute('aria-hidden', 'false');
+        cartOverlay.removeAttribute('aria-hidden');
     }
 
-    cartSidebar.focus({ preventScroll: true });
+    if (typeof cartSidebar.focus === 'function') {
+        cartSidebar.focus({ preventScroll: true });
+    }
 }
 
 function closeCartSidebar() {
     if (!cartSidebar || !cartSidebar.classList.contains('open')) {
         return;
+    }
+
+    const activeElement = typeof document !== 'undefined' ? document.activeElement : null;
+    if (activeElement && cartSidebar.contains(activeElement)) {
+        if (cartBtn && typeof cartBtn.focus === 'function') {
+            cartBtn.focus({ preventScroll: true });
+        } else if (typeof cartSidebar.blur === 'function') {
+            cartSidebar.blur();
+        }
     }
 
     cartSidebar.classList.remove('open');

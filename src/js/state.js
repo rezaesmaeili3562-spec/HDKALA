@@ -455,6 +455,10 @@ function toggleWishlist(productId, options = {}) {
     return addToWishlist(id, options);
 }
 
+if (typeof window !== 'undefined') {
+    window.toggleWishlist = toggleWishlist;
+}
+
 function updateCompareBadge() {
     if(compareList.length === 0) {
         compareCountEl.classList.add('hidden');

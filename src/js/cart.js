@@ -816,20 +816,31 @@ function openCartSidebar() {
     }
 
     cartSidebar.classList.add('open');
-    cartSidebar.setAttribute('aria-hidden', 'false');
+    cartSidebar.removeAttribute('aria-hidden');
     lockBodyScroll();
 
     if (cartOverlay) {
         cartOverlay.classList.remove('hidden');
-        cartOverlay.setAttribute('aria-hidden', 'false');
+        cartOverlay.removeAttribute('aria-hidden');
     }
 
-    cartSidebar.focus({ preventScroll: true });
+    if (typeof cartSidebar.focus === 'function') {
+        cartSidebar.focus({ preventScroll: true });
+    }
 }
 
 function closeCartSidebar() {
     if (!cartSidebar || !cartSidebar.classList.contains('open')) {
         return;
+    }
+
+    const activeElement = typeof document !== 'undefined' ? document.activeElement : null;
+    if (activeElement && cartSidebar.contains(activeElement)) {
+        if (cartBtn && typeof cartBtn.focus === 'function') {
+            cartBtn.focus({ preventScroll: true });
+        } else if (typeof cartSidebar.blur === 'function') {
+            cartSidebar.blur();
+        }
     }
 
     cartSidebar.classList.remove('open');

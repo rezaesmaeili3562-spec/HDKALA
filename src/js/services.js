@@ -10,7 +10,7 @@ const DataService = (() => {
     const cache = new Map();
     const embeddedData = (typeof globalThis !== 'undefined' && globalThis.__HDK_BOOTSTRAP_DATA__)
         ? globalThis.__HDK_BOOTSTRAP_DATA__
-        : null;
+        : (typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null);
 
     if (embeddedData && typeof embeddedData === 'object') {
         Object.entries(embeddedData).forEach(([key, value]) => {
@@ -46,6 +46,24 @@ const DataService = (() => {
         return `${base}${normalized}`;
     }
 
+    function getEmbeddedEntry(key) {
+        if (!embeddedData || typeof embeddedData !== 'object') {
+            return undefined;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(embeddedData, key)) {
+            return undefined;
+        }
+
+        const value = embeddedData[key];
+        cache.set(key, value);
+        return value;
+    }
+
+    function isFileProtocol() {
+        return typeof window !== 'undefined' && window.location?.protocol === 'file:';
+    }
+
     async function fetchJson(key) {
         if (cache.has(key)) {
             return cache.get(key);
@@ -59,8 +77,13 @@ const DataService = (() => {
             throw new Error(`Resource "${key}" is not registered`);
         }
 
-        if (typeof window !== 'undefined' && window.location?.protocol === 'file:' && cache.has(key)) {
-            return cache.get(key);
+        if (isFileProtocol()) {
+            const embedded = getEmbeddedEntry(key);
+            if (typeof embedded !== 'undefined') {
+                return embedded;
+            }
+
+            throw new Error(`Cannot fetch "${resourcePath}" using the file protocol`);
         }
 
         const response = await fetch(buildRequestUrl(resourcePath), { cache: 'no-store' });

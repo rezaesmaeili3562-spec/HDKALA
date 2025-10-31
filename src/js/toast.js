@@ -245,13 +245,51 @@ class ToastManager {
     }
 }
 
-const toastManager = new ToastManager();
+const globalToastScope = typeof globalThis !== 'undefined'
+    ? globalThis
+    : (typeof window !== 'undefined' ? window : null);
+
+var toastManagerInstance = (globalToastScope && globalToastScope.__HDK_TOAST_MANAGER__)
+    ? globalToastScope.__HDK_TOAST_MANAGER__
+    : null;
+
+function getToastManager() {
+    if (toastManagerInstance) {
+        return toastManagerInstance;
+    }
+
+    const manager = new ToastManager();
+    toastManagerInstance = manager;
+
+    if (globalToastScope) {
+        if (!globalToastScope.__HDK_TOAST_MANAGER__) {
+            Object.defineProperty(globalToastScope, '__HDK_TOAST_MANAGER__', {
+                value: manager,
+                configurable: true,
+                writable: false,
+                enumerable: false
+            });
+        }
+
+        if (!globalToastScope.toastManager) {
+            Object.defineProperty(globalToastScope, 'toastManager', {
+                get() {
+                    return manager;
+                },
+                configurable: true
+            });
+        }
+    }
+
+    return manager;
+}
 
 function notify(message, variant = 'info', options = {}) {
-    return toastManager.show(message, variant, options);
+    const manager = getToastManager();
+    return manager ? manager.show(message, variant, options) : null;
 }
 
 if (typeof window !== 'undefined') {
     window.notify = notify;
-    window.toastManager = toastManager;
+    getToastManager();
 }
