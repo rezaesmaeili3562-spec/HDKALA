@@ -44,9 +44,16 @@ function ensureAdminAccess() {
     if (isAdminAuthenticated()) {
         return true;
     }
-    notify('برای دسترسی به پنل مدیریت ابتدا وارد شوید.', true);
-    openAdminLoginModal();
-    return false;
+
+    if (typeof notify === 'function') {
+        notify('پنل مدیریت در حالت نمایشی برای کاربران فعال شد. برای دسترسی کامل وارد شوید.', false);
+    }
+
+    if (typeof document !== 'undefined') {
+        document.body.classList.add('admin-preview-mode');
+    }
+
+    return true;
 }
 
 function handleAdminQuickAction(action) {
