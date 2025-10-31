@@ -1,4 +1,4 @@
-/* HDKALA bundle generated: 2025-10-28T21:48:52.477Z */
+/* HDKALA bundle generated: 2025-10-31T01:19:15.243Z */
 // ---- core.js ----
 /* ---------- helpers ---------- */
 const $ = (s, ctx=document) => ctx.querySelector(s);
