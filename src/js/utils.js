@@ -16,7 +16,7 @@ function setupInputValidation() {
         if (input.type === 'tel' && input.hasAttribute('data-phone')) {
             if (input.value && !validatePhone(input.value)) {
                 input.classList.add('border-red-500');
-                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', true);
+                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -25,7 +25,7 @@ function setupInputValidation() {
         if (input.hasAttribute('data-postal')) {
             if (input.value && !validatePostalCode(input.value)) {
                 input.classList.add('border-red-500');
-                notify('کد پستی باید 10 رقمی باشد', true);
+                notify('کد پستی باید 10 رقمی باشد', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -34,7 +34,7 @@ function setupInputValidation() {
         if (input.hasAttribute('data-national')) {
             if (input.value && !validateNationalCode(input.value)) {
                 input.classList.add('border-red-500');
-                notify('کد ملی نامعتبر است', true);
+                notify('کد ملی نامعتبر است', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -43,7 +43,7 @@ function setupInputValidation() {
         if (input.type === 'email' && input.value) {
             if (!validateEmail(input.value)) {
                 input.classList.add('border-red-500');
-                notify('ایمیل وارد شده معتبر نیست', true);
+                notify('ایمیل وارد شده معتبر نیست', 'error');
             } else {
                 input.classList.remove('border-red-500');
             }
@@ -54,56 +54,109 @@ function setupInputValidation() {
 // تابع برای مدیریت مربع‌های کد تأیید
 function setupOtpInputs(container) {
     const inputs = $$('.otp-input', container);
-    
+
+    const isDigitKey = (event) => /\d/.test(event.key);
+
     inputs.forEach((input, index) => {
+        input.setAttribute('dir', 'ltr');
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('pattern', '[0-9]*');
+        input.setAttribute('autocomplete', 'one-time-code');
+        input.type = 'tel';
+        input.maxLength = 1;
+
+        input.addEventListener('focus', () => {
+            input.select();
+        });
+
         input.addEventListener('input', (e) => {
-            const value = e.target.value;
-            
-            // فقط اعداد مجاز
-            if (!/^\d*$/.test(value)) {
-                e.target.value = '';
-                return;
+            const value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value.slice(0, 1);
+
+            e.target.classList.remove('border-red-500', 'border-green-500');
+            if (!e.target.classList.contains('border-gray-300')) {
+                e.target.classList.add('border-gray-300');
             }
-            
-            if (value.length === 1) {
+
+            // فقط اعداد مجاز
+            if (e.target.value.length === 1) {
                 if (index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
             }
         });
-        
+
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '') {
-                if (index > 0) {
-                    inputs[index - 1].focus();
-                }
-            }
-            
-            if (e.key === 'ArrowLeft' && index > 0) {
+            const target = e.target;
+            const key = e.key;
+
+            if (key === 'ArrowLeft' && index > 0) {
+                e.preventDefault();
                 inputs[index - 1].focus();
+                return;
             }
-            
-            if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+
+            if (key === 'ArrowRight' && index < inputs.length - 1) {
+                e.preventDefault();
                 inputs[index + 1].focus();
+                return;
+            }
+
+            if (key === 'Backspace') {
+                e.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index > 0) {
+                    inputs[index - 1].focus();
+                    inputs[index - 1].value = '';
+                }
+                return;
+            }
+
+            if (key === 'Delete') {
+                e.preventDefault();
+                if (target.value) {
+                    target.value = '';
+                } else if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                    inputs[index + 1].value = '';
+                }
+                return;
+            }
+
+            if (key.length > 1) {
+                return;
+            }
+
+            if (!isDigitKey(e)) {
+                e.preventDefault();
             }
         });
-        
+
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasteData = e.clipboardData.getData('text');
             const numbers = pasteData.replace(/[^\d]/g, '').split('');
-            
+
             numbers.forEach((num, i) => {
                 if (inputs[i]) {
                     inputs[i].value = num;
+                    inputs[i].classList.remove('border-red-500', 'border-green-500');
+                    if (!inputs[i].classList.contains('border-gray-300')) {
+                        inputs[i].classList.add('border-gray-300');
+                    }
                 }
             });
-            
+
             if (inputs[numbers.length]) {
                 inputs[numbers.length].focus();
             }
         });
     });
+
+    if (inputs[0]) {
+        inputs[0].focus();
+    }
 }
 
 // تابع برای جمع‌آوری کد از مربع‌ها
@@ -243,16 +296,24 @@ function checkProductStock(productId, quantity = 1) {
     return product.stock >= (currentQty + quantity);
 }
 
-// تابع برای مدیریت اسکرول
+// تابع برای مدیریت اسکرول بدون اختلال در مسیریاب
 function setupSmoothScroll() {
     document.addEventListener('click', (e) => {
-        if (e.target.matches('a[href^="#"]')) {
-            e.preventDefault();
-            const target = $(e.target.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
+        const link = e.target.closest('a[href^="#"]');
+        if (!link) return;
+
+        if (link.hasAttribute('data-route-link')) {
+            return;
         }
+
+        const hash = link.getAttribute('href');
+        if (!hash || hash.length <= 1) return;
+
+        const target = document.querySelector(hash);
+        if (!target) return;
+
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
@@ -328,6 +389,91 @@ function setupIconAnimations() {
     }
 }
 
+function setupWishlistButtonInteractions() {
+    const DEFAULT_ACTIVE_TEXT = 'حذف از علاقه‌مندی';
+    const DEFAULT_INACTIVE_TEXT = 'افزودن به علاقه‌مندی';
+
+    const getButtons = (root = document) => {
+        if (!root || !root.querySelectorAll) return [];
+        return Array.from(root.querySelectorAll('.wishlist-button'));
+    };
+
+    const updateButtonState = (button) => {
+        if (!(button instanceof HTMLElement)) return;
+
+        const productId = button.getAttribute('data-id');
+        if (!productId) return;
+
+        const wishlistState = (typeof wishlist !== 'undefined' && Array.isArray(wishlist)) ? wishlist : [];
+        const isActive = wishlistState.includes(productId);
+        button.dataset.wishlistActive = isActive ? 'true' : 'false';
+
+        const currentIcon = button.querySelector('.wishlist-icon-current');
+        const previewIcon = button.querySelector('.wishlist-icon-preview');
+        const tooltip = button.querySelector('.wishlist-tooltip');
+
+        if (currentIcon) {
+            currentIcon.setAttribute('icon', isActive ? 'mdi:heart' : 'mdi:heart-outline');
+        }
+
+        if (previewIcon) {
+            previewIcon.setAttribute('icon', isActive ? 'mdi:heart-off' : 'mdi:heart-plus');
+        }
+
+        const activeText = button.getAttribute('data-label-active') || DEFAULT_ACTIVE_TEXT;
+        const inactiveText = button.getAttribute('data-label-inactive') || DEFAULT_INACTIVE_TEXT;
+        const tooltipText = isActive ? activeText : inactiveText;
+        if (tooltip) {
+            tooltip.textContent = tooltipText;
+        }
+
+        const textLabel = button.querySelector('.wishlist-label-text');
+        if (textLabel) {
+            textLabel.textContent = isActive ? 'حذف علاقه‌مندی' : 'علاقه‌مندی';
+        }
+
+        const ariaLabel = isActive ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها';
+        button.setAttribute('aria-label', ariaLabel);
+    };
+
+    const updateAll = (root) => {
+        getButtons(root).forEach(updateButtonState);
+    };
+
+    updateAll(document);
+
+    document.addEventListener('mouseenter', (event) => {
+        const button = event.target.closest?.('.wishlist-button');
+        if (!button) return;
+        updateButtonState(button);
+    }, true);
+
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest?.('.wishlist-button');
+        if (!button) return;
+        requestAnimationFrame(() => updateButtonState(button));
+        setTimeout(() => updateAll(document), 160);
+    });
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (!(node instanceof HTMLElement)) return;
+                if (node.matches?.('.wishlist-button')) {
+                    updateButtonState(node);
+                }
+                updateAll(node);
+            });
+        });
+    });
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    window.refreshWishlistButtons = updateAll;
+}
+
 // Initialize all utilities
 document.addEventListener('DOMContentLoaded', () => {
     setupAutoClearInputs();
@@ -335,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSmoothScroll();
     setupLazyLoading();
     setupResponsiveHandlers();
+    setupWishlistButtonInteractions();
     setupIconAnimations();
 });
 
