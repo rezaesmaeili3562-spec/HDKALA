@@ -197,7 +197,7 @@ function validateAdminNumberField(input) {
     
     if (!isValid && value) {
         input.classList.add('border-red-500');
-        notify(errorMessage, true);
+        notify(errorMessage, 'error');
     } else {
         input.classList.remove('border-red-500');
     }
