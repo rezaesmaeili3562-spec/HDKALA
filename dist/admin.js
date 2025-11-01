@@ -565,7 +565,7 @@ function deleteBlog(blogId) {
 }
 
 /* ---------- Admin Login Flow ---------- */
-const ADMIN_LOGIN_OTP = '864215';
+const ADMIN_LOGIN_CODE_LENGTH = 6;
 let pendingAdminLogin = null;
 
 function showAdminLoginStep(resetForm = false) {
@@ -734,7 +734,7 @@ if (adminLoginForm) {
         }
 
         pendingAdminLogin = { fullName, nationalCode, phone, email, adminCode };
-        const message = `کد تأیید <strong>${ADMIN_LOGIN_OTP}</strong> به شماره <strong>${phone}</strong> ارسال شد.`;
+        const message = `کد تأیید به شماره <strong>${phone}</strong> ارسال شد. لطفا کد ${ADMIN_LOGIN_CODE_LENGTH} رقمی را وارد کنید.`;
         showAdminOtpStep(message);
         notify('کد تأیید برای شما ارسال شد.');
     });
@@ -765,7 +765,18 @@ if (adminOtpForm) {
         e.preventDefault();
         if (!adminOtpStep) return;
         const code = typeof getOtpCode === 'function' ? getOtpCode(adminOtpStep) : '';
-        if (code === ADMIN_LOGIN_OTP) {
+        if (code.length !== ADMIN_LOGIN_CODE_LENGTH) {
+            notify(`لطفا کد ${ADMIN_LOGIN_CODE_LENGTH} رقمی را کامل وارد کنید.`, true);
+            if (typeof highlightOtpInputs === 'function') {
+                highlightOtpInputs(adminOtpStep, false);
+            }
+            return;
+        }
+
+        if (code) {
+            if (typeof highlightOtpInputs === 'function') {
+                highlightOtpInputs(adminOtpStep, true);
+            }
             startAdminSession(pendingAdminLogin);
             pendingAdminLogin = null;
             notify('ورود مدیر با موفقیت انجام شد!');
@@ -775,15 +786,6 @@ if (adminOtpForm) {
                 updateUserLabel();
             }
             location.hash = '#admin';
-        } else {
-            notify('کد تأیید نادرست است. لطفا مجددا تلاش کنید.', true);
-            if (typeof resetOtpInputs === 'function') {
-                resetOtpInputs(adminOtpStep);
-            }
-            const inputs = adminOtpStep ? $$('.otp-input', adminOtpStep) : [];
-            if (inputs.length) {
-                inputs[0].focus();
-            }
         }
     });
 }
