@@ -1,6 +1,64 @@
 /* ---------- Admin Session Management ---------- */
 const ADMIN_SESSION_KEY = 'HDK_admin_session';
 const ADMIN_WINDOW_NAME = 'HDKALA_ADMIN_PANEL';
+const ADMIN_NOTES_KEY = 'HDK_admin_notes';
+
+let adminNotes = LS.get(ADMIN_NOTES_KEY, []);
+
+function saveAdminNotes() {
+    LS.set(ADMIN_NOTES_KEY, adminNotes);
+}
+
+function isAdminWindow() {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
+    if (window.name === ADMIN_WINDOW_NAME) {
+        return true;
+    }
+
+    try {
+        const params = new URLSearchParams(window.location.search || '');
+        return params.get('adminWindow') === '1';
+    } catch (err) {
+        return false;
+    }
+}
+
+function markAdminWindow() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    if (isAdminWindow()) {
+        window.name = ADMIN_WINDOW_NAME;
+    }
+}
+
+markAdminWindow();
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+        if (isAdminWindow()) {
+            clearAdminSession();
+        }
+    });
+}
+
+function ensureAdminWindowClasses() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    document.body.classList.add('admin-mode', 'admin-window');
+
+    if (typeof root !== 'undefined') {
+        root.classList.add('dark');
+    } else {
+        document.documentElement.classList.add('dark');
+    }
+}
 
 function getAdminSession() {
     return LS.get(ADMIN_SESSION_KEY, null);
@@ -34,26 +92,263 @@ function openAdminDashboardWindow() {
         const adminUrl = new URL(window.location.href);
         adminUrl.hash = 'admin';
         adminUrl.searchParams.set('adminWindow', '1');
-        window.open(adminUrl.toString(), ADMIN_WINDOW_NAME);
+        const win = window.open(adminUrl.toString(), ADMIN_WINDOW_NAME, 'noopener');
+        if (win && typeof win.focus === 'function') {
+            win.focus();
+        }
     } catch (err) {
-        window.open('#admin', ADMIN_WINDOW_NAME);
+        const fallback = window.open('?adminWindow=1#admin', ADMIN_WINDOW_NAME);
+        if (fallback && typeof fallback.focus === 'function') {
+            fallback.focus();
+        }
     }
 }
 
 function ensureAdminAccess() {
-    if (isAdminAuthenticated()) {
-        return true;
+    if (!isAdminWindow()) {
+        if (typeof notify === 'function') {
+            notify('پنل مدیریت تنها در صفحه اختصاصی مدیریت فعال است.', true);
+        }
+        return false;
     }
 
-    if (typeof notify === 'function') {
-        notify('پنل مدیریت در حالت نمایشی برای کاربران فعال شد. برای دسترسی کامل وارد شوید.', false);
+    if (!isAdminAuthenticated()) {
+        if (typeof notify === 'function') {
+            notify('برای ورود به پنل مدیریت ابتدا احراز هویت را تکمیل کنید.', true);
+        }
+        if (typeof window !== 'undefined') {
+            setTimeout(() => {
+                if (window.location.hash === '#admin') {
+                    window.location.hash = '#home';
+                }
+            }, 0);
+        }
+        return false;
     }
 
-    if (typeof document !== 'undefined') {
-        document.body.classList.add('admin-preview-mode');
-    }
-
+    ensureAdminWindowClasses();
     return true;
+}
+
+const ORDER_STATUS_LABELS = {
+    processing: 'در حال پردازش',
+    shipped: 'ارسال شده',
+    delivered: 'تحویل شده',
+    cancelled: 'لغو شده'
+};
+
+function getOrderStatusLabel(status) {
+    return ORDER_STATUS_LABELS[status] || 'نامشخص';
+}
+
+function getOrderStatusBadgeClass(status) {
+    switch (status) {
+        case 'processing':
+            return 'bg-yellow-500/20 text-yellow-200';
+        case 'shipped':
+            return 'bg-blue-500/20 text-blue-200';
+        case 'delivered':
+            return 'bg-green-500/20 text-green-200';
+        case 'cancelled':
+            return 'bg-red-500/20 text-red-200';
+        default:
+            return 'bg-gray-500/20 text-gray-200';
+    }
+}
+
+function formatAdminDate(value) {
+    if (!value) {
+        return '---';
+    }
+    try {
+        const date = new Date(value);
+        if (!Number.isNaN(date.getTime())) {
+            return date.toLocaleString('fa-IR', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            });
+        }
+    } catch (err) {
+        // ignore
+    }
+    return value;
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    const status = (newStatus || '').toLowerCase();
+    if (!orderId || !status) {
+        return;
+    }
+
+    const index = orders.findIndex(order => order.id === orderId);
+    if (index === -1) {
+        notify('سفارش مورد نظر یافت نشد.', true);
+        return;
+    }
+
+    if ((orders[index].status || '').toLowerCase() === status) {
+        notify('وضعیت سفارش تغییری نکرد.', false);
+        return;
+    }
+
+    orders[index] = {
+        ...orders[index],
+        status,
+        statusUpdatedAt: new Date().toISOString()
+    };
+    LS.set('HDK_orders', orders);
+    notify(`وضعیت سفارش به ${getOrderStatusLabel(status)} تغییر کرد.`);
+
+    if (typeof renderAdminPage === 'function' && currentPage === 'admin') {
+        renderAdminPage({ skipWelcome: true });
+    }
+}
+
+function restockProduct(productId, amount = 5) {
+    const value = parseInt(amount, 10);
+    if (!productId || Number.isNaN(value) || value <= 0) {
+        notify('مقدار افزایش موجودی معتبر نیست.', true);
+        return;
+    }
+
+    const index = products.findIndex(product => product.id === productId);
+    if (index === -1) {
+        notify('محصول مورد نظر یافت نشد.', true);
+        return;
+    }
+
+    const updatedStock = (products[index].stock || 0) + value;
+    products[index] = { ...products[index], stock: updatedStock };
+    LS.set('HDK_products', products);
+    notify(`موجودی ${products[index].name} به ${updatedStock} عدد افزایش یافت.`);
+
+    if (typeof renderAdminPage === 'function' && currentPage === 'admin') {
+        renderAdminPage({ skipWelcome: true });
+    }
+
+    if (typeof renderAdminProducts === 'function' && adminModal && !adminModal.classList.contains('hidden')) {
+        renderAdminProducts();
+    }
+}
+
+function markProductOutOfStock(productId) {
+    if (!productId) {
+        return;
+    }
+
+    const index = products.findIndex(product => product.id === productId);
+    if (index === -1) {
+        notify('محصول مورد نظر یافت نشد.', true);
+        return;
+    }
+
+    if ((products[index].stock || 0) === 0) {
+        notify('این محصول قبلا ناموجود شده است.', false);
+        return;
+    }
+
+    products[index] = { ...products[index], stock: 0 };
+    LS.set('HDK_products', products);
+    notify(`محصول ${products[index].name} به عنوان ناموجود ثبت شد.`);
+
+    if (typeof renderAdminPage === 'function' && currentPage === 'admin') {
+        renderAdminPage({ skipWelcome: true });
+    }
+
+    if (typeof renderAdminProducts === 'function' && adminModal && !adminModal.classList.contains('hidden')) {
+        renderAdminProducts();
+    }
+}
+
+function removeAdminNote(noteId) {
+    if (!noteId) {
+        return;
+    }
+
+    const before = adminNotes.length;
+    adminNotes = adminNotes.filter(note => note.id !== noteId);
+    if (adminNotes.length === before) {
+        notify('یادداشت پیدا نشد.', true);
+        return;
+    }
+    saveAdminNotes();
+    notify('یادداشت حذف شد.');
+
+    if (typeof renderAdminPage === 'function' && currentPage === 'admin') {
+        renderAdminPage({ skipWelcome: true });
+    }
+}
+
+function handleAdminNoteFormSubmit(form) {
+    if (!form) {
+        return;
+    }
+
+    const formData = new FormData(form);
+    const title = (formData.get('title') || '').toString().trim();
+    const details = (formData.get('details') || '').toString().trim();
+    const owner = (formData.get('owner') || '').toString().trim();
+
+    if (!title) {
+        notify('لطفا عنوان یادداشت را وارد کنید.', true);
+        return;
+    }
+
+    const note = {
+        id: uid('note_'),
+        title,
+        details,
+        owner,
+        createdAt: new Date().toISOString()
+    };
+
+    adminNotes = [note, ...adminNotes].slice(0, 30);
+    saveAdminNotes();
+    notify('یادداشت مدیریتی ذخیره شد.');
+    form.reset();
+
+    if (typeof renderAdminPage === 'function' && currentPage === 'admin') {
+        renderAdminPage({ skipWelcome: true });
+    }
+}
+
+function handleAdminOpenStore() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    if (window.opener && !window.opener.closed) {
+        try {
+            window.opener.focus();
+            window.opener.location.hash = 'home';
+        } catch (err) {
+            window.open('#home', '_blank');
+        }
+        notify('نمای فروشگاه فعال شد.');
+    } else {
+        window.open('#home', '_blank');
+        notify('پنجره جدید فروشگاه باز شد.');
+    }
+}
+
+function handleAdminLogoutAction(options = {}) {
+    clearAdminSession();
+    notify('خروج مدیر انجام شد.');
+    if (typeof updateUserLabel === 'function') {
+        updateUserLabel();
+    }
+
+    if (options.closeWindow && typeof window !== 'undefined') {
+        setTimeout(() => {
+            if (window.name === ADMIN_WINDOW_NAME) {
+                window.close();
+            } else if (currentPage === 'admin') {
+                window.location.hash = '#home';
+            }
+        }, 120);
+    } else if (typeof window !== 'undefined' && currentPage === 'admin') {
+        window.location.hash = '#home';
+    }
 }
 
 function handleAdminQuickAction(action, options = {}) {
@@ -543,7 +838,7 @@ function saveBlog(blogId = null, formContainer) {
     
     // Refresh blog management view
     if (currentPage === 'admin') {
-        renderAdminPage();
+        renderAdminPage({ skipWelcome: true });
     }
 }
 
@@ -562,7 +857,7 @@ function deleteBlog(blogId) {
 
         // Refresh blog management view
         if (currentPage === 'admin') {
-            renderAdminPage();
+            renderAdminPage({ skipWelcome: true });
         }
     }
 }
@@ -686,6 +981,9 @@ if (adminAccessLink) {
         } else {
             openAdminLoginModal();
         }
+        if (typeof userDropdown !== 'undefined' && userDropdown) {
+            userDropdown.classList.remove('open');
+        }
     });
 }
 
@@ -788,7 +1086,6 @@ if (adminOtpForm) {
             if (typeof updateUserLabel === 'function') {
                 updateUserLabel();
             }
-            location.hash = '#admin';
         }
     });
 }
@@ -818,27 +1115,75 @@ document.addEventListener('click', (event) => {
     if (actionBtn) {
         event.preventDefault();
         const action = actionBtn.getAttribute('data-admin-action');
-        handleAdminQuickAction(action);
         if (action === 'dashboard') {
-            location.hash = '#admin';
+            if (isAdminAuthenticated()) {
+                openAdminDashboardWindow();
+            } else {
+                openAdminLoginModal();
+            }
+        } else {
+            handleAdminQuickAction(action);
         }
         if (typeof userDropdown !== 'undefined' && userDropdown) {
             userDropdown.classList.remove('open');
         }
+        return;
     }
 
-    if (event.target.id === 'adminLogoutBtn' || event.target.closest('#adminLogoutBtn')) {
+    const openStoreBtn = event.target.closest('[data-admin-open-store]');
+    if (openStoreBtn) {
         event.preventDefault();
-        clearAdminSession();
-        notify('خروج مدیر انجام شد.');
-        if (typeof updateUserLabel === 'function') {
-            updateUserLabel();
-        }
+        handleAdminOpenStore();
+        return;
+    }
+
+    const logoutTrigger = event.target.closest('[data-admin-logout]');
+    const legacyLogout = event.target.id === 'adminLogoutBtn' || event.target.closest('#adminLogoutBtn');
+    if (logoutTrigger || legacyLogout) {
+        event.preventDefault();
+        handleAdminLogoutAction({ closeWindow: isAdminWindow() });
         if (typeof userDropdown !== 'undefined' && userDropdown) {
             userDropdown.classList.remove('open');
         }
-        if (location.hash === '#admin') {
-            location.hash = '#home';
+        return;
+    }
+
+    const orderActionBtn = event.target.closest('[data-order-action]');
+    if (orderActionBtn) {
+        event.preventDefault();
+        const orderId = orderActionBtn.getAttribute('data-id');
+        const status = orderActionBtn.getAttribute('data-status');
+        updateOrderStatus(orderId, status);
+        return;
+    }
+
+    const stockActionBtn = event.target.closest('[data-stock-action]');
+    if (stockActionBtn) {
+        event.preventDefault();
+        const productId = stockActionBtn.getAttribute('data-id');
+        const actionType = stockActionBtn.getAttribute('data-stock-action');
+        if (actionType === 'restock') {
+            const amount = stockActionBtn.getAttribute('data-amount') || 5;
+            restockProduct(productId, amount);
+        } else if (actionType === 'markout') {
+            markProductOutOfStock(productId);
         }
+        return;
+    }
+
+    const noteActionBtn = event.target.closest('[data-note-action]');
+    if (noteActionBtn) {
+        event.preventDefault();
+        const actionType = noteActionBtn.getAttribute('data-note-action');
+        if (actionType === 'remove') {
+            removeAdminNote(noteActionBtn.getAttribute('data-id'));
+        }
+    }
+});
+
+document.addEventListener('submit', (event) => {
+    if (event.target && event.target.id === 'adminNoteForm') {
+        event.preventDefault();
+        handleAdminNoteFormSubmit(event.target);
     }
 });

@@ -15,6 +15,11 @@ function renderPage(){
 
     if (typeof document !== 'undefined') {
         document.body.classList.toggle('admin-mode', currentPage === 'admin');
+        const isDedicatedAdminWindow = currentPage === 'admin' && typeof isAdminWindow === 'function' && isAdminWindow();
+        document.body.classList.toggle('admin-window', isDedicatedAdminWindow);
+        if (!isDedicatedAdminWindow) {
+            document.body.classList.remove('admin-window');
+        }
     }
 
     switch(currentPage) {
@@ -365,38 +370,161 @@ function renderAddressesPage() {
     setupAddressEvents();
 }
 
-function renderAdminPage() {
+
+function renderAdminPage(options = {}) {
+    ensureAdminWindowClasses();
+
     const adminSession = typeof getAdminSession === 'function' ? getAdminSession() : null;
     const adminInfo = adminSession && adminSession.info ? adminSession.info : {};
     const adminName = (adminInfo.fullName && adminInfo.fullName.trim()) ? adminInfo.fullName : 'ادمین سیستم';
     const adminPhone = adminInfo.phone || '---';
     const adminEmail = adminInfo.email || '---';
+    const lastLogin = adminSession && adminSession.lastLogin ? formatAdminDate(adminSession.lastLogin) : '---';
 
     const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
     const pendingOrders = orders.filter(order => (order.status || '').toLowerCase() === 'processing').length;
+    const shippedOrders = orders.filter(order => (order.status || '').toLowerCase() === 'shipped').length;
     const deliveredOrders = orders.filter(order => (order.status || '').toLowerCase() === 'delivered').length;
+    const cancelledOrders = orders.filter(order => (order.status || '').toLowerCase() === 'cancelled').length;
     const inStockCount = products.filter(p => p.stock > 0).length;
-    const lowStockCount = products.filter(p => p.stock <= 3).length;
+    const lowStockCount = products.filter(p => p.stock <= 5).length;
     const discountProducts = products.filter(p => p.discount > 0).length;
+    const averageOrder = orders.length ? Math.round(totalRevenue / Math.max(orders.length, 1)) : 0;
+    const favoriteCount = typeof wishlist !== 'undefined' ? wishlist.length : 0;
+
+    const lowStockProducts = products
+        .filter(p => p.stock <= 5)
+        .sort((a, b) => a.stock - b.stock)
+        .slice(0, 6);
+
+    const recentOrders = orders
+        .slice()
+        .sort((a, b) => {
+            const aDate = new Date(a.date || 0).getTime();
+            const bDate = new Date(b.date || 0).getTime();
+            return bDate - aDate;
+        })
+        .slice(0, 5);
+
+    const notesPreview = adminNotes.slice(0, 6);
+
+    const recentOrdersHtml = recentOrders.length
+        ? `<div class="space-y-4">${recentOrders.map(order => {
+            const status = (order.status || '').toLowerCase();
+            const items = Array.isArray(order.items) ? order.items : [];
+            const totalItems = items.reduce((sum, item) => sum + (item.qty || 0), 0);
+            const itemsPreview = items.slice(0, 3).map(item => {
+                const product = getProductById(item.productId);
+                const productName = product ? product.name : 'آیتم حذف شده';
+                const qty = item.qty || 0;
+                return `<li class="flex items-center justify-between"><span>${productName}</span><span>${qty} عدد</span></li>`;
+            }).join('');
+            const statusButtons = ['processing', 'shipped', 'delivered'].map(targetStatus => `
+                <button type="button" class="admin-status-btn" data-order-action="status" data-status="${targetStatus}" data-id="${order.id}" ${status === targetStatus ? 'disabled' : ''}>${getOrderStatusLabel(targetStatus)}</button>
+            `).join('');
+            const cancelButton = `
+                <button type="button" class="admin-status-btn" data-order-action="status" data-status="cancelled" data-id="${order.id}" ${status === 'cancelled' ? 'disabled' : ''}>لغو</button>
+            `;
+            return `
+                <div class="rounded-2xl p-4" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,184,0.18);">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h4 class="font-semibold text-white text-sm">سفارش #${order.id}</h4>
+                            <p class="text-xs text-gray-300 mt-1">${formatAdminDate(order.date)}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs ${getOrderStatusBadgeClass(status)}">${getOrderStatusLabel(status)}</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-300">
+                        <span>تعداد اقلام: ${totalItems}</span>
+                        <span>مبلغ کل: ${formatPrice(order.total || 0)}</span>
+                    </div>
+                    ${itemsPreview ? `<ul class="mt-3 space-y-1 text-xs text-gray-300">${itemsPreview}</ul>` : ''}
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        ${statusButtons}
+                        ${cancelButton}
+                    </div>
+                </div>
+            `;
+        }).join('')}</div>`
+        : `<p class="text-sm text-gray-500 dark:text-gray-400">هنوز سفارشی برای مدیریت وجود ندارد.</p>`;
+
+    const lowStockHtml = lowStockProducts.length
+        ? `<div class="space-y-3">${lowStockProducts.map(product => `
+            <div class="flex items-start justify-between gap-3 rounded-2xl p-3" style="background: rgba(30,41,59,0.55); border: 1px solid rgba(148,163,184,0.18);">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-sm text-white">${product.name}</h4>
+                    <p class="text-xs text-gray-300 mt-1">موجودی فعلی: ${product.stock} عدد</p>
+                    <p class="text-xs text-gray-400 mt-1">دسته‌بندی: ${getCategoryName(product.category)}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button type="button" class="admin-stock-btn" data-stock-action="restock" data-id="${product.id}" data-amount="5">افزایش ۵ عددی</button>
+                    <button type="button" class="admin-status-btn" data-stock-action="markout" data-id="${product.id}">اعلام اتمام</button>
+                </div>
+            </div>
+        `).join('')}</div>`
+        : `<p class="text-sm text-gray-500 dark:text-gray-400">تمام موجودی‌ها در وضعیت مناسبی قرار دارند.</p>`;
+
+    const notesHtml = notesPreview.length
+        ? notesPreview.map(note => `
+            <div class="admin-note-card rounded-2xl p-4 flex flex-col gap-3">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <h4 class="font-semibold text-sm text-white">${note.title}</h4>
+                        <p class="text-xs text-gray-300 mt-1">${formatAdminDate(note.createdAt)}</p>
+                        ${note.owner ? `<p class="text-xs text-gray-400 mt-1">مسئول: ${note.owner}</p>` : ''}
+                    </div>
+                    <button type="button" class="admin-status-btn" data-note-action="remove" data-id="${note.id}">حذف</button>
+                </div>
+                <p class="text-sm text-gray-200 leading-relaxed">${note.details || '---'}</p>
+            </div>
+        `).join('')
+        : `<p class="text-sm text-gray-500 dark:text-gray-400">هنوز یادداشتی ثبت نشده است.</p>`;
 
     const page = document.createElement('div');
     page.className = 'space-y-8';
     page.innerHTML = `
-        <section class="relative overflow-hidden rounded-3xl text-white shadow-xl border border-primary/30" style="background: linear-gradient(135deg, #1d4ed8, #6d28d9);">
-            <div class="absolute -top-24 -left-20 w-72 h-72 rounded-full opacity-30" style="background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 60%);"></div>
-            <div class="absolute bottom-0 right-0 w-80 h-80 opacity-20" style="background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 65%);"></div>
+        <div class="admin-topbar rounded-2xl px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-white">
+            <div>
+                <p class="text-sm text-white/70">داشبورد مدیریت فروشگاه</p>
+                <h1 class="text-2xl font-bold mt-1">کنترل پنل HDKALA</h1>
+                <p class="text-xs text-white/60 mt-2">آخرین ورود: ${lastLogin}</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button type="button" class="admin-action-btn admin-action-btn--primary" data-admin-action="reports">گزارش امروز</button>
+                <button type="button" class="admin-action-btn admin-action-btn--secondary" data-admin-open-store>نمایش فروشگاه</button>
+                <button type="button" class="admin-action-btn admin-action-btn--danger" data-admin-logout>خروج از مدیریت</button>
+            </div>
+        </div>
+
+        <section class="relative overflow-hidden rounded-3xl text-white shadow-xl border border-primary/30" style="background: linear-gradient(135deg, rgba(37,99,235,0.92), rgba(124,58,237,0.85));">
+            <div class="absolute -top-24 -left-20 w-72 h-72 rounded-full opacity-30" style="background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 60%);"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 opacity-20" style="background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 65%);"></div>
             <div class="relative z-10 p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div>
                     <p class="text-sm uppercase tracking-widest text-white/70">مرکز کنترل مدیریت</p>
-                    <h1 class="text-3xl font-bold mt-2">خوش آمدید، ${adminName}</h1>
+                    <h2 class="text-3xl font-bold mt-2">سلام، ${adminName}</h2>
                     <div class="mt-4 space-y-2 text-sm text-white/80">
                         <div class="flex items-center gap-2"><iconify-icon icon="mdi:email-outline" width="18"></iconify-icon><span>${adminEmail}</span></div>
                         <div class="flex items-center gap-2"><iconify-icon icon="mdi:phone" width="18"></iconify-icon><span>${adminPhone}</span></div>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="button" class="nav-auth-btn brand-outline" data-admin-action="reports">گزارش فروش امروز</button>
-                    <a href="#products" class="nav-auth-btn brand-gradient">مشاهده فروشگاه</a>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="rounded-2xl px-4 py-3" style="background: rgba(255,255,255,0.12);">
+                        <div class="text-xs text-white/70 mb-1">کل فروش</div>
+                        <div class="text-xl font-bold">${formatPrice(totalRevenue)}</div>
+                    </div>
+                    <div class="rounded-2xl px-4 py-3" style="background: rgba(255,255,255,0.12);">
+                        <div class="text-xs text-white/70 mb-1">سفارش‌های فعال</div>
+                        <div class="text-xl font-bold">${pendingOrders}</div>
+                    </div>
+                    <div class="rounded-2xl px-4 py-3" style="background: rgba(255,255,255,0.12);">
+                        <div class="text-xs text-white/70 mb-1">محصولات موجود</div>
+                        <div class="text-xl font-bold">${inStockCount}</div>
+                    </div>
+                    <div class="rounded-2xl px-4 py-3" style="background: rgba(255,255,255,0.12);">
+                        <div class="text-xs text-white/70 mb-1">لیست علاقه‌مندی</div>
+                        <div class="text-xl font-bold">${favoriteCount}</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -410,7 +538,7 @@ function renderAdminPage() {
                     </div>
                     <iconify-icon icon="mdi:package-variant" width="30" class="text-primary/70"></iconify-icon>
                 </div>
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${lowStockCount} محصول موجودی رو به اتمام دارند.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${lowStockCount} محصول در آستانه اتمام موجودی است.</p>
             </div>
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
                 <div class="flex items-center justify-between">
@@ -420,7 +548,7 @@ function renderAdminPage() {
                     </div>
                     <iconify-icon icon="mdi:chart-line" width="30" class="text-green-500/70"></iconify-icon>
                 </div>
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${orders.length} سفارش ثبت شده در سیستم.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${orders.length} سفارش در سیستم ثبت شده است.</p>
             </div>
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
                 <div class="flex items-center justify-between">
@@ -430,7 +558,7 @@ function renderAdminPage() {
                     </div>
                     <iconify-icon icon="mdi:clipboard-list" width="30" class="text-blue-500/70"></iconify-icon>
                 </div>
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${deliveredOrders} سفارش تحویل شده ثبت شده است.</p>
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">${deliveredOrders} سفارش تحویل شده و ${shippedOrders} سفارش در مسیر ارسال است.</p>
             </div>
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
                 <div class="flex items-center justify-between">
@@ -458,9 +586,10 @@ function renderAdminPage() {
                 <h3 class="text-lg font-semibold mb-4">شاخص‌های کلیدی</h3>
                 <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
                     <li class="flex items-center justify-between"><span>سفارش‌های در انتظار بررسی</span><span class="font-semibold text-blue-500">${pendingOrders}</span></li>
+                    <li class="flex items-center justify-between"><span>سفارش‌های ارسال شده</span><span class="font-semibold text-blue-400">${shippedOrders}</span></li>
                     <li class="flex items-center justify-between"><span>سفارش‌های تحویل شده</span><span class="font-semibold text-green-500">${deliveredOrders}</span></li>
-                    <li class="flex items-center justify-between"><span>میانگین ارزش سفارش</span><span class="font-semibold">${orders.length ? formatPrice(Math.round(totalRevenue / Math.max(orders.length,1))) : '۰ تومان'}</span></li>
-                    <li class="flex items-center justify-between"><span>محصولات دارای تخفیف</span><span class="font-semibold">${discountProducts}</span></li>
+                    <li class="flex items-center justify-between"><span>سفارش‌های لغو شده</span><span class="font-semibold text-red-500">${cancelledOrders}</span></li>
+                    <li class="flex items-center justify-between"><span>میانگین ارزش سفارش</span><span class="font-semibold">${orders.length ? formatPrice(averageOrder) : '۰ تومان'}</span></li>
                 </ul>
             </div>
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md" id="adminActionOutput">
@@ -472,17 +601,29 @@ function renderAdminPage() {
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">مدیریت سفارش‌ها</h3>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">کل سفارش‌ها: ${orders.length}</span>
+                </div>
+                ${recentOrdersHtml}
+            </div>
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-4">پایش موجودی</h3>
+                ${lowStockHtml}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
                 <h3 class="text-lg font-semibold mb-4">مدیریت محصولات</h3>
                 <div class="flex flex-col gap-4">
-                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors" onclick="openAdminPanel()">
-                        باز کردن پنل محصولات
-                    </button>
+                    <button class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors" onclick="openAdminPanel()">باز کردن پنل محصولات</button>
                     <div class="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                        <div class="p-4 rounded-xl bg-primary/10">
+                        <div class="p-4 rounded-xl" style="background: rgba(79, 70, 229, 0.12);">
                             <div class="text-xs text-gray-500 dark:text-gray-400">محصولات موجود</div>
                             <div class="text-xl font-semibold text-primary mt-1">${inStockCount}</div>
                         </div>
-                        <div class="p-4 rounded-xl bg-red-100 dark:bg-red-500/10">
+                        <div class="p-4 rounded-xl" style="background: rgba(239, 68, 68, 0.12);">
                             <div class="text-xs text-red-500">نیازمند تأمین</div>
                             <div class="text-xl font-semibold text-red-500 mt-1">${lowStockCount}</div>
                         </div>
@@ -494,11 +635,32 @@ function renderAdminPage() {
                 ${createBlogManagement()}
             </div>
         </div>
+
+        <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-semibold">یادداشت‌های مدیریتی</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">برای پیگیری کارهای روزانه یادداشت ثبت کنید.</p>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">تعداد یادداشت‌ها: ${adminNotes.length}</span>
+            </div>
+            <form id="adminNoteForm" class="mt-6 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" name="title" class="admin-input" placeholder="عنوان یادداشت" required maxlength="80">
+                    <input type="text" name="owner" class="admin-input" placeholder="مسئول پیگیری (اختیاری)" maxlength="40">
+                </div>
+                <textarea name="details" class="admin-textarea" placeholder="توضیحات یادداشت..."></textarea>
+                <button type="submit" class="admin-action-btn admin-action-btn--secondary w-full md:w-auto">ثبت یادداشت</button>
+            </form>
+            <div class="mt-6 ${notesPreview.length ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}" id="adminNotesList">
+                ${notesHtml}
+            </div>
+        </div>
     `;
 
     contentRoot.appendChild(page);
     setupBlogManagement();
-    if (typeof handleAdminQuickAction === 'function') {
+    if (!options.skipWelcome && typeof handleAdminQuickAction === 'function') {
         handleAdminQuickAction('reports', { notifyMessage: 'شما وارد پنل مدیریت شدید' });
     }
 }
