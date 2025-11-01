@@ -92,12 +92,18 @@ function setupOtpInputs(container, options = {}) {
         input.dir = 'ltr';
         input.style.direction = 'ltr';
         input.classList.add('text-gray-900', 'dark:text-white');
+        input.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
+        input.style.color = '#f8fafc';
+        input.style.borderColor = '#475569';
+        input.style.caretColor = '#f8fafc';
 
         input.addEventListener('focus', (e) => {
             e.target.select?.();
         });
 
         input.addEventListener('input', (e) => {
+            e.target.classList.remove('border-red-500', 'border-green-500');
+            e.target.style.borderColor = '#475569';
             const value = e.target.value.replace(/[^\d]/g, '');
             e.target.value = value.slice(-1);
 
@@ -133,6 +139,11 @@ function setupOtpInputs(container, options = {}) {
             const pasteData = e.clipboardData.getData('text');
             const numbers = pasteData.replace(/[^\d]/g, '').split('');
 
+            inputs.forEach(inputEl => {
+                inputEl.classList.remove('border-red-500', 'border-green-500');
+                inputEl.style.borderColor = '#475569';
+            });
+
             numbers.forEach((num, i) => {
                 if (inputs[i]) {
                     inputs[i].value = num;
@@ -165,7 +176,7 @@ function resetOtpInputs(container) {
     inputs.forEach(input => {
         input.value = '';
         input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        input.classList.add('border-gray-300');
+        input.style.borderColor = '#475569';
     });
     if (inputs[0]) inputs[0].focus();
 
@@ -181,8 +192,10 @@ function highlightOtpInputs(container, isValid) {
         input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
         if (isValid) {
             input.classList.add('border-green-500');
+            input.style.borderColor = '#22c55e';
         } else {
             input.classList.add('border-red-500');
+            input.style.borderColor = '#ef4444';
         }
     });
 }

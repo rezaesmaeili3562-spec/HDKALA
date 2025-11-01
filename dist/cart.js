@@ -415,51 +415,91 @@ function updateCheckoutDisplay() {
 }
 
 function setupCheckoutEvents() {
-    // Payment method selection
-    $$('input[name="payment"]').forEach(radio => {
+    const paymentOptions = $$('.payment-option');
+    const paymentRadios = $$('input[name="payment"]');
+
+    const activatePaymentOption = (paymentOption) => {
+        const allOptions = $$('.payment-option');
+
+        allOptions.forEach(option => {
+            option.classList.remove('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
+            option.classList.add('border-gray-300');
+            option.dataset.selected = 'false';
+            option.setAttribute('aria-checked', 'false');
+
+            const indicator = option.querySelector('.payment-option-indicator');
+            if (indicator) {
+                indicator.classList.remove('payment-option-indicator--active');
+            }
+
+            const icon = option.querySelector('.payment-option-icon');
+            if (icon) {
+                icon.classList.remove('text-green-500');
+                if (!icon.classList.contains('text-gray-500')) {
+                    icon.classList.add('text-gray-500');
+                }
+            }
+        });
+
+        if (!paymentOption) {
+            console.warn('Payment option container not found for selected payment input.');
+            return;
+        }
+
+        paymentOption.classList.add('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
+        paymentOption.classList.remove('border-gray-300');
+        paymentOption.dataset.selected = 'true';
+        paymentOption.setAttribute('aria-checked', 'true');
+
+        const indicator = paymentOption.querySelector('.payment-option-indicator');
+        if (indicator) {
+            indicator.classList.add('payment-option-indicator--active');
+        }
+
+        const icon = paymentOption.querySelector('.payment-option-icon');
+        if (icon) {
+            icon.classList.remove('text-gray-500');
+            icon.classList.add('text-green-500');
+        }
+    };
+
+    paymentRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            const paymentOptions = $$('.payment-option');
-
-            paymentOptions.forEach(option => {
-                option.classList.remove('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
-                option.classList.add('border-gray-300');
-                option.dataset.selected = 'false';
-                option.setAttribute('aria-checked', 'false');
-
-                const indicator = option.querySelector('.payment-option-indicator');
-                if (indicator) {
-                    indicator.classList.remove('payment-option-indicator--active');
-                }
-
-                const icon = option.querySelector('.payment-option-icon');
-                if (icon) {
-                    icon.classList.remove('text-green-500');
-                    if (!icon.classList.contains('text-gray-500')) {
-                        icon.classList.add('text-gray-500');
-                    }
-                }
-            });
-
             const paymentOption = this.closest('.payment-option');
-            if (!paymentOption) {
-                console.warn('Payment option container not found for selected payment input.');
+            activatePaymentOption(paymentOption);
+        });
+    });
+
+    paymentOptions.forEach(option => {
+        if (option.dataset.paymentEnhanced === 'true') {
+            return;
+        }
+
+        option.dataset.paymentEnhanced = 'true';
+        option.setAttribute('tabindex', '0');
+
+        option.addEventListener('click', () => {
+            const radio = option.querySelector('input[type="radio"][name="payment"]');
+            if (!radio) {
                 return;
             }
 
-            paymentOption.classList.add('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
-            paymentOption.classList.remove('border-gray-300');
-            paymentOption.dataset.selected = 'true';
-            paymentOption.setAttribute('aria-checked', 'true');
-
-            const indicator = paymentOption.querySelector('.payment-option-indicator');
-            if (indicator) {
-                indicator.classList.add('payment-option-indicator--active');
+            if (!radio.checked) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                activatePaymentOption(option);
             }
+        });
 
-            const icon = paymentOption.querySelector('.payment-option-icon');
-            if (icon) {
-                icon.classList.remove('text-gray-500');
-                icon.classList.add('text-green-500');
+        option.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                const radio = option.querySelector('input[type="radio"][name="payment"]');
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             }
         });
     });
