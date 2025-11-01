@@ -52,55 +52,101 @@ function setupInputValidation() {
 }
 
 // تابع برای مدیریت مربع‌های کد تأیید
-function setupOtpInputs(container) {
+function setupOtpInputs(container, options = {}) {
+    if (!container) return;
+
     const inputs = $$('.otp-input', container);
-    
+    if (!inputs.length) return;
+
+    const form = inputs[0] ? inputs[0].closest('form') : null;
+    const { autoSubmit = true, onComplete } = options;
+
+    const completeAndSubmit = () => {
+        if (typeof onComplete === 'function') {
+            onComplete(getOtpCode(container));
+            return;
+        }
+
+        if (!autoSubmit || !form) {
+            return;
+        }
+
+        if (container.dataset.otpSubmitting === 'true') {
+            return;
+        }
+
+        container.dataset.otpSubmitting = 'true';
+
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            form.submit();
+        }
+    };
+
     inputs.forEach((input, index) => {
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('pattern', '\\d*');
+        input.setAttribute('autocomplete', 'one-time-code');
+        input.dir = 'ltr';
+        input.style.direction = 'ltr';
+        input.classList.add('text-gray-900', 'dark:text-white');
+
+        input.addEventListener('focus', (e) => {
+            e.target.select?.();
+        });
+
         input.addEventListener('input', (e) => {
-            const value = e.target.value;
-            
-            // فقط اعداد مجاز
-            if (!/^\d*$/.test(value)) {
-                e.target.value = '';
-                return;
+            const value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value.slice(-1);
+
+            if (e.target.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
             }
-            
-            if (value.length === 1) {
-                if (index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
+
+            if (inputs.every(inp => inp.value.length === 1)) {
+                completeAndSubmit();
             }
         });
-        
+
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && e.target.value === '') {
                 if (index > 0) {
                     inputs[index - 1].focus();
                 }
             }
-            
+
             if (e.key === 'ArrowLeft' && index > 0) {
                 inputs[index - 1].focus();
+                e.preventDefault();
             }
-            
+
             if (e.key === 'ArrowRight' && index < inputs.length - 1) {
                 inputs[index + 1].focus();
+                e.preventDefault();
             }
         });
-        
+
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasteData = e.clipboardData.getData('text');
             const numbers = pasteData.replace(/[^\d]/g, '').split('');
-            
+
             numbers.forEach((num, i) => {
                 if (inputs[i]) {
                     inputs[i].value = num;
                 }
             });
-            
-            if (inputs[numbers.length]) {
-                inputs[numbers.length].focus();
+
+            if (numbers.length < inputs.length) {
+                const nextInput = inputs[numbers.length];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+
+            if (inputs.every(inp => inp.value.length === 1)) {
+                completeAndSubmit();
             }
         });
     });
@@ -121,6 +167,10 @@ function resetOtpInputs(container) {
         input.classList.add('border-gray-300');
     });
     if (inputs[0]) inputs[0].focus();
+
+    if (container && container.dataset) {
+        delete container.dataset.otpSubmitting;
+    }
 }
 
 // تابع برای هایلایت کردن مربع‌ها

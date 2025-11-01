@@ -358,6 +358,7 @@ function updateCompareBadge() {
 function toggleAuthButtons(show){
     if (authButtonGroup) {
         authButtonGroup.classList.toggle('hidden', !show);
+        authButtonGroup.classList.toggle('md:flex', show);
         if (show) {
             authButtonGroup.classList.add('flex');
         } else {
