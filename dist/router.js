@@ -351,8 +351,8 @@ function renderAdminPage() {
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="button" class="nav-auth-btn text-white border border-white/40" data-admin-action="reports" style="background: rgba(255,255,255,0.18);">گزارش فروش امروز</button>
-                    <a href="#products" class="nav-auth-btn" style="background:#ffffff;color:#1d4ed8;border:1px solid rgba(255,255,255,0.6);">مشاهده فروشگاه</a>
+                    <button type="button" class="nav-auth-btn brand-outline" data-admin-action="reports">گزارش فروش امروز</button>
+                    <a href="#products" class="nav-auth-btn brand-gradient">مشاهده فروشگاه</a>
                 </div>
             </div>
         </section>
