@@ -168,11 +168,11 @@ function renderVerifyPage(phone) {
                 </p>
             </div>
             <form class="mt-8 space-y-6" id="verifyForm">
-                <div class="flex justify-center gap-2">
+                <div class="flex justify-center gap-2" dir="ltr">
                     ${[0,1,2,3].map(i => `
-                        <input type="text" 
-                               maxlength="1" 
-                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors"
+                        <input type="text"
+                               maxlength="1"
+                               class="otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white"
                                inputmode="numeric"
                                pattern="[0-9]"
                                autocomplete="one-time-code">

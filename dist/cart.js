@@ -418,10 +418,26 @@ function setupCheckoutEvents() {
     // Payment method selection
     $$('input[name="payment"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            // Update UI for selected payment method
-            $$('.payment-option').forEach(option => {
-                option.classList.remove('border-green-500', 'bg-green-50');
+            const paymentOptions = $$('.payment-option');
+
+            paymentOptions.forEach(option => {
+                option.classList.remove('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
                 option.classList.add('border-gray-300');
+                option.dataset.selected = 'false';
+                option.setAttribute('aria-checked', 'false');
+
+                const indicator = option.querySelector('.payment-option-indicator');
+                if (indicator) {
+                    indicator.classList.remove('payment-option-indicator--active');
+                }
+
+                const icon = option.querySelector('.payment-option-icon');
+                if (icon) {
+                    icon.classList.remove('text-green-500');
+                    if (!icon.classList.contains('text-gray-500')) {
+                        icon.classList.add('text-gray-500');
+                    }
+                }
             });
 
             const paymentOption = this.closest('.payment-option');
@@ -430,8 +446,21 @@ function setupCheckoutEvents() {
                 return;
             }
 
-            paymentOption.classList.add('border-green-500', 'bg-green-50');
+            paymentOption.classList.add('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
             paymentOption.classList.remove('border-gray-300');
+            paymentOption.dataset.selected = 'true';
+            paymentOption.setAttribute('aria-checked', 'true');
+
+            const indicator = paymentOption.querySelector('.payment-option-indicator');
+            if (indicator) {
+                indicator.classList.add('payment-option-indicator--active');
+            }
+
+            const icon = paymentOption.querySelector('.payment-option-icon');
+            if (icon) {
+                icon.classList.remove('text-gray-500');
+                icon.classList.add('text-green-500');
+            }
         });
     });
     
