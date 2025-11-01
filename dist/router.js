@@ -87,20 +87,64 @@ function quickAddDemoProduct(e){
         e.preventDefault();
     }
 
-    const availableProduct = products.find(p => p.stock > 0) || products[0];
+    const demoIndex = products.filter(product => (product.id || '').startsWith('demo_')).length + 1;
+    const demoProduct = {
+        id: uid('demo_'),
+        name: `محصول آزمایشی ${demoIndex}`,
+        price: 1990000,
+        desc: 'این آیتم برای تست سریع رابط کاربری به صورت نمایشی اضافه شده است.',
+        img: '',
+        rating: 4,
+        discount: 10,
+        category: 'electronics',
+        status: 'new',
+        stock: 5,
+        brand: 'HDK Demo',
+        features: ['محصول نمایشی', 'افزوده شده برای آزمایش'],
+        colors: [],
+        specifications: {},
+        created: new Date().toISOString()
+    };
 
-    if (!availableProduct) {
-        notify('محصولی برای افزودن یافت نشد', true);
-        return;
+    products = [demoProduct, ...products];
+    LS.set('HDK_products', products);
+
+    if (typeof updateBrandFilter === 'function') {
+        updateBrandFilter();
     }
 
-    addToCart(availableProduct.id, 1);
-
-    if (cartSidebar) {
-        cartSidebar.classList.add('open');
+    const featuredContainer = $('#featuredProducts');
+    if (featuredContainer) {
+        const featured = products
+            .filter(p => p.discount > 0 || p.status === 'hot' || p.status === 'new')
+            .slice(0, 8);
+        renderProductsList(featured, featuredContainer);
     }
 
-    notify('یک محصول به سبد خرید شما اضافه شد!');
+    const productsGrid = $('#productsGrid');
+    if (productsGrid) {
+        const hasActiveFilters = (
+            (searchInput && searchInput.value.trim() !== '') ||
+            (minPrice && minPrice.value) ||
+            (maxPrice && maxPrice.value) ||
+            (categoryFilter && categoryFilter.value) ||
+            (discountFilter && discountFilter.value) ||
+            (brandFilter && brandFilter.value) ||
+            (stockFilter && stockFilter.value) ||
+            (ratingFilter && ratingFilter.value)
+        );
+
+        if (typeof applyFilters === 'function' && hasActiveFilters) {
+            applyFilters();
+        } else {
+            const list = currentCategory
+                ? products.filter(p => p.category === currentCategory)
+                : products.slice();
+            renderProducts(list);
+        }
+    }
+
+    notify('یک محصول نمایشی برای آزمایش به لیست محصولات اضافه شد!');
 }
 
 /* ---------- Home Page ---------- */
