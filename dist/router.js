@@ -1,4 +1,13 @@
 /* ---------- Dynamic Content Router ---------- */
+const PRODUCTS_PER_PAGE = 12;
+let currentProductsPage = 1;
+let currentProductsList = [];
+let productsGridRef = null;
+let productsCountRef = null;
+let productsPaginationRef = null;
+let refreshProductsPageView = null;
+let lastProductCategory = null;
+
 function navigate(hash){
     const parts = hash.split(':');
     currentPage = parts[0] || 'home';
@@ -12,6 +21,13 @@ window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home')
 
 function renderPage(){
     contentRoot.innerHTML = '';
+
+    if (currentPage !== 'products') {
+        refreshProductsPageView = null;
+        productsGridRef = null;
+        productsCountRef = null;
+        productsPaginationRef = null;
+    }
 
     if (typeof document !== 'undefined') {
         document.body.classList.toggle('admin-mode', currentPage === 'admin');
@@ -287,35 +303,172 @@ function renderProductsPage(){
         </div>
         
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite"></div>
-        
+
         <!-- Pagination -->
         <div class="flex justify-center mt-8">
-            <div class="flex gap-2">
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">قبلی</button>
-                <button class="px-3 py-2 bg-primary text-white rounded-lg">1</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">2</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">3</button>
-                <button class="px-3 py-2 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors">بعدی</button>
-            </div>
+            <nav id="productsPagination" class="flex flex-wrap gap-2" aria-label="صفحات محصولات"></nav>
         </div>
     `;
-    
+
     contentRoot.appendChild(page);
     const productsGrid = $('#productsGrid', page);
     const productsCount = $('#productsCount', page);
+    const paginationContainer = $('#productsPagination', page);
     const clearAllFilters = $('#clearAllFilters', page);
-    
+
     // فیلتر کردن محصولات بر اساس دسته‌بندی
     let filteredProducts = products;
     if (currentCategory) {
         filteredProducts = products.filter(p => p.category === currentCategory);
     }
-    
-    // Render filtered products
-    renderProductsList(filteredProducts, productsGrid);
-    productsCount.textContent = `${filteredProducts.length} محصول`;
+
+    productsGridRef = productsGrid;
+    productsCountRef = productsCount;
+    productsPaginationRef = paginationContainer;
+    currentProductsList = filteredProducts.slice();
+
+    if (currentCategory !== lastProductCategory) {
+        currentProductsPage = 1;
+        lastProductCategory = currentCategory || null;
+    }
+
+    const updateProductsView = (requestedPage = null) => {
+        if (typeof requestedPage === 'number') {
+            currentProductsPage = requestedPage;
+        }
+
+        const totalItems = currentProductsList.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PRODUCTS_PER_PAGE));
+        if (currentProductsPage > totalPages) {
+            currentProductsPage = totalPages;
+        }
+        if (currentProductsPage < 1) {
+            currentProductsPage = 1;
+        }
+
+        const start = (currentProductsPage - 1) * PRODUCTS_PER_PAGE;
+        const paginated = currentProductsList.slice(start, start + PRODUCTS_PER_PAGE);
+        renderProductsList(paginated, productsGridRef);
+
+        if (productsCountRef) {
+            productsCountRef.textContent = `${totalItems} محصول`;
+        }
+
+        if (productsPaginationRef) {
+            const createPageButton = (pageNumber, { label, disabled, active }) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `px-3 py-2 rounded-lg border border-primary/30 transition-colors ${
+                    active ? 'bg-primary text-white' : 'hover:bg-primary/10'
+                } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`;
+                button.textContent = label;
+                if (!disabled) {
+                    button.setAttribute('data-page', String(pageNumber));
+                }
+                return button;
+            };
+
+            const createControlButton = (action, { label, disabled }) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `px-3 py-2 rounded-lg border border-primary/30 transition-colors ${
+                    disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-primary/10'
+                }`;
+                button.textContent = label;
+                if (!disabled) {
+                    button.setAttribute('data-page', action);
+                }
+                return button;
+            };
+
+            productsPaginationRef.innerHTML = '';
+            if (totalPages > 1) {
+                productsPaginationRef.appendChild(createControlButton('prev', {
+                    label: 'قبلی',
+                    disabled: currentProductsPage === 1
+                }));
+
+                const pagesToRender = [];
+                const windowSize = 5;
+                let startPage = Math.max(1, currentProductsPage - 2);
+                let endPage = Math.min(totalPages, startPage + windowSize - 1);
+                if (endPage - startPage < windowSize - 1) {
+                    startPage = Math.max(1, endPage - windowSize + 1);
+                }
+
+                if (startPage > 1) {
+                    pagesToRender.push(1);
+                    if (startPage > 2) {
+                        pagesToRender.push('ellipsis-start');
+                    }
+                }
+
+                for (let pageNumber = startPage; pageNumber <= endPage; pageNumber++) {
+                    pagesToRender.push(pageNumber);
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        pagesToRender.push('ellipsis-end');
+                    }
+                    pagesToRender.push(totalPages);
+                }
+
+                pagesToRender.forEach(item => {
+                    if (item === 'ellipsis-start' || item === 'ellipsis-end') {
+                        const span = document.createElement('span');
+                        span.className = 'px-2 py-2 text-gray-400';
+                        span.textContent = '...';
+                        productsPaginationRef.appendChild(span);
+                    } else {
+                        const btn = createPageButton(item, {
+                            label: String(item),
+                            active: currentProductsPage === item
+                        });
+                        productsPaginationRef.appendChild(btn);
+                    }
+                });
+
+                productsPaginationRef.appendChild(createControlButton('next', {
+                    label: 'بعدی',
+                    disabled: currentProductsPage === totalPages
+                }));
+            }
+        }
+    };
+
+    refreshProductsPageView = updateProductsView;
+    updateProductsView();
     productsGrid.addEventListener('click', handleProductActions);
-    
+
+    if (productsPaginationRef) {
+        productsPaginationRef.addEventListener('click', (event) => {
+            const target = event.target.closest('[data-page]');
+            if (!target) {
+                return;
+            }
+
+            event.preventDefault();
+            const value = target.getAttribute('data-page');
+            const totalPages = Math.max(1, Math.ceil(currentProductsList.length / PRODUCTS_PER_PAGE));
+
+            if (value === 'prev' && currentProductsPage > 1) {
+                currentProductsPage -= 1;
+            } else if (value === 'next' && currentProductsPage < totalPages) {
+                currentProductsPage += 1;
+            } else if (!Number.isNaN(parseInt(value, 10))) {
+                currentProductsPage = parseInt(value, 10);
+            }
+
+            updateProductsView();
+
+            const productsSection = page.querySelector('h1');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
     // Clear all filters
     clearAllFilters.addEventListener('click', () => {
         if (sortSelect) sortSelect.value = 'popular';
@@ -490,6 +643,10 @@ function renderAdminPage(options = {}) {
                 <p class="text-xs text-white/60 mt-2">آخرین ورود: ${lastLogin}</p>
             </div>
             <div class="flex flex-wrap gap-3">
+                <button type="button" class="admin-action-btn admin-action-btn--secondary" id="adminThemeToggle">
+                    <iconify-icon icon="${(typeof root !== 'undefined' ? root : document.documentElement).classList.contains('dark') ? 'ph:sun-duotone' : 'ph:moon-duotone'}" width="20"></iconify-icon>
+                    <span>${(typeof root !== 'undefined' ? root : document.documentElement).classList.contains('dark') ? 'حالت روشن' : 'حالت تیره'}</span>
+                </button>
                 <button type="button" class="admin-action-btn admin-action-btn--primary" data-admin-action="reports">گزارش امروز</button>
                 <button type="button" class="admin-action-btn admin-action-btn--secondary" data-admin-open-store>نمایش فروشگاه</button>
                 <button type="button" class="admin-action-btn admin-action-btn--danger" data-admin-logout>خروج از مدیریت</button>
@@ -660,6 +817,37 @@ function renderAdminPage(options = {}) {
 
     contentRoot.appendChild(page);
     setupBlogManagement();
+    const adminThemeToggle = $('#adminThemeToggle', page);
+    if (adminThemeToggle) {
+        const target = typeof root !== 'undefined' ? root : document.documentElement;
+        const updateThemeToggleUi = () => {
+            const isDark = target.classList.contains('dark');
+            const icon = adminThemeToggle.querySelector('iconify-icon');
+            const label = adminThemeToggle.querySelector('span');
+            if (icon) {
+                icon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone');
+            }
+            if (label) {
+                label.textContent = isDark ? 'حالت روشن' : 'حالت تیره';
+            }
+        };
+
+        adminThemeToggle.addEventListener('click', () => {
+            target.classList.toggle('dark');
+            const isDark = target.classList.contains('dark');
+            try {
+                localStorage.setItem('hdk_dark', String(isDark));
+            } catch (err) {
+                // Ignore storage errors
+            }
+            if (typeof themeIcon !== 'undefined' && themeIcon) {
+                themeIcon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone');
+            }
+            updateThemeToggleUi();
+        });
+
+        updateThemeToggleUi();
+    }
     if (!options.skipWelcome && typeof handleAdminQuickAction === 'function') {
         handleAdminQuickAction('reports', { notifyMessage: 'شما وارد پنل مدیریت شدید' });
     }
@@ -667,13 +855,22 @@ function renderAdminPage(options = {}) {
 
 /* ---------- Render products ---------- */
 function renderProducts(list) {
-    const productsGrid = $('#productsGrid');
-    const productsCount = $('#productsCount');
-    
-    if (productsGrid && productsCount) {
-        renderProductsList(list, productsGrid);
-        productsCount.textContent = `${list.length} محصول`;
-        productsGrid.addEventListener('click', handleProductActions);
+    currentProductsList = list.slice();
+    currentProductsPage = 1;
+
+    if (typeof refreshProductsPageView === 'function') {
+        refreshProductsPageView();
+        if (productsGridRef) {
+            productsGridRef.addEventListener('click', handleProductActions);
+        }
+    } else {
+        const productsGrid = $('#productsGrid');
+        const productsCount = $('#productsCount');
+        if (productsGrid && productsCount) {
+            renderProductsList(list, productsGrid);
+            productsCount.textContent = `${list.length} محصول`;
+            productsGrid.addEventListener('click', handleProductActions);
+        }
     }
 }
 

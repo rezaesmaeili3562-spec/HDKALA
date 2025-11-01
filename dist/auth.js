@@ -311,16 +311,27 @@ function renderSignupPage(phone = '', options = {}) {
                                pattern="[0-9]{10}">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">تاریخ تولد</label>
-                            <input type="text" data-birth-date class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" placeholder="۱۳۷۰/۰۱/۰۱">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">تاریخ تولد</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <select class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" data-birth-year>
+                                <option value="">سال</option>
+                            </select>
+                            <select class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" data-birth-month>
+                                <option value="">ماه</option>
+                            </select>
+                            <select class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" data-birth-day disabled>
+                                <option value="">روز</option>
+                            </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">نام پدر</label>
-                            <input type="text" data-father-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-                        </div>
+                        <input type="hidden" data-birth-date>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">نام پدر</label>
+                        <input type="text" data-father-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                    </div>
+                </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">ایمیل (اختیاری)</label>
@@ -344,7 +355,8 @@ function renderSignupPage(phone = '', options = {}) {
     
     // Load provinces
     loadProvinces();
-    
+
+    const userInfoForm = $('#userInfoForm');
     const provinceSelect = $('#provinceSelect');
     const citySelect = $('#citySelect');
     if (provinceSelect) {
@@ -353,7 +365,7 @@ function renderSignupPage(phone = '', options = {}) {
         });
     }
 
-    const userInfoForm = $('#userInfoForm');
+    setupBirthdateSelectors(userInfoForm);
     if (userInfoForm) {
         userInfoForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -450,10 +462,10 @@ function loadProvinces() {
 function loadCities(provinceName) {
     const citySelect = $('#citySelect');
     if (!citySelect) return;
-    
+
     citySelect.innerHTML = '<option value="">انتخاب شهر</option>';
     citySelect.disabled = true;
-    
+
     const province = provinces.find(p => p.name === provinceName);
     if (province) {
         province.cities.forEach(city => {
@@ -463,7 +475,147 @@ function loadCities(provinceName) {
             citySelect.appendChild(option);
         });
         citySelect.disabled = false;
+    } else {
+        citySelect.innerHTML = '<option value="">ابتدا استان را انتخاب کنید</option>';
     }
+}
+
+const PERSIAN_MONTHS = [
+    { value: '01', label: 'فروردین', days: 31 },
+    { value: '02', label: 'اردیبهشت', days: 31 },
+    { value: '03', label: 'خرداد', days: 31 },
+    { value: '04', label: 'تیر', days: 31 },
+    { value: '05', label: 'مرداد', days: 31 },
+    { value: '06', label: 'شهریور', days: 31 },
+    { value: '07', label: 'مهر', days: 30 },
+    { value: '08', label: 'آبان', days: 30 },
+    { value: '09', label: 'آذر', days: 30 },
+    { value: '10', label: 'دی', days: 30 },
+    { value: '11', label: 'بهمن', days: 30 },
+    { value: '12', label: 'اسفند', days: 29 }
+];
+
+function convertPersianDigitsToEnglish(value) {
+    if (!value) return '';
+    const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+    return value.toString().replace(/[۰-۹]/g, (digit) => {
+        const index = persianDigits.indexOf(digit);
+        return index >= 0 ? String(index) : digit;
+    });
+}
+
+function getCurrentPersianYear() {
+    try {
+        const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric' });
+        const formatted = formatter.format(new Date());
+        const numeric = parseInt(convertPersianDigitsToEnglish(formatted), 10);
+        if (!Number.isNaN(numeric)) {
+            return numeric;
+        }
+    } catch (err) {
+        // ignore formatting errors
+    }
+    return new Date().getFullYear() + 621;
+}
+
+function isPersianLeapYear(year) {
+    const epBase = year - (year >= 0 ? 474 : 473);
+    const epYear = 474 + (epBase % 2820);
+    return (((epYear * 682) - 110) % 2816) < 682;
+}
+
+function getPersianMonthDays(monthValue, year) {
+    const monthInfo = PERSIAN_MONTHS.find(month => month.value === monthValue);
+    if (!monthInfo) {
+        return 31;
+    }
+    if (monthInfo.value !== '12') {
+        return monthInfo.days;
+    }
+    return monthInfo.days + (isPersianLeapYear(year) ? 1 : 0);
+}
+
+function setupBirthdateSelectors(form) {
+    if (!form) return;
+    const yearSelect = form.querySelector('[data-birth-year]');
+    const monthSelect = form.querySelector('[data-birth-month]');
+    const daySelect = form.querySelector('[data-birth-day]');
+    const hiddenInput = form.querySelector('[data-birth-date]');
+
+    if (!yearSelect || !monthSelect || !daySelect || !hiddenInput) return;
+
+    const currentYear = getCurrentPersianYear();
+    const minYear = currentYear - 100;
+
+    for (let year = currentYear; year >= minYear; year -= 1) {
+        const option = document.createElement('option');
+        option.value = String(year);
+        option.textContent = String(year);
+        yearSelect.appendChild(option);
+    }
+
+    PERSIAN_MONTHS.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month.value;
+        option.textContent = month.label;
+        monthSelect.appendChild(option);
+    });
+
+    const updateHiddenValue = () => {
+        const year = yearSelect.value;
+        const month = monthSelect.value;
+        const day = daySelect.value;
+        if (year && month && day) {
+            hiddenInput.value = `${year}/${month}/${day}`;
+        } else {
+            hiddenInput.value = '';
+        }
+    };
+
+    const updateDays = () => {
+        const year = parseInt(yearSelect.value, 10);
+        const month = monthSelect.value;
+        const currentDayValue = daySelect.value;
+
+        if (!year || !month) {
+            daySelect.innerHTML = '<option value="">روز</option>';
+            daySelect.disabled = true;
+            updateHiddenValue();
+            return;
+        }
+
+        const maxDay = getPersianMonthDays(month, year);
+        daySelect.innerHTML = '<option value="">روز</option>';
+
+        for (let day = 1; day <= maxDay; day += 1) {
+            const option = document.createElement('option');
+            const value = day.toString().padStart(2, '0');
+            option.value = value;
+            option.textContent = day.toString().padStart(2, '0');
+            daySelect.appendChild(option);
+        }
+
+        daySelect.disabled = false;
+        if (currentDayValue && parseInt(currentDayValue, 10) <= maxDay) {
+            daySelect.value = currentDayValue.padStart(2, '0');
+        } else {
+            daySelect.value = '';
+        }
+
+        updateHiddenValue();
+    };
+
+    yearSelect.addEventListener('change', () => {
+        updateDays();
+    });
+
+    monthSelect.addEventListener('change', () => {
+        updateDays();
+    });
+
+    daySelect.addEventListener('change', () => {
+        updateHiddenValue();
+    });
 }
 
 // User dropdown event listeners
@@ -502,6 +654,17 @@ document.addEventListener('click', (e) => {
             updateUserLabel();
             notify('خروج انجام شد');
             location.hash = 'home';
+        }
+    }
+    const dropdownLink = e.target.closest('#userDropdown a[href^="#"]');
+    if (dropdownLink) {
+        e.preventDefault();
+        const targetHash = dropdownLink.getAttribute('href');
+        if (targetHash) {
+            location.hash = targetHash.replace(/^#+/, '#');
+        }
+        if (userDropdown) {
+            userDropdown.classList.remove('open');
         }
     }
 });

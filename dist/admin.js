@@ -53,11 +53,21 @@ function ensureAdminWindowClasses() {
 
     document.body.classList.add('admin-mode', 'admin-window');
 
-    if (typeof root !== 'undefined') {
-        root.classList.add('dark');
-    } else {
-        document.documentElement.classList.add('dark');
+    const target = typeof root !== 'undefined' ? root : document.documentElement;
+    let prefersDark = target.classList.contains('dark');
+
+    try {
+        const storedTheme = localStorage.getItem('hdk_dark');
+        if (storedTheme === 'true' || storedTheme === 'false') {
+            prefersDark = storedTheme === 'true';
+        } else if (typeof window !== 'undefined' && window.matchMedia) {
+            prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+    } catch (err) {
+        // Local storage might be inaccessible; fall back to current state.
     }
+
+    target.classList.toggle('dark', prefersDark);
 }
 
 function getAdminSession() {
