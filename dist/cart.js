@@ -423,9 +423,15 @@ function setupCheckoutEvents() {
                 option.classList.remove('border-green-500', 'bg-green-50');
                 option.classList.add('border-gray-300');
             });
-            
-            this.closest('.payment-option').classList.add('border-green-500', 'bg-green-50');
-            this.closest('.payment-option').classList.remove('border-gray-300');
+
+            const paymentOption = this.closest('.payment-option');
+            if (!paymentOption) {
+                console.warn('Payment option container not found for selected payment input.');
+                return;
+            }
+
+            paymentOption.classList.add('border-green-500', 'bg-green-50');
+            paymentOption.classList.remove('border-gray-300');
         });
     });
     
