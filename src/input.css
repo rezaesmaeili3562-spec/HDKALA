@@ -126,6 +126,70 @@ a:active iconify-icon.icon-animated,
   visibility: visible;
   transform: translateY(0);
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.payment-option {
+  position: relative;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+.payment-option:focus-within {
+  border-color: var(--brand-primary);
+  transform: translateY(-1px);
+}
+.payment-option-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 2px solid #cbd5f5;
+  background: #ffffff;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+.dark .payment-option-indicator {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.7);
+}
+.payment-option-indicator--active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2);
+}
+.payment-option[data-selected="true"] .payment-option-icon {
+  color: #10b981 !important;
+}
+.payment-option-check {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.payment-option-indicator--active .payment-option-check {
+  opacity: 1;
+}
+.dark .payment-option.payment-option--active {
+  background-color: rgba(34, 197, 94, 0.08) !important;
+}
+.otp-input {
+  direction: ltr !important;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #111827;
+}
+.dark .otp-input {
+  color: #f9fafb;
+}
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;

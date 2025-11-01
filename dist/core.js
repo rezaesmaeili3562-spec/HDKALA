@@ -275,6 +275,7 @@ function setupOtpInputs(container, options = {}) {
     };
 
     inputs.forEach((input, index) => {
+        input.type = 'text';
         input.setAttribute('inputmode', 'numeric');
         input.setAttribute('pattern', '\\d*');
         input.setAttribute('autocomplete', 'one-time-code');

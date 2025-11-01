@@ -101,36 +101,42 @@ function createSmallHero() {
 // کامپوننت گزینه‌های پرداخت
 function createPaymentOptions(selectedMethod = 'online') {
     return `
-        <div class="space-y-3">
-            ${paymentMethods.map(method => `
-                <label class="payment-option flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedMethod === method.id 
-                    ? 'border-green-500 bg-green-50 dark:bg-green-500/10' 
-                    : 'border-gray-300 hover:border-primary/50'
-                }">
-                    <input type="radio" name="payment" value="${method.id}" 
-                           ${selectedMethod === method.id ? 'checked' : ''}
-                           class="text-primary hidden">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                            selectedMethod === method.id 
-                            ? 'border-blue-500 bg-blue-500' 
-                            : 'border-gray-400'
-                        }">
-                            ${selectedMethod === method.id ? `
-                                <iconify-icon icon="mdi:check" class="text-white text-sm"></iconify-icon>
-                            ` : ''}
+        <div class="space-y-3" role="radiogroup" aria-label="روش پرداخت">
+            ${paymentMethods.map(method => {
+                const isSelected = selectedMethod === method.id;
+                const inputId = `payment-${method.id}`;
+                return `
+                    <label class="payment-option flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        isSelected
+                            ? 'payment-option--active border-green-500 bg-green-50 dark:bg-green-500/10'
+                            : 'border-gray-300 hover:border-primary/50'
+                    }"
+                           data-method="${method.id}"
+                           data-selected="${isSelected}"
+                           role="radio"
+                           aria-checked="${isSelected}"
+                           for="${inputId}">
+                        <input type="radio"
+                               name="payment"
+                               id="${inputId}"
+                               value="${method.id}"
+                               ${isSelected ? 'checked' : ''}
+                               class="payment-option-input sr-only">
+                        <span class="payment-option-indicator ${isSelected ? 'payment-option-indicator--active' : ''}" aria-hidden="true">
+                            <iconify-icon icon="mdi:check" class="payment-option-check text-white text-sm"></iconify-icon>
+                        </span>
+                        <div class="flex items-center gap-3 flex-1">
+                            <iconify-icon icon="${method.icon}" width="24" class="payment-option-icon ${
+                                isSelected ? 'text-green-500' : 'text-gray-500'
+                            }"></iconify-icon>
+                            <div class="flex-1">
+                                <div class="font-medium">${method.name}</div>
+                                <div class="text-sm text-gray-500">${method.description}</div>
+                            </div>
                         </div>
-                        <iconify-icon icon="${method.icon}" width="24" class="${
-                            selectedMethod === method.id ? 'text-green-500' : 'text-gray-500'
-                        }"></iconify-icon>
-                        <div class="flex-1">
-                            <div class="font-medium">${method.name}</div>
-                            <div class="text-sm text-gray-500">${method.description}</div>
-                        </div>
-                    </div>
-                </label>
-            `).join('')}
+                    </label>
+                `;
+            }).join('')}
         </div>
     `;
 }
