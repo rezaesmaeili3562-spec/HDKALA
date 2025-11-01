@@ -56,7 +56,7 @@ function ensureAdminAccess() {
     return true;
 }
 
-function handleAdminQuickAction(action) {
+function handleAdminQuickAction(action, options = {}) {
     const detailsContainer = $('#adminActionDetails');
     if (!detailsContainer) {
         notify('بخش گزارشات در حال حاضر در دسترس نیست.', true);
@@ -70,6 +70,7 @@ function handleAdminQuickAction(action) {
     const discountedProducts = products.filter(p => p.discount > 0);
     const recommendedBudget = totalRevenue ? Math.round(totalRevenue * 0.1) : 5000000;
 
+    const { notifyMessage } = options || {};
     let html = '';
 
     switch (action) {
@@ -85,7 +86,7 @@ function handleAdminQuickAction(action) {
                     ${highlightedProducts.length ? highlightedProducts.map(product => `<li class="flex items-center justify-between"><span>${product.name}</span><span>${product.discount}% تخفیف</span></li>`).join('') : '<li>محصول تخفیف‌دار فعالی ثبت نشده است.</li>'}
                 </ul>
             `;
-            notify('گزارش فروش به‌روزرسانی شد.');
+            notify(notifyMessage || 'گزارش فروش به‌روزرسانی شد.');
             break;
         }
         case 'inventory': {
@@ -140,12 +141,14 @@ function handleAdminQuickAction(action) {
 /* ---------- Admin Panel Functions ---------- */
 function openAdminPanel() {
     adminModal.classList.remove('hidden');
+    adminModal.classList.add('flex');
     renderAdminProducts();
     setupAdminInputHandlers();
 }
 
 function closeAdminPanel() {
     adminModal.classList.add('hidden');
+    adminModal.classList.remove('flex');
     productForm.classList.add('hidden');
     editingProductId = null;
 }

@@ -7,17 +7,17 @@ function createPriceFilter() {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">محدوده قیمت</label>
             <div class="space-y-2">
                 <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="minPrice" 
+                    <input type="number"
+                           id="minPrice"
                            placeholder="حداقل قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
+                           class="flex-1 p-2 border border-primary/30 rounded-lg bg-gray-50 dark:bg-gray-700 text-left text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40">
                     <span class="text-gray-500">تومان</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <input type="number" 
-                           id="maxPrice" 
+                    <input type="number"
+                           id="maxPrice"
                            placeholder="حداکثر قیمت"
-                           class="flex-1 p-2 border border-gray-300 rounded-lg text-left">
+                           class="flex-1 p-2 border border-primary/30 rounded-lg bg-gray-50 dark:bg-gray-700 text-left text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40">
                     <span class="text-gray-500">تومان</span>
                 </div>
             </div>

@@ -419,8 +419,8 @@ function renderWishlistPage(){
 
 /* ---------- Compare Page ---------- */
 function renderComparePage(){
+    renderProductsPage();
     openCompareModal();
-    navigate('products');
 }
 
 /* ---------- Cart Page ---------- */
@@ -430,13 +430,17 @@ function renderCartPage(){
 }
 
 /* ---------- Address Management ---------- */
+let addressEventsInitialized = false;
 function renderAddressesPage() {
     if (!user) {
         notify('لطفا ابتدا وارد حساب کاربری خود شوید', true);
+        if (typeof updateAddressQuickPanel === 'function') {
+            updateAddressQuickPanel(true);
+        }
         location.hash = 'login';
         return;
     }
-    
+
     const userAddresses = addresses.filter(addr => addr.userId === user.id);
     
     const page = document.createElement('div');
@@ -459,14 +463,28 @@ function renderAddressesPage() {
         
         <div id="addressFormContainer" class="hidden"></div>
     `;
-    
+
     contentRoot.appendChild(page);
+    if (typeof updateAddressQuickPanel === 'function') {
+        updateAddressQuickPanel(true);
+    }
     setupAddressEvents();
+    if (userAddresses.length === 0) {
+        showAddressForm();
+    }
 }
 
 function setupAddressEvents() {
-    $('#addAddressBtn').addEventListener('click', showAddressForm);
-    
+    const addBtn = $('#addAddressBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', showAddressForm);
+    }
+
+    if (addressEventsInitialized) {
+        return;
+    }
+    addressEventsInitialized = true;
+
     // Edit address
     document.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-address');
@@ -478,7 +496,7 @@ function setupAddressEvents() {
             }
         }
     });
-    
+
     // Delete address
     document.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-address');
@@ -487,7 +505,7 @@ function setupAddressEvents() {
             deleteAddress(addressId);
         }
     });
-    
+
     // Set default address
     document.addEventListener('click', (e) => {
         const setDefaultBtn = e.target.closest('.set-default-address');
@@ -577,7 +595,10 @@ function saveAddress(addressId = null) {
     LS.set('HDK_addresses', addresses);
     $('#addressFormContainer').classList.add('hidden');
     notify(addressId ? 'آدرس با موفقیت ویرایش شد' : 'آدرس جدید با موفقیت اضافه شد');
-    
+    if (typeof updateAddressQuickPanel === 'function') {
+        updateAddressQuickPanel();
+    }
+
     // Refresh addresses page
     if (currentPage === 'addresses') {
         renderAddressesPage();
@@ -589,7 +610,10 @@ function deleteAddress(addressId) {
         addresses = addresses.filter(addr => addr.id !== addressId);
         LS.set('HDK_addresses', addresses);
         notify('آدرس با موفقیت حذف شد');
-        
+        if (typeof updateAddressQuickPanel === 'function') {
+            updateAddressQuickPanel();
+        }
+
         // Refresh addresses page
         if (currentPage === 'addresses') {
             renderAddressesPage();
@@ -603,10 +627,13 @@ function setDefaultAddress(addressId) {
             addr.isDefault = addr.id === addressId;
         }
     });
-    
+
     LS.set('HDK_addresses', addresses);
     notify('آدرس پیش‌فرض تغییر کرد');
-    
+    if (typeof updateAddressQuickPanel === 'function') {
+        updateAddressQuickPanel();
+    }
+
     // Refresh addresses page
     if (currentPage === 'addresses') {
         renderAddressesPage();
