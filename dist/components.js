@@ -103,7 +103,7 @@ function createPaymentOptions(selectedMethod = 'online') {
     return `
         <div class="space-y-3">
             ${paymentMethods.map(method => `
-                <label class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                <label class="payment-option flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedMethod === method.id 
                     ? 'border-green-500 bg-green-50 dark:bg-green-500/10' 
                     : 'border-gray-300 hover:border-primary/50'
