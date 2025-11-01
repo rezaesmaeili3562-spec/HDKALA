@@ -499,7 +499,7 @@ function renderAdminPage() {
     contentRoot.appendChild(page);
     setupBlogManagement();
     if (typeof handleAdminQuickAction === 'function') {
-        handleAdminQuickAction('reports');
+        handleAdminQuickAction('reports', { notifyMessage: 'شما وارد پنل مدیریت شدید' });
     }
 }
 

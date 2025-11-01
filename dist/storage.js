@@ -275,6 +275,10 @@ const compareBtn = $('#compareBtn');
 const compareModal = $('#compareModal');
 const closeCompareModal = $('#closeCompareModal');
 const compareProducts = $('#compareProducts');
+const addressQuickPanel = $('#addressQuickPanel');
+const addressQuickContent = $('#addressQuickContent');
+const closeAddressQuick = $('#closeAddressQuick');
+const addressQuickTriggers = $$('.address-quick-trigger');
 
 /* ---------- Admin Panel Elements ---------- */
 const adminModal = $('#adminModal');
@@ -355,6 +359,65 @@ function updateCompareBadge() {
     }
 }
 
+function getUserAddressesSnapshot() {
+    if (!user) {
+        return [];
+    }
+    return addresses.filter(addr => addr.userId === user.id);
+}
+
+function createAddressPreview(address) {
+    const locationParts = [address.province || '', address.city || ''].filter(Boolean).join('، ');
+    return `
+        <div class="rounded-xl border border-primary/20 bg-white dark:bg-gray-800 p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-primary">${address.title || 'آدرس ثبت شده'}</h4>
+                ${address.isDefault ? '<span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">پیش‌فرض</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">${address.fullAddress || ''}</p>
+            <div class="mt-3 space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                ${locationParts ? `<div class="flex items-center gap-2"><iconify-icon icon="mdi:map-marker"></iconify-icon><span>${locationParts}</span></div>` : ''}
+                <div class="flex items-center gap-2"><iconify-icon icon="mdi:phone"></iconify-icon><span>${address.phone || '---'}</span></div>
+                ${address.postalCode ? `<div class="flex items-center gap-2"><iconify-icon icon="mdi:mailbox"></iconify-icon><span>${address.postalCode}</span></div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function updateAddressQuickPanel(forceClose = false) {
+    if (!addressQuickPanel || !addressQuickContent) {
+        return;
+    }
+
+    if (forceClose) {
+        addressQuickPanel.classList.add('hidden');
+    }
+
+    if (!user) {
+        addressQuickContent.innerHTML = '<p class="text-center text-sm text-gray-500">برای مشاهده آدرس‌ها ابتدا وارد حساب شوید.</p>';
+        return;
+    }
+
+    const userAddresses = getUserAddressesSnapshot();
+    if (userAddresses.length === 0) {
+        addressQuickContent.innerHTML = `
+            <div class="text-center space-y-3 text-sm">
+                <p class="text-gray-500 dark:text-gray-400">هنوز آدرسی ثبت نکرده‌اید.</p>
+                <button type="button" class="address-quick-create bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">ثبت آدرس جدید</button>
+            </div>
+        `;
+        return;
+    }
+
+    const previews = [...userAddresses]
+        .sort((a, b) => (b.isDefault === true) - (a.isDefault === true))
+        .slice(0, 3)
+        .map(createAddressPreview)
+        .join('');
+
+    addressQuickContent.innerHTML = previews;
+}
+
 function toggleAuthButtons(show){
     if (authButtonGroup) {
         authButtonGroup.classList.toggle('hidden', !show);
@@ -416,6 +479,10 @@ function updateUserLabel(){
         toggleAuthButtons(true);
     }
 
+    if (typeof updateAddressQuickPanel === 'function') {
+        updateAddressQuickPanel(true);
+    }
+
     updateUserDropdown();
 }
 
@@ -445,6 +512,76 @@ function updateUserLabel(){
     });
 });
 
+addressQuickTriggers.forEach(trigger => {
+    trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (userDropdown) {
+            userDropdown.classList.remove('open');
+        }
+
+        if (!user) {
+            notify('برای مدیریت آدرس‌ها ابتدا وارد شوید', true);
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+            location.hash = '#login';
+            return;
+        }
+
+        const isMobileView = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+        const userAddresses = getUserAddressesSnapshot();
+
+        if (isMobileView) {
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+            location.hash = '#addresses';
+            return;
+        }
+
+        if (userAddresses.length === 0) {
+            updateAddressQuickPanel(true);
+            notify('برای ادامه لطفا آدرس جدید ثبت کنید');
+            location.hash = '#addresses';
+            return;
+        }
+
+        updateAddressQuickPanel();
+        addressQuickPanel.classList.toggle('hidden');
+    });
+});
+
+if (closeAddressQuick) {
+    closeAddressQuick.addEventListener('click', () => updateAddressQuickPanel(true));
+}
+
+if (addressQuickPanel) {
+    addressQuickPanel.addEventListener('click', (event) => {
+        if (event.target.closest('.address-quick-create')) {
+            updateAddressQuickPanel(true);
+            location.hash = '#addresses';
+        }
+    });
+}
+
+document.addEventListener('click', (event) => {
+    if (!addressQuickPanel || addressQuickPanel.classList.contains('hidden')) {
+        return;
+    }
+    if (event.target.closest('#addressQuickPanel') || event.target.closest('.address-quick-trigger')) {
+        return;
+    }
+    addressQuickPanel.classList.add('hidden');
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        updateAddressQuickPanel(true);
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     updateUserLabel();
+    updateAddressQuickPanel(true);
 });

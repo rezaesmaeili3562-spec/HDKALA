@@ -288,34 +288,30 @@
   </div>
 
   <!-- Admin Panel Modal -->
-  <div id="adminModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-      <div class="p-6 border-b border-primary/20">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-primary">پنل مدیریت محصولات</h2>
-          <button id="closeAdminModal" class="text-gray-500 hover:text-primary">
-            <iconify-icon icon="mdi:close" width="24"></iconify-icon>
-          </button>
-        </div>
+  <div id="adminModal" class="fixed inset-0 bg-black/60 z-50 hidden flex">
+    <div class="relative flex flex-col w-full h-full bg-white dark:bg-gray-900">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
+        <h2 class="text-xl font-bold text-primary">پنل مدیریت محصولات</h2>
+        <button id="closeAdminModal" class="text-gray-500 hover:text-primary transition-colors">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
       </div>
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex justify-between items-center">
           <h3 class="text-lg font-semibold">لیست محصولات</h3>
           <button id="addProductBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
             افزودن محصول جدید
           </button>
         </div>
-        <div class="mb-6">
-          <div class="relative">
-            <input type="text" id="adminSearch" placeholder="جستجو در محصولات..." class="w-full p-3 pr-10 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
-            <iconify-icon icon="mdi:magnify" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
-          </div>
+        <div class="relative">
+          <input type="text" id="adminSearch" placeholder="جستجو در محصولات..." class="w-full p-3 pr-10 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+          <iconify-icon icon="mdi:magnify" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
         </div>
-        <div id="adminProductsList" class="space-y-4 mb-6">
+        <div id="adminProductsList" class="space-y-4">
           <!-- Products will be populated here -->
         </div>
         <!-- Add/Edit Product Form -->
-        <div id="productForm" class="hidden bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
+        <div id="productForm" class="hidden bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
           <h4 class="text-lg font-semibold mb-4" id="formTitle">افزودن محصول جدید</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div>
@@ -389,7 +385,7 @@
           </div>
         </div>
         <!-- Admin Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="bg-primary/10 p-4 rounded-lg text-center">
             <div class="text-2xl font-bold text-primary" id="adminProductCount">0</div>
             <div class="text-sm text-gray-600 dark:text-gray-400">تعداد محصولات</div>
@@ -412,17 +408,15 @@
   </div>
 
   <!-- Compare Modal -->
-  <div id="compareModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-      <div class="p-6 border-b border-primary/20">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-primary">مقایسه محصولات</h2>
-          <button id="closeCompareModal" class="text-gray-500 hover:text-primary">
-            <iconify-icon icon="mdi:close" width="24"></iconify-icon>
-          </button>
-        </div>
+  <div id="compareModal" class="fixed inset-0 bg-black/60 z-50 hidden flex">
+    <div class="relative flex flex-col w-full h-full bg-white dark:bg-gray-900">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-primary/20 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
+        <h2 class="text-xl font-bold text-primary">مقایسه محصولات</h2>
+        <button id="closeCompareModal" class="text-gray-500 hover:text-primary transition-colors">
+          <iconify-icon icon="mdi:close" width="24"></iconify-icon>
+        </button>
       </div>
-      <div class="p-6">
+      <div class="flex-1 overflow-y-auto p-6">
         <div id="compareProducts" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Compare products will be populated here -->
         </div>
@@ -481,7 +475,7 @@
           <a href="#about" class="text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
           <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
           <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-          <a href="#addresses" class="text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+          <button type="button" class="address-quick-trigger text-gray-700 dark:text-white hover:text-primary transition-colors focus:outline-none">آدرس‌های من</button>
           <a href="#admin" id="adminAccessLink" class="text-gray-700 dark:text-white hover:text-primary transition-colors">ورود مدیریت</a>
         </div>
       </div>
@@ -537,6 +531,21 @@
           <iconify-icon icon="mdi:menu" width="26"></iconify-icon>
         </button>
       </div>
+      <div id="addressQuickPanel" class="absolute top-full right-0 mt-3 w-full max-w-md bg-white dark:bg-gray-900 border border-primary/20 rounded-2xl shadow-2xl hidden z-40">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-primary/20">
+          <h3 class="text-sm font-semibold text-primary">آدرس‌های من</h3>
+          <button id="closeAddressQuick" class="text-gray-500 hover:text-primary transition-colors">
+            <iconify-icon icon="mdi:close" width="20"></iconify-icon>
+          </button>
+        </div>
+        <div id="addressQuickContent" class="p-4 space-y-3 text-sm text-gray-600 dark:text-gray-300">
+          <p class="text-center text-gray-500">برای مشاهده آدرس‌ها ابتدا وارد حساب شوید.</p>
+        </div>
+        <div class="px-4 py-3 border-t border-primary/10 bg-primary/5 dark:bg-white/5 flex items-center justify-between text-xs">
+          <span class="text-gray-500 dark:text-gray-400">مدیریت سریع آدرس‌ها</span>
+          <a href="#addresses" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
+        </div>
+      </div>
     </header>
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="md:hidden hidden mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-primary/30">
@@ -545,7 +554,7 @@
         <a href="#about" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">درباره ما</a>
         <a href="#contact" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
         <a href="#blog" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
-        <a href="#addresses" class="block py-2 text-gray-700 dark:text-white hover:text-primary transition-colors">آدرس‌های من</a>
+        <button type="button" class="address-quick-trigger block w-full text-right py-2 text-gray-700 dark:text-white hover:text-primary transition-colors focus:outline-none">آدرس‌های من</button>
       </div>
       <div id="mobileAuthButtons" class="mt-4 flex flex-col gap-2">
         <button id="mobileLoginBtn" class="nav-auth-btn brand-outline">ورود</button>

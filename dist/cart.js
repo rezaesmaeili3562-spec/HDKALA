@@ -204,6 +204,7 @@ function openCompareModal() {
         return;
     }
     compareModal.classList.remove('hidden');
+    compareModal.classList.add('flex');
     renderCompareProducts();
 }
 
@@ -557,6 +558,14 @@ compareBtn.addEventListener('click', openCompareModal);
 
 closeCompareModal.addEventListener('click', () => {
     compareModal.classList.add('hidden');
+    compareModal.classList.remove('flex');
+});
+
+compareModal.addEventListener('click', (event) => {
+    if (event.target === compareModal) {
+        compareModal.classList.add('hidden');
+        compareModal.classList.remove('flex');
+    }
 });
 
 checkoutBtn.addEventListener('click', () => {
