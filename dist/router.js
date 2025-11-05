@@ -170,107 +170,97 @@ function quickAddDemoProduct(e){
 
 /* ---------- Home Page ---------- */
 function renderHomePage(){
-    const page = document.createElement('div');
-    page.innerHTML = createSmallHero();
-    
-    page.innerHTML += `
-        <!-- Featured Categories -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 text-center">دسته‌بندی‌های محبوب</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <a href="#products:electronics" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
-                    <iconify-icon icon="mdi:laptop" width="40" class="text-primary mb-2"></iconify-icon>
-                    <div class="font-medium">الکترونیک</div>
-                </a>
-                <a href="#products:fashion" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
-                    <iconify-icon icon="mdi:tshirt-crew" width="40" class="text-primary mb-2"></iconify-icon>
-                    <div class="font-medium">مد و پوشاک</div>
-                </a>
-                <a href="#products:home" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
-                    <iconify-icon icon="mdi:sofa" width="40" class="text-primary mb-2"></iconify-icon>
-                    <div class="font-medium">خانه و آشپزخانه</div>
-                </a>
-                <a href="#products:books" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
-                    <iconify-icon icon="mdi:book-open" width="40" class="text-primary mb-2"></iconify-icon>
-                    <div class="font-medium">کتاب</div>
-                </a>
-                <a href="#products:sports" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
-                    <iconify-icon icon="mdi:dumbbell" width="40" class="text-primary mb-2"></iconify-icon>
-                    <div class="font-medium">ورزشی</div>
-                </a>
-            </div>
-        </section>
-        
-        <!-- Featured Products -->
-        <section class="mb-12">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">محصولات ویژه</h2>
-                <a href="#products" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
-            </div>
-            <div id="featuredProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-        </section>
-        
-        <!-- Recent Blogs -->
-        <section class="mb-12">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">آخرین مقالات</h2>
-                <a href="#blog" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                ${blogs.slice(0, 3).map(blog => `
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-primary/20">
-                        <div class="h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            ${blog.image ? 
-                                `<img src="${blog.image}" alt="${blog.title}" class="w-full h-48 object-cover" />` :
-                                `<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>`
-                            }
-                        </div>
-                        <div class="p-4">
-                            <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">${blog.category}</span>
-                            <h3 class="font-bold text-lg mt-2 mb-2">${blog.title}</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${blog.excerpt}</p>
-                            <div class="flex justify-between items-center text-xs text-gray-500">
-                                <span>${blog.date}</span>
-                                <a href="#blog:${blog.id}" class="text-primary hover:text-primary/80">ادامه مطلب</a>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </section>
-        
-        <!-- Stats Section -->
-        <section class="bg-primary/10 rounded-2xl p-8 mb-12">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                <div>
-                    <div class="text-3xl font-bold text-primary">${products.length}+</div>
-                    <div class="text-gray-600 dark:text-gray-400">محصول</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-primary">${orders.length}+</div>
-                    <div class="text-gray-600 dark:text-gray-400">سفارش موفق</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-primary">${user ? '۱' : '۰'}+</div>
-                    <div class="text-gray-600 dark:text-gray-400">کاربر فعال</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-primary">۲۴/۷</div>
-                    <div class="text-gray-600 dark:text-gray-400">پشتیبانی</div>
-                </div>
-            </div>
-        </section>
-    `;
-    
-    contentRoot.appendChild(page);
-    const featuredProducts = $('#featuredProducts', page);
-    const quickAddDemo = $('#quickAddDemo', page);
+    const fragment = Templates.clone('tpl-home-page');
+    contentRoot.appendChild(fragment);
 
-    // Show featured products (products with discount or special status)
-    if (featuredProducts) {
+    const pageRoot = $('#homePage', contentRoot);
+    if (!pageRoot) {
+        return;
+    }
+
+    const featuredProductsContainer = $('#featuredProducts', pageRoot);
+    const quickAddDemo = $('#quickAddDemo', pageRoot);
+    const blogList = $('#homeBlogList', pageRoot);
+
+    if (featuredProductsContainer) {
         const featured = products.filter(p => p.discount > 0 || p.status === 'hot' || p.status === 'new').slice(0, 8);
-        renderProductsList(featured, featuredProducts);
-        featuredProducts.addEventListener('click', handleProductActions);
+        renderProductsList(featured, featuredProductsContainer);
+        featuredProductsContainer.addEventListener('click', handleProductActions);
+    }
+
+    if (blogList) {
+        blogList.innerHTML = '';
+        blogs.slice(0, 3).forEach(blog => {
+            const blogFragment = Templates.clone('tpl-blog-card');
+            const card = blogFragment.querySelector('[data-element="blog-card"]') || blogFragment.firstElementChild;
+            if (!card) {
+                return;
+            }
+
+            const imageWrapper = blogFragment.querySelector('[data-element="blog-image-wrapper"]');
+            const imageEl = blogFragment.querySelector('[data-element="blog-image"]');
+            const placeholder = blogFragment.querySelector('[data-element="blog-placeholder"]');
+            if (imageEl) {
+                if (blog.image) {
+                    imageEl.src = blog.image;
+                    imageEl.alt = blog.title;
+                    imageEl.classList.remove('hidden');
+                    if (placeholder) {
+                        placeholder.classList.add('hidden');
+                    }
+                } else {
+                    imageEl.classList.add('hidden');
+                    if (placeholder) {
+                        placeholder.classList.remove('hidden');
+                    }
+                }
+            }
+            if (imageWrapper) {
+                imageWrapper.setAttribute('aria-label', blog.title);
+            }
+
+            const categoryEl = blogFragment.querySelector('[data-element="blog-category"]');
+            if (categoryEl) {
+                categoryEl.textContent = blog.category;
+            }
+
+            const titleEl = blogFragment.querySelector('[data-element="blog-title"]');
+            if (titleEl) {
+                titleEl.textContent = blog.title;
+            }
+
+            const excerptEl = blogFragment.querySelector('[data-element="blog-excerpt"]');
+            if (excerptEl) {
+                excerptEl.textContent = blog.excerpt;
+            }
+
+            const dateEl = blogFragment.querySelector('[data-element="blog-date"]');
+            if (dateEl) {
+                dateEl.textContent = blog.date;
+            }
+
+            const linkEl = blogFragment.querySelector('[data-element="blog-link"]');
+            if (linkEl) {
+                linkEl.href = `#blog:${blog.id}`;
+            }
+
+            blogList.appendChild(blogFragment);
+        });
+    }
+
+    const statProducts = pageRoot.querySelector('[data-element="stat-products"]');
+    if (statProducts) {
+        statProducts.textContent = `${products.length}+`;
+    }
+
+    const statOrders = pageRoot.querySelector('[data-element="stat-orders"]');
+    if (statOrders) {
+        statOrders.textContent = `${orders.length}+`;
+    }
+
+    const statUsers = pageRoot.querySelector('[data-element="stat-users"]');
+    if (statUsers) {
+        statUsers.textContent = `${user ? '۱' : '۰'}+`;
     }
 
     if (quickAddDemo) {
@@ -278,45 +268,27 @@ function renderHomePage(){
     }
 }
 
+
 /* ---------- Products Page ---------- */
 function renderProductsPage(){
-    const page = document.createElement('div');
-    page.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">${currentCategory ? getCategoryName(currentCategory) : 'همه محصولات'}</h1>
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-600 dark:text-gray-400" id="productsCount">${products.length} محصول</span>
-                <button id="toggleView" class="p-2 text-gray-500 hover:text-primary transition-colors" aria-label="تغییر نمای محصولات">
-                    <iconify-icon icon="mdi:view-grid" width="20"></iconify-icon>
-                </button>
-            </div>
-        </div>
-        
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 border border-primary/20">
-            <div class="flex flex-wrap gap-4 items-center">
-                <span class="font-medium">فیلترهای فعال:</span>
-                <div id="activeFilters" class="flex flex-wrap gap-2">
-                    <!-- Active filters will be shown here -->
-                </div>
-                <button id="clearAllFilters" class="text-sm text-red-500 hover:text-red-700 transition-colors">پاک کردن همه فیلترها</button>
-            </div>
-        </div>
-        
-        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite"></div>
+    const fragment = Templates.clone('tpl-products-page');
+    contentRoot.appendChild(fragment);
 
-        <!-- Pagination -->
-        <div class="flex justify-center mt-8">
-            <nav id="productsPagination" class="flex flex-wrap gap-2" aria-label="صفحات محصولات"></nav>
-        </div>
-    `;
+    const pageRoot = $('#productsPage', contentRoot);
+    if (!pageRoot) {
+        return;
+    }
 
-    contentRoot.appendChild(page);
-    const productsGrid = $('#productsGrid', page);
-    const productsCount = $('#productsCount', page);
-    const paginationContainer = $('#productsPagination', page);
-    const clearAllFilters = $('#clearAllFilters', page);
+    const titleEl = pageRoot.querySelector('[data-element="products-title"]');
+    if (titleEl) {
+        titleEl.textContent = currentCategory ? getCategoryName(currentCategory) : 'همه محصولات';
+    }
 
-    // فیلتر کردن محصولات بر اساس دسته‌بندی
+    const productsGrid = $('#productsGrid', pageRoot);
+    const productsCount = $('#productsCount', pageRoot);
+    const paginationContainer = $('#productsPagination', pageRoot);
+    const clearAllFilters = $('#clearAllFilters', pageRoot);
+
     let filteredProducts = products;
     if (currentCategory) {
         filteredProducts = products.filter(p => p.category === currentCategory);
@@ -439,7 +411,9 @@ function renderProductsPage(){
 
     refreshProductsPageView = updateProductsView;
     updateProductsView();
-    productsGrid.addEventListener('click', handleProductActions);
+    if (productsGrid) {
+        productsGrid.addEventListener('click', handleProductActions);
+    }
 
     if (productsPaginationRef) {
         productsPaginationRef.addEventListener('click', (event) => {
@@ -462,27 +436,29 @@ function renderProductsPage(){
 
             updateProductsView();
 
-            const productsSection = page.querySelector('h1');
+            const productsSection = pageRoot.querySelector('h1');
             if (productsSection) {
                 productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
     }
 
-    // Clear all filters
-    clearAllFilters.addEventListener('click', () => {
-        if (sortSelect) sortSelect.value = 'popular';
-        if (minPrice) minPrice.value = '';
-        if (maxPrice) maxPrice.value = '';
-        if (categoryFilter) categoryFilter.value = '';
-        if (discountFilter) discountFilter.value = '';
-        if (brandFilter) brandFilter.value = '';
-        if (stockFilter) stockFilter.value = '';
-        if (ratingFilter) ratingFilter.value = '';
-        
-        applyFilters();
-    });
+    if (clearAllFilters) {
+        clearAllFilters.addEventListener('click', () => {
+            if (sortSelect) sortSelect.value = 'popular';
+            if (minPrice) minPrice.value = '';
+            if (maxPrice) maxPrice.value = '';
+            if (categoryFilter) categoryFilter.value = '';
+            if (discountFilter) discountFilter.value = '';
+            if (brandFilter) brandFilter.value = '';
+            if (stockFilter) stockFilter.value = '';
+            if (ratingFilter) ratingFilter.value = '';
+
+            applyFilters();
+        });
+    }
 }
+
 
 /* ---------- New Pages ---------- */
 function renderAddressesPage() {

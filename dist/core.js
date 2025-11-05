@@ -82,73 +82,159 @@ function handleProductActions(e) {
 function renderProductsList(list, container){
     if(!container) return;
     container.innerHTML = '';
-    if(!list || list.length===0){ 
-        container.innerHTML = `
-            <div class="col-span-full text-center text-gray-500 py-10">
-                <iconify-icon icon="mdi:package-variant-remove" width="64" class="mb-4"></iconify-icon>
-                <p class="text-lg">محصولی یافت نشد</p>
-                <p class="text-sm mt-2">لطفا فیلترهای خود را تغییر دهید</p>
-            </div>
-        `; 
-        return; 
+
+    if(!list || list.length===0){
+        container.appendChild(Templates.clone('tpl-product-empty'));
+        return;
     }
-    
+
     list.forEach(p => {
+        const fragment = Templates.clone('tpl-product-card');
+        const root = fragment.querySelector('[data-element="product-card"]') || fragment.firstElementChild;
+        if (!root) {
+            return;
+        }
+
         const finalPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
         const hasDiscount = p.discount > 0;
         const inWishlist = wishlist.includes(p.id);
         const inCompare = compareList.includes(p.id);
-        
-        const article = document.createElement('article');
-        article.className = 'product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20';
-        article.innerHTML = `
-            <div class="relative overflow-hidden">
-                <a href="#product:${p.id}">
-                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        ${p.img ? 
-                            `<img src="${p.img}" alt="${p.name}" class="w-full h-48 object-cover product-image zoom-image" loading="lazy" />` :
-                            `<iconify-icon icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>`
-                        }
-                    </div>
-                </a>
-                <div class="absolute top-2 left-2 flex gap-2">
-                    <button aria-label="افزودن به علاقه‌مندی‌ها" data-id="${p.id}" class="add-to-wishlist bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
-                        <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" class="${inWishlist ? 'text-red-500' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
-                    </button>
-                    <button aria-label="مقایسه محصول" data-id="${p.id}" class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm">
-                        <iconify-icon icon="${inCompare ? 'mdi:scale-balance' : 'mdi:scale-balance'}" class="${inCompare ? 'text-primary' : 'text-gray-600 dark:text-gray-400'}"></iconify-icon>
-                    </button>
-                </div>
-                <div class="absolute top-2 right-2 flex flex-col gap-2">
-                    ${hasDiscount ? `<div class="badge badge-discount">${p.discount}%</div>` : ''}
-                    ${p.status === 'new' ? `<div class="badge badge-new">جدید</div>` : ''}
-                    ${p.status === 'hot' ? `<div class="badge badge-hot">فروش ویژه</div>` : ''}
-                    ${p.status === 'bestseller' ? `<div class="badge bg-purple-500 text-white">پرفروش</div>` : ''}
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg mb-1 dark:text-white line-clamp-2">${p.name}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${p.desc}</p>
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        ${hasDiscount ? `<div class="text-gray-500 line-through text-sm">${formatPrice(p.price)}</div>` : ''}
-                        <span class="text-primary font-extrabold">${formatPrice(finalPrice)}</span>
-                    </div>
-                    <div class="text-yellow-500 text-sm">${'★'.repeat(p.rating)}${p.rating < 5 ? '☆'.repeat(5-p.rating) : ''}</div>
-                </div>
-                <div class="flex items-center justify-between mb-2 text-xs">
-                    <div class="text-gray-500 dark:text-gray-400">موجودی: ${p.stock > 0 ? `<span class="text-green-500">${p.stock}</span>` : `<span class="text-red-500">ناموجود</span>`}</div>
-                    <div class="text-gray-500 dark:text-gray-400">${p.brand || '---'}</div>
-                </div>
-                <div class="flex gap-2">
-                    <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>${p.stock > 0 ? 'افزودن به سبد' : 'ناموجود'}</button>
-                    <a href="#product:${p.id}" class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات">
-                        <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
-                    </a>
-                </div>
-            </div>
-        `;
-        container.appendChild(article);
+
+        const productLink = fragment.querySelector('[data-element="product-link"]');
+        if (productLink) {
+            productLink.href = `#product:${p.id}`;
+        }
+
+        const detailBtn = fragment.querySelector('[data-element="detail-button"]');
+        if (detailBtn) {
+            detailBtn.href = `#product:${p.id}`;
+        }
+
+        const wishlistBtn = fragment.querySelector('[data-element="wishlist-btn"]');
+        const wishlistIcon = fragment.querySelector('[data-element="wishlist-icon"]');
+        if (wishlistBtn) {
+            wishlistBtn.dataset.id = p.id;
+        }
+        if (wishlistIcon) {
+            wishlistIcon.setAttribute('icon', inWishlist ? 'mdi:heart' : 'mdi:heart-outline');
+            wishlistIcon.classList.toggle('text-red-500', inWishlist);
+            wishlistIcon.classList.toggle('text-gray-600', !inWishlist);
+            wishlistIcon.classList.toggle('dark:text-gray-400', !inWishlist);
+        }
+
+        const compareBtn = fragment.querySelector('[data-element="compare-btn"]');
+        const compareIcon = fragment.querySelector('[data-element="compare-icon"]');
+        if (compareBtn) {
+            compareBtn.dataset.id = p.id;
+        }
+        if (compareIcon) {
+            compareIcon.classList.toggle('text-primary', inCompare);
+            compareIcon.classList.toggle('text-gray-600', !inCompare);
+            compareIcon.classList.toggle('dark:text-gray-400', !inCompare);
+        }
+
+        const imageEl = fragment.querySelector('[data-element="product-image"]');
+        const placeholderIcon = fragment.querySelector('[data-element="product-placeholder"]');
+        if (imageEl) {
+            if (p.img) {
+                imageEl.src = p.img;
+                imageEl.alt = p.name;
+                imageEl.classList.remove('hidden');
+                if (placeholderIcon) {
+                    placeholderIcon.classList.add('hidden');
+                }
+            } else {
+                imageEl.classList.add('hidden');
+                if (placeholderIcon) {
+                    placeholderIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        const badgeDiscount = fragment.querySelector('[data-element="badge-discount"]');
+        if (badgeDiscount) {
+            if (hasDiscount) {
+                badgeDiscount.textContent = `${p.discount}%`;
+                badgeDiscount.classList.remove('hidden');
+            } else {
+                badgeDiscount.classList.add('hidden');
+            }
+        }
+
+        const badgeNew = fragment.querySelector('[data-element="badge-new"]');
+        if (badgeNew) {
+            badgeNew.classList.toggle('hidden', p.status !== 'new');
+        }
+
+        const badgeHot = fragment.querySelector('[data-element="badge-hot"]');
+        if (badgeHot) {
+            badgeHot.classList.toggle('hidden', p.status !== 'hot');
+        }
+
+        const badgeBest = fragment.querySelector('[data-element="badge-bestseller"]');
+        if (badgeBest) {
+            badgeBest.classList.toggle('hidden', p.status !== 'bestseller');
+        }
+
+        const nameEl = fragment.querySelector('[data-element="product-name"]');
+        if (nameEl) {
+            nameEl.textContent = p.name;
+        }
+
+        const descEl = fragment.querySelector('[data-element="product-description"]');
+        if (descEl) {
+            descEl.textContent = p.desc || '';
+        }
+
+        const originalPriceEl = fragment.querySelector('[data-element="product-original-price"]');
+        if (originalPriceEl) {
+            if (hasDiscount) {
+                originalPriceEl.textContent = formatPrice(p.price);
+                originalPriceEl.classList.remove('hidden');
+            } else {
+                originalPriceEl.classList.add('hidden');
+            }
+        }
+
+        const finalPriceEl = fragment.querySelector('[data-element="product-final-price"]');
+        if (finalPriceEl) {
+            finalPriceEl.textContent = formatPrice(finalPrice);
+        }
+
+        const ratingEl = fragment.querySelector('[data-element="product-rating"]');
+        if (ratingEl) {
+            const rating = Math.max(0, Math.min(5, p.rating || 0));
+            ratingEl.textContent = `${'★'.repeat(rating)}${rating < 5 ? '☆'.repeat(5 - rating) : ''}`;
+        }
+
+        const stockEl = fragment.querySelector('[data-element="product-stock"]');
+        if (stockEl) {
+            if (p.stock > 0) {
+                stockEl.innerHTML = `موجودی: <span class="text-green-500">${p.stock}</span>`;
+            } else {
+                stockEl.innerHTML = 'موجودی: <span class="text-red-500">ناموجود</span>';
+            }
+        }
+
+        const brandEl = fragment.querySelector('[data-element="product-brand"]');
+        if (brandEl) {
+            brandEl.textContent = p.brand || '---';
+        }
+
+        const addToCartBtn = fragment.querySelector('[data-element="add-to-cart"]');
+        if (addToCartBtn) {
+            addToCartBtn.dataset.id = p.id;
+            addToCartBtn.textContent = p.stock > 0 ? 'افزودن به سبد' : 'ناموجود';
+            if (p.stock === 0) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            } else {
+                addToCartBtn.disabled = false;
+                addToCartBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+        }
+
+        container.appendChild(fragment);
     });
 }
 

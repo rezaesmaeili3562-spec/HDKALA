@@ -2,14 +2,9 @@
 function updateCartDisplay() {
     if (!cartItems) return;
     cartItems.innerHTML = '';
-    
+
     if (cart.length === 0) {
-        cartItems.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <iconify-icon icon="mdi:cart-off" width="48" class="mb-4"></iconify-icon>
-                <p>سبد خرید شما خالی است</p>
-            </div>
-        `;
+        cartItems.appendChild(Templates.clone('tpl-cart-empty'));
         cartTotal.textContent = '۰ تومان';
         cartDiscount.textContent = '۰ تومان';
         cartFinalTotal.textContent = '۰ تومان';
@@ -31,61 +26,75 @@ function updateCartDisplay() {
         total += itemTotal;
         totalDiscount += itemDiscount;
         
-        const cartItemEl = document.createElement('div');
-        cartItemEl.className = 'flex gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
-        cartItemEl.innerHTML = `
-            <div class="flex-1">
-                <h4 class="font-medium">${product.name}</h4>
-                <div class="flex justify-between items-center mt-2">
-                    <div class="flex items-center gap-2">
-                        <button class="decrease-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">-</button>
-                        <span class="w-8 text-center">${item.qty}</span>
-                        <button class="increase-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-id="${product.id}">+</button>
-                    </div>
-                    <div class="text-primary font-medium">${formatPrice(finalPrice)}</div>
-                </div>
-                ${itemDiscount > 0 ? `
-                    <div class="text-green-500 text-xs mt-1">
-                        ${formatPrice(itemDiscount)} صرفه‌جویی
-                    </div>
-                ` : ''}
-            </div>
-            <button class="remove-from-cart text-red-500 hover:text-red-700 transition-colors" data-id="${product.id}">
-                <iconify-icon icon="mdi:trash-can-outline"></iconify-icon>
-            </button>
-        `;
-        cartItems.appendChild(cartItemEl);
+        const fragment = Templates.clone('tpl-cart-item');
+        const cartItemEl = fragment.querySelector('[data-element="cart-item"]') || fragment.firstElementChild;
+        if (!cartItemEl) {
+            return;
+        }
+
+        const nameEl = fragment.querySelector('[data-element="cart-item-name"]');
+        if (nameEl) {
+            nameEl.textContent = product.name;
+        }
+
+        const qtyEl = fragment.querySelector('[data-element="cart-qty"]');
+        if (qtyEl) {
+            qtyEl.textContent = item.qty;
+        }
+
+        const priceEl = fragment.querySelector('[data-element="cart-price"]');
+        if (priceEl) {
+            priceEl.textContent = formatPrice(finalPrice);
+        }
+
+        const savingsEl = fragment.querySelector('[data-element="cart-savings"]');
+        if (savingsEl) {
+            if (itemDiscount > 0) {
+                savingsEl.textContent = `${formatPrice(itemDiscount)} صرفه‌جویی`;
+                savingsEl.classList.remove('hidden');
+            } else {
+                savingsEl.classList.add('hidden');
+            }
+        }
+
+        const decreaseBtn = fragment.querySelector('[data-element="cart-decrease"]');
+        if (decreaseBtn) {
+            decreaseBtn.dataset.id = product.id;
+            decreaseBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                updateCartItemQty(productId, -1);
+            });
+        }
+
+        const increaseBtn = fragment.querySelector('[data-element="cart-increase"]');
+        if (increaseBtn) {
+            increaseBtn.dataset.id = product.id;
+            increaseBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                updateCartItemQty(productId, 1);
+            });
+        }
+
+        const removeBtn = fragment.querySelector('[data-element="cart-remove"]');
+        if (removeBtn) {
+            removeBtn.dataset.id = product.id;
+            removeBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                removeFromCart(productId);
+            });
+        }
+
+        cartItems.appendChild(fragment);
     });
-    
+
     const shippingCost = total > 500000 ? 0 : 30000;
     const finalTotal = total + shippingCost;
-    
+
     cartTotal.textContent = formatPrice(total + totalDiscount);
     cartDiscount.textContent = formatPrice(totalDiscount);
     cartShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
     cartFinalTotal.textContent = formatPrice(finalTotal);
     
-    // Add event listeners for cart actions
-    $$('.decrease-qty').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            updateCartItemQty(productId, -1);
-        });
-    });
-    
-    $$('.increase-qty').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            updateCartItemQty(productId, 1);
-        });
-    });
-    
-    $$('.remove-from-cart').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            removeFromCart(productId);
-        });
-    });
 }
 
 function updateCartItemQty(productId, change) {
