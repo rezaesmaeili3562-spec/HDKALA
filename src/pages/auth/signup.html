@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ثبت نام | HDKala</title>
+    <link rel="stylesheet" href="../../output.css" />
+    <link rel="preconnect" href="https://api.iconify.design" />
+  </head>
+  <body class="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" data-base="../..">
+    <div id="notification" class="fixed left-4 top-4 z-50 flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg transition-opacity duration-300 dark:bg-slate-800" data-type="success">
+      <iconify-icon icon="mdi:check-circle" width="20"></iconify-icon>
+      <span data-element="message">عملیات با موفقیت انجام شد.</span>
+    </div>
+
+    <site-header></site-header>
+
+    <main class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-16">
+      <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+        <header class="mb-6 text-center">
+          <h1 class="text-2xl font-bold">ساخت حساب جدید</h1>
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-300">اطلاعات خود را وارد کنید تا عضو خانواده HDKala شوید.</p>
+        </header>
+        <form id="signupForm" class="space-y-4 text-sm">
+          <label class="block space-y-2">
+            <span>نام و نام خانوادگی</span>
+            <input name="name" required class="w-full rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <label class="block space-y-2">
+            <span>ایمیل</span>
+            <input name="email" type="email" required class="w-full rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <label class="block space-y-2">
+            <span>رمز عبور</span>
+            <input name="password" type="password" required class="w-full rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <label class="block space-y-2">
+            <span>تکرار رمز عبور</span>
+            <input name="confirm" type="password" required class="w-full rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <button type="submit" class="w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90">ثبت نام</button>
+        </form>
+        <p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-300">
+          حساب دارید؟
+          <a href="./login.html" class="font-medium text-primary">وارد شوید</a>
+        </p>
+      </div>
+    </main>
+
+    <site-footer></site-footer>
+
+    <script type="module" src="../../js/pages/signup.js"></script>
+  </body>
+</html>

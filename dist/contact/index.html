@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تماس با ما | HDKala</title>
+    <link rel="stylesheet" href="../output.css" />
+    <link rel="preconnect" href="https://api.iconify.design" />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" data-base="..">
+    <div id="notification" class="fixed left-4 top-4 z-50 flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg transition-opacity duration-300 dark:bg-slate-800" data-type="success">
+      <iconify-icon icon="mdi:check-circle" width="20"></iconify-icon>
+      <span data-element="message">عملیات با موفقیت انجام شد.</span>
+    </div>
+
+    <site-header data-active="تماس با ما"></site-header>
+
+    <main class="mx-auto mt-10 flex max-w-4xl flex-col gap-8 px-6 pb-16">
+      <header class="space-y-2">
+        <h1 class="text-3xl font-bold">ارتباط با HDKala</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-300">پیشنهادات و سوالات خود را برای ما ارسال کنید.</p>
+      </header>
+      <section class="grid gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:grid-cols-2">
+        <div class="space-y-4 text-sm text-slate-500 dark:text-slate-300">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">اطلاعات تماس</h2>
+          <p>پشتیبانی ۲۴ ساعته در تمام روزهای هفته پاسخگوی شماست.</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3"><iconify-icon icon="mdi:phone" width="20"></iconify-icon><span>۰۲۱-۱۲۳۴۵۶۷۸</span></div>
+            <div class="flex items-center gap-3"><iconify-icon icon="mdi:email" width="20"></iconify-icon><span>support@hdkala.ir</span></div>
+            <div class="flex items-center gap-3"><iconify-icon icon="mdi:map-marker" width="20"></iconify-icon><span>تهران، خیابان ولیعصر، ساختمان HDKala</span></div>
+          </div>
+        </div>
+        <form id="contactForm" class="space-y-4 text-sm">
+          <label class="flex flex-col gap-2">
+            <span>نام و نام خانوادگی</span>
+            <input name="name" required class="rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span>ایمیل</span>
+            <input name="email" type="email" required class="rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800" />
+          </label>
+          <label class="flex flex-col gap-2">
+            <span>پیام شما</span>
+            <textarea name="message" rows="3" required class="rounded-xl border border-slate-200 px-4 py-2 dark:border-slate-700 dark:bg-slate-800"></textarea>
+          </label>
+          <button type="submit" class="w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90">ارسال پیام</button>
+        </form>
+      </section>
+    </main>
+
+    <site-footer></site-footer>
+
+    <script type="module" src="../js/pages/contact.js"></script>
+  </body>
+</html>
