@@ -1,0 +1,19 @@
+<template id="tpl-cart-item">
+    <div class="flex gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg" data-element="cart-item">
+      <div class="flex-1">
+        <h4 class="font-medium" data-element="cart-item-name"></h4>
+        <div class="flex justify-between items-center mt-2">
+          <div class="flex items-center gap-2">
+            <button class="decrease-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-element="cart-decrease" data-id="">-</button>
+            <span class="w-8 text-center" data-element="cart-qty"></span>
+            <button class="increase-qty w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm" data-element="cart-increase" data-id="">+</button>
+          </div>
+          <div class="text-primary font-medium" data-element="cart-price"></div>
+        </div>
+        <div class="text-green-500 text-xs mt-1 hidden" data-element="cart-savings"></div>
+      </div>
+      <button class="remove-from-cart text-red-500 hover:text-red-700 transition-colors" data-element="cart-remove" data-id="">
+        <iconify-icon icon="mdi:trash-can-outline"></iconify-icon>
+      </button>
+    </div>
+  </template>

@@ -1,0 +1,47 @@
+<template id="tpl-product-card">
+    <article class="product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20" data-element="product-card">
+      <div class="relative overflow-hidden">
+        <a data-element="product-link" href="#">
+          <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <img data-element="product-image" src="" alt="" class="w-full h-48 object-cover product-image zoom-image hidden" loading="lazy" />
+            <iconify-icon data-element="product-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
+          </div>
+        </a>
+        <div class="absolute top-2 left-2 flex gap-2">
+          <button aria-label="افزودن به علاقه‌مندی‌ها" class="add-to-wishlist bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm" data-element="wishlist-btn" data-id="">
+            <iconify-icon data-element="wishlist-icon" icon="mdi:heart-outline" class="text-gray-600 dark:text-gray-400"></iconify-icon>
+          </button>
+          <button aria-label="مقایسه محصول" class="add-to-compare bg-white/90 dark:bg-gray-800/90 rounded-full p-2 backdrop-blur-sm" data-element="compare-btn" data-id="">
+            <iconify-icon data-element="compare-icon" icon="mdi:scale-balance" class="text-gray-600 dark:text-gray-400"></iconify-icon>
+          </button>
+        </div>
+        <div class="absolute top-2 right-2 flex flex-col gap-2" data-element="badge-container">
+          <div class="badge badge-discount hidden" data-element="badge-discount"></div>
+          <div class="badge badge-new hidden" data-element="badge-new">جدید</div>
+          <div class="badge badge-hot hidden" data-element="badge-hot">فروش ویژه</div>
+          <div class="badge bg-purple-500 text-white hidden" data-element="badge-bestseller">پرفروش</div>
+        </div>
+      </div>
+      <div class="p-4">
+        <h3 class="font-bold text-lg mb-1 dark:text-white line-clamp-2" data-element="product-name"></h3>
+        <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2" data-element="product-description"></p>
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-gray-500 line-through text-sm hidden" data-element="product-original-price"></div>
+            <span class="text-primary font-extrabold" data-element="product-final-price"></span>
+          </div>
+          <div class="text-yellow-500 text-sm" data-element="product-rating"></div>
+        </div>
+        <div class="flex items-center justify-between mb-2 text-xs">
+          <div class="text-gray-500 dark:text-gray-400" data-element="product-stock"></div>
+          <div class="text-gray-500 dark:text-gray-400" data-element="product-brand"></div>
+        </div>
+        <div class="flex gap-2">
+          <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors" data-element="add-to-cart" data-id=""></button>
+          <a class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات" data-element="detail-button" href="#">
+            <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
+          </a>
+        </div>
+      </div>
+    </article>
+  </template>

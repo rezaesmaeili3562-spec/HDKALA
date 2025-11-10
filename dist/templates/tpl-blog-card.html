@@ -1,0 +1,17 @@
+<template id="tpl-blog-card">
+    <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-primary/20" data-element="blog-card">
+      <div class="h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center" data-element="blog-image-wrapper">
+        <img data-element="blog-image" src="" alt="" class="w-full h-48 object-cover hidden" loading="lazy" />
+        <iconify-icon data-element="blog-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
+      </div>
+      <div class="p-4 space-y-3">
+        <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full" data-element="blog-category"></span>
+        <h3 class="font-bold text-lg" data-element="blog-title"></h3>
+        <p class="text-gray-600 dark:text-gray-400 text-sm" data-element="blog-excerpt"></p>
+        <div class="flex justify-between items-center text-xs text-gray-500">
+          <span data-element="blog-date"></span>
+          <a href="#" class="text-primary hover:text-primary/80 transition-colors" data-element="blog-link">ادامه مطلب</a>
+        </div>
+      </div>
+    </article>
+  </template>

@@ -1,0 +1,82 @@
+<template id="tpl-home-page">
+    <div id="homePage" class="space-y-12">
+      <section class="bg-gradient-to-l from-primary to-primary-600 text-white rounded-2xl p-6" id="homeHero">
+        <div class="md:flex md:items-center md:justify-between gap-6">
+          <div class="flex-1 space-y-4">
+            <h1 class="text-2xl md:text-3xl font-extrabold" data-element="home-hero-title">به HDKALA خوش آمدید</h1>
+            <p class="opacity-90 text-base" data-element="home-hero-subtitle">بهترین تجربه خرید آنلاین با تنوع بی‌نظیر محصولات و قیمت‌های استثنایی</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="#products" class="bg-white text-primary rounded-full px-5 py-2.5 font-medium hover:bg-gray-100 transition-colors text-sm">مشاهده محصولات</a>
+              <button id="quickAddDemo" class="bg-white/20 border border-white/30 rounded-full px-5 py-2.5 hover:bg-white/30 transition-colors text-sm" type="button">افزودن نمونه</button>
+            </div>
+          </div>
+          <div class="hidden md:block flex-1 text-center">
+            <iconify-icon icon="mdi:shopping" width="150" class="opacity-80"></iconify-icon>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-6" id="homeCategories">
+        <h2 class="text-2xl font-bold text-center">دسته‌بندی‌های محبوب</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" data-element="home-category-grid">
+          <a href="#products:electronics" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
+            <iconify-icon icon="mdi:laptop" width="40" class="text-primary mb-2"></iconify-icon>
+            <div class="font-medium">الکترونیک</div>
+          </a>
+          <a href="#products:fashion" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
+            <iconify-icon icon="mdi:tshirt-crew" width="40" class="text-primary mb-2"></iconify-icon>
+            <div class="font-medium">مد و پوشاک</div>
+          </a>
+          <a href="#products:home" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
+            <iconify-icon icon="mdi:sofa" width="40" class="text-primary mb-2"></iconify-icon>
+            <div class="font-medium">خانه و آشپزخانه</div>
+          </a>
+          <a href="#products:books" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
+            <iconify-icon icon="mdi:book-open" width="40" class="text-primary mb-2"></iconify-icon>
+            <div class="font-medium">کتاب</div>
+          </a>
+          <a href="#products:sports" class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow border border-primary/20">
+            <iconify-icon icon="mdi:dumbbell" width="40" class="text-primary mb-2"></iconify-icon>
+            <div class="font-medium">ورزشی</div>
+          </a>
+        </div>
+      </section>
+
+      <section class="space-y-6" id="homeFeatured">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold">محصولات ویژه</h2>
+          <a href="#products" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
+        </div>
+        <div id="featuredProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+      </section>
+
+      <section class="space-y-6" id="homeBlogs">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold">آخرین مقالات</h2>
+          <a href="#blog" class="text-primary hover:text-primary/80 transition-colors">مشاهده همه</a>
+        </div>
+        <div id="homeBlogList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+      </section>
+
+      <section class="bg-primary/10 rounded-2xl p-8" id="homeStats">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div class="text-3xl font-bold text-primary" data-element="stat-products">0+</div>
+            <div class="text-gray-600 dark:text-gray-400">محصول</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-primary" data-element="stat-orders">0+</div>
+            <div class="text-gray-600 dark:text-gray-400">سفارش موفق</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-primary" data-element="stat-users">0+</div>
+            <div class="text-gray-600 dark:text-gray-400">کاربر فعال</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-primary">۲۴/۷</div>
+            <div class="text-gray-600 dark:text-gray-400">پشتیبانی</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </template>
