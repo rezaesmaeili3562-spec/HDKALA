@@ -1,6 +1,10 @@
 (function(){
   const scriptQueue = [
     './dom.js',
+    './modules/validators.js',
+    './modules/form-behaviors.js',
+    './modules/otp-manager.js',
+    './modules/compare-modal-manager.js',
     './core.js',
     './storage.js',
     './router.js',

@@ -1,56 +1,42 @@
 /* ---------- Validation Functions ---------- */
-function validatePhone(phone) {
-    const phoneRegex = /^09[0-9]{9}$/;
-    return phoneRegex.test(phone);
-}
+const globalScope = typeof window !== 'undefined' ? window : globalThis;
+const validators = globalScope.Validators || {};
 
-function validatePostalCode(code) {
-    const postalRegex = /^[0-9]{10}$/;
-    return postalRegex.test(code);
-}
+const validatePhone = validators.validatePhone || ((phone) => /^09[0-9]{9}$/.test(String(phone || '')));
+const validatePostalCode = validators.validatePostalCode || ((code) => /^[0-9]{10}$/.test(String(code || '')));
+const validateNationalCode = validators.validateNationalCode || ((code) => {
+    const nationalCode = String(code || '');
+    if (!/^\d{10}$/.test(nationalCode)) return false;
 
-function validateNationalCode(code) {
-    if (!/^\d{10}$/.test(code)) return false;
-    
-    const check = parseInt(code[9]);
+    const check = parseInt(nationalCode[9], 10);
     let sum = 0;
-    for (let i = 0; i < 9; i++) {
-        sum += parseInt(code[i]) * (10 - i);
+    for (let i = 0; i < 9; i += 1) {
+        sum += parseInt(nationalCode[i], 10) * (10 - i);
     }
     sum %= 11;
-    
+
     return (sum < 2 && check === sum) || (sum >= 2 && check === 11 - sum);
-}
-
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-function validatePassword(password) {
-    return password.length >= 6;
-}
-
-function validatePersianText(text) {
-    const persianRegex = /^[\u0600-\u06FF\s]+$/;
-    return persianRegex.test(text);
-}
-
-function validateNumber(input) {
-    return /^\d+$/.test(input);
-}
-
-function validatePrice(price) {
-    return /^\d+$/.test(price) && parseInt(price) > 0;
-}
-
-function validateStock(stock) {
-    return /^\d+$/.test(stock) && parseInt(stock) >= 0;
-}
-
-function validateDiscount(discount) {
-    return /^\d+$/.test(discount) && parseInt(discount) >= 0 && parseInt(discount) <= 100;
-}
+});
+const validateEmail = validators.validateEmail || ((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '')));
+const validatePassword = validators.validatePassword || ((password) => String(password || '').length >= 6);
+const validatePersianText = validators.validatePersianText || ((text) => /^[\u0600-\u06FF\s]+$/.test(String(text || '')));
+const validateNumber = validators.validateNumber || ((input) => /^\d+$/.test(String(input || '')));
+const validatePrice = validators.validatePrice || ((price) => {
+    const numeric = String(price || '');
+    return /^\d+$/.test(numeric) && parseInt(numeric, 10) > 0;
+});
+const validateStock = validators.validateStock || ((stock) => {
+    const numeric = String(stock || '');
+    return /^\d+$/.test(numeric) && parseInt(numeric, 10) >= 0;
+});
+const validateDiscount = validators.validateDiscount || ((discount) => {
+    const numeric = String(discount || '');
+    if (!/^\d+$/.test(numeric)) {
+        return false;
+    }
+    const value = parseInt(numeric, 10);
+    return value >= 0 && value <= 100;
+});
 
 // اعتبارسنجی فیلدهای فرم
 function validateForm(formData) {

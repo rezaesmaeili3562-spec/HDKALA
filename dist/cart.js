@@ -190,93 +190,39 @@ function toggleWishlist(productId) {
 }
 
 /* ---------- Enhanced Compare Functions ---------- */
+const compareManager = (typeof window !== 'undefined' && window.CompareModalManager)
+    ? new window.CompareModalManager({
+        getList: () => compareList,
+        setList: (newList) => {
+            compareList = Array.isArray(newList) ? newList.slice() : [];
+        },
+        storage: LS,
+        container: compareProducts,
+        modal: compareModal,
+        openTrigger: compareBtn,
+        closeTrigger: closeCompareModal,
+        notify,
+        productResolver: getProductById,
+        templateRenderer: createCompareProduct,
+        badgeUpdater: updateCompareBadge,
+        cartAdder: (productId) => addToCart(productId, 1),
+        wishlistToggler: (productId) => toggleWishlist(productId),
+        maxItems: 4
+    })
+    : null;
+
 function toggleCompare(productId) {
-    const index = compareList.indexOf(productId);
-    if (index > -1) {
-        compareList.splice(index, 1);
-        notify('محصول از لیست مقایسه حذف شد');
-    } else {
-        if (compareList.length >= 4) {
-            notify('حداکثر ۴ محصول قابل مقایسه هستند', true);
-            return;
-        }
-        compareList.push(productId);
-        notify('محصول به لیست مقایسه اضافه شد');
+    if (!compareManager) {
+        return;
     }
-    LS.set('HDK_compare', compareList);
-    updateCompareBadge();
+    compareManager.toggle(productId);
 }
 
 function openCompareModal() {
-    if (compareList.length === 0) {
-        notify('لطفا ابتدا محصولاتی برای مقایسه انتخاب کنید', true);
+    if (!compareManager) {
         return;
     }
-    compareModal.classList.remove('hidden');
-    compareModal.classList.add('flex');
-    renderCompareProducts();
-}
-
-function renderCompareProducts() {
-    compareProducts.innerHTML = '';
-    
-    if (compareList.length === 0) {
-        compareProducts.innerHTML = `
-            <div class="col-span-full text-center py-8 text-gray-500">
-                <iconify-icon icon="mdi:scale-off" width="48" class="mb-4"></iconify-icon>
-                <p>محصولی برای مقایسه وجود ندارد</p>
-            </div>
-        `;
-        return;
-    }
-    
-    compareProducts.className = `grid grid-cols-1 md:grid-cols-${Math.min(compareList.length, 4)} gap-6`;
-    
-    compareList.forEach(productId => {
-        const product = getProductById(productId);
-        if (!product) {
-            // حذف محصولاتی که وجود ندارند
-            compareList = compareList.filter(id => id !== productId);
-            LS.set('HDK_compare', compareList);
-            updateCompareBadge();
-            return;
-        }
-        
-        const productEl = document.createElement('div');
-        productEl.innerHTML = createCompareProduct(product);
-        compareProducts.appendChild(productEl);
-    });
-    
-    // Add event listeners for compare actions
-    $$('.remove-compare').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            removeFromCompare(productId);
-        });
-    });
-    
-    $$('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            addToCart(productId, 1);
-        });
-    });
-    
-    $$('.add-to-wishlist').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const productId = e.target.closest('button').getAttribute('data-id');
-            toggleWishlist(productId);
-            renderCompareProducts(); // Refresh to update heart icon
-        });
-    });
-}
-
-function removeFromCompare(productId) {
-    compareList = compareList.filter(id => id !== productId);
-    LS.set('HDK_compare', compareList);
-    updateCompareBadge();
-    renderCompareProducts();
-    notify('محصول از مقایسه حذف شد');
+    compareManager.open();
 }
 
 /* ---------- Enhanced Checkout ---------- */
@@ -561,20 +507,6 @@ cartBtn.addEventListener('click', () => {
 
 closeCart.addEventListener('click', () => {
     cartSidebar.classList.remove('open');
-});
-
-compareBtn.addEventListener('click', openCompareModal);
-
-closeCompareModal.addEventListener('click', () => {
-    compareModal.classList.add('hidden');
-    compareModal.classList.remove('flex');
-});
-
-compareModal.addEventListener('click', (event) => {
-    if (event.target === compareModal) {
-        compareModal.classList.add('hidden');
-        compareModal.classList.remove('flex');
-    }
 });
 
 checkoutBtn.addEventListener('click', () => {

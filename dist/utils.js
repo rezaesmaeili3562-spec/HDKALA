@@ -1,204 +1,40 @@
 /* ---------- Utility Functions ---------- */
-function setupAutoClearInputs() {
-    document.addEventListener('focus', (e) => {
-        if (e.target.matches('input[type="number"], input[type="text"]')) {
-            if (e.target.value === '0' || e.target.value === '00') {
-                e.target.value = '';
-            }
-        }
-    });
-}
+const globalScope = typeof window !== 'undefined' ? window : globalThis;
 
-function setupInputValidation() {
-    document.addEventListener('blur', (e) => {
-        const input = e.target;
-        
-        if (input.type === 'tel' && input.hasAttribute('data-phone')) {
-            if (input.value && !validatePhone(input.value)) {
-                input.classList.add('border-red-500');
-                notify('شماره تلفن باید با 09 شروع شده و 11 رقمی باشد', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.hasAttribute('data-postal')) {
-            if (input.value && !validatePostalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد پستی باید 10 رقمی باشد', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.hasAttribute('data-national')) {
-            if (input.value && !validateNationalCode(input.value)) {
-                input.classList.add('border-red-500');
-                notify('کد ملی نامعتبر است', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-        
-        if (input.type === 'email' && input.value) {
-            if (!validateEmail(input.value)) {
-                input.classList.add('border-red-500');
-                notify('ایمیل وارد شده معتبر نیست', true);
-            } else {
-                input.classList.remove('border-red-500');
-            }
-        }
-    });
-}
+const formBehaviors = globalScope.FormBehaviors || null;
+const otpManager = globalScope.OTPManager || null;
 
-// تابع برای مدیریت مربع‌های کد تأیید
-function setupOtpInputs(container, options = {}) {
-    if (!container) return;
+const noop = () => {};
+const returnEmptyString = () => '';
 
-    const inputs = $$('.otp-input', container);
-    if (!inputs.length) return;
+const setupAutoClearInputs = formBehaviors && typeof formBehaviors.setupAutoClearInputs === 'function'
+    ? formBehaviors.setupAutoClearInputs.bind(formBehaviors)
+    : noop;
+const setupInputValidation = formBehaviors && typeof formBehaviors.setupInputValidation === 'function'
+    ? formBehaviors.setupInputValidation.bind(formBehaviors)
+    : noop;
+const setupSmoothScroll = formBehaviors && typeof formBehaviors.setupSmoothScroll === 'function'
+    ? formBehaviors.setupSmoothScroll.bind(formBehaviors)
+    : noop;
+const setupLazyLoading = formBehaviors && typeof formBehaviors.setupLazyLoading === 'function'
+    ? formBehaviors.setupLazyLoading.bind(formBehaviors)
+    : noop;
+const setupResponsiveHandlers = formBehaviors && typeof formBehaviors.setupResponsiveHandlers === 'function'
+    ? formBehaviors.setupResponsiveHandlers.bind(formBehaviors)
+    : noop;
 
-    const form = inputs[0] ? inputs[0].closest('form') : null;
-    const { autoSubmit = true, onComplete } = options;
-
-    const completeAndSubmit = () => {
-        if (typeof onComplete === 'function') {
-            onComplete(getOtpCode(container));
-            return;
-        }
-
-        if (!autoSubmit || !form) {
-            return;
-        }
-
-        if (container.dataset.otpSubmitting === 'true') {
-            return;
-        }
-
-        container.dataset.otpSubmitting = 'true';
-
-        if (typeof form.requestSubmit === 'function') {
-            form.requestSubmit();
-        } else {
-            form.submit();
-        }
-    };
-
-    inputs.forEach((input, index) => {
-        input.type = 'text';
-        input.setAttribute('inputmode', 'numeric');
-        input.setAttribute('pattern', '\\d*');
-        input.setAttribute('autocomplete', 'one-time-code');
-        input.dir = 'ltr';
-        input.style.direction = 'ltr';
-        input.classList.add('text-gray-900', 'dark:text-white');
-        input.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
-        input.style.color = '#f8fafc';
-        input.style.borderColor = '#475569';
-        input.style.caretColor = '#f8fafc';
-
-        input.addEventListener('focus', (e) => {
-            e.target.select?.();
-        });
-
-        input.addEventListener('input', (e) => {
-            e.target.classList.remove('border-red-500', 'border-green-500');
-            e.target.style.borderColor = '#475569';
-            const value = e.target.value.replace(/[^\d]/g, '');
-            e.target.value = value.slice(-1);
-
-            if (e.target.value && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-
-            if (inputs.every(inp => inp.value.length === 1)) {
-                completeAndSubmit();
-            }
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '') {
-                if (index > 0) {
-                    inputs[index - 1].focus();
-                }
-            }
-
-            if (e.key === 'ArrowLeft' && index > 0) {
-                inputs[index - 1].focus();
-                e.preventDefault();
-            }
-
-            if (e.key === 'ArrowRight' && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-                e.preventDefault();
-            }
-        });
-
-        input.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pasteData = e.clipboardData.getData('text');
-            const numbers = pasteData.replace(/[^\d]/g, '').split('');
-
-            inputs.forEach(inputEl => {
-                inputEl.classList.remove('border-red-500', 'border-green-500');
-                inputEl.style.borderColor = '#475569';
-            });
-
-            numbers.forEach((num, i) => {
-                if (inputs[i]) {
-                    inputs[i].value = num;
-                }
-            });
-
-            if (numbers.length < inputs.length) {
-                const nextInput = inputs[numbers.length];
-                if (nextInput) {
-                    nextInput.focus();
-                }
-            }
-
-            if (inputs.every(inp => inp.value.length === 1)) {
-                completeAndSubmit();
-            }
-        });
-    });
-}
-
-// تابع برای جمع‌آوری کد از مربع‌ها
-function getOtpCode(container) {
-    const inputs = $$('.otp-input', container);
-    return inputs.map(input => input.value).join('');
-}
-
-// تابع برای ریست کردن مربع‌های کد
-function resetOtpInputs(container) {
-    const inputs = $$('.otp-input', container);
-    inputs.forEach(input => {
-        input.value = '';
-        input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        input.style.borderColor = '#475569';
-    });
-    if (inputs[0]) inputs[0].focus();
-
-    if (container && container.dataset) {
-        delete container.dataset.otpSubmitting;
-    }
-}
-
-// تابع برای هایلایت کردن مربع‌ها
-function highlightOtpInputs(container, isValid) {
-    const inputs = $$('.otp-input', container);
-    inputs.forEach(input => {
-        input.classList.remove('border-primary', 'border-red-500', 'border-green-500');
-        if (isValid) {
-            input.classList.add('border-green-500');
-            input.style.borderColor = '#22c55e';
-        } else {
-            input.classList.add('border-red-500');
-            input.style.borderColor = '#ef4444';
-        }
-    });
-}
+const setupOtpInputs = otpManager && typeof otpManager.setup === 'function'
+    ? otpManager.setup.bind(otpManager)
+    : noop;
+const getOtpCode = otpManager && typeof otpManager.getCode === 'function'
+    ? otpManager.getCode.bind(otpManager)
+    : returnEmptyString;
+const resetOtpInputs = otpManager && typeof otpManager.reset === 'function'
+    ? otpManager.reset.bind(otpManager)
+    : noop;
+const highlightOtpInputs = otpManager && typeof otpManager.highlight === 'function'
+    ? otpManager.highlight.bind(otpManager)
+    : noop;
 
 // تابع برای ایجاد delay
 function delay(ms) {
@@ -307,48 +143,6 @@ function checkProductStock(productId, quantity = 1) {
     return product.stock >= (currentQty + quantity);
 }
 
-// تابع برای مدیریت اسکرول
-function setupSmoothScroll() {
-    document.addEventListener('click', (e) => {
-        if (e.target.matches('a[href^="#"]')) {
-            e.preventDefault();
-            const target = $(e.target.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    });
-}
-
-// تابع برای lazy loading تصاویر
-function setupLazyLoading() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                observer.unobserve(img);
-            }
-        });
-    });
-    
-    $$('img[data-src]').forEach(img => {
-        observer.observe(img);
-    });
-}
-
-// تابع برای مدیریت responsive
-function setupResponsiveHandlers() {
-    function handleResize() {
-        if (window.innerWidth >= 1024) {
-            mobileMenu.classList.add('hidden');
-        }
-    }
-
-    window.addEventListener('resize', handleResize);
-}
-
 // بهبود و انیمیشن آیکون‌ها در سراسر پروژه
 function setupIconAnimations() {
     const interactiveSelector = 'button, a, [role="button"], [data-icon-interactive-parent], .icon-action, .icon-button';
@@ -394,11 +188,16 @@ function setupIconAnimations() {
 
 // Initialize all utilities
 document.addEventListener('DOMContentLoaded', () => {
-    setupAutoClearInputs();
-    setupInputValidation();
-    setupSmoothScroll();
-    setupLazyLoading();
-    setupResponsiveHandlers();
+    if (formBehaviors && typeof formBehaviors.init === 'function') {
+        formBehaviors.init();
+    } else {
+        setupAutoClearInputs();
+        setupInputValidation();
+        setupSmoothScroll();
+        setupLazyLoading();
+        setupResponsiveHandlers();
+    }
+
     setupIconAnimations();
 });
 
