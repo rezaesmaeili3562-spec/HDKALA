@@ -1,0 +1,32 @@
+<section class="space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl font-bold text-slate-900">لیست محصولات</h1>
+    <p class="text-sm text-slate-600">محصولات را جستجو کنید و با انتخاب دسته‌بندی مناسب، کالای مورد نظر خود را سریع‌تر پیدا کنید.</p>
+  </header>
+
+  <form data-filter-form class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-[2fr_1fr] md:items-end">
+    <div class="space-y-2">
+      <label for="product-search" class="text-xs font-medium text-slate-500">جستجو</label>
+      <input id="product-search" name="search" type="search" placeholder="نام محصول را وارد کنید" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white" />
+    </div>
+    <div class="space-y-2">
+      <label for="product-category" class="text-xs font-medium text-slate-500">دسته‌بندی</label>
+      <select id="product-category" name="category" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white">
+        <option value="all">همه محصولات</option>
+        <option value="electronics">الکترونیک</option>
+        <option value="fashion">مد و پوشاک</option>
+        <option value="home">خانه و آشپزخانه</option>
+        <option value="sports">ورزشی</option>
+      </select>
+    </div>
+    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 md:col-span-2 md:w-max">اعمال فیلتر</button>
+  </form>
+
+  <div data-products-state class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-slate-500"><span data-products-count>۰</span> محصول پیدا شد</p>
+      <button type="button" data-reset-filters class="text-xs font-semibold text-indigo-600 transition hover:text-indigo-500">حذف فیلترها</button>
+    </div>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-products-list></div>
+  </div>
+</section>

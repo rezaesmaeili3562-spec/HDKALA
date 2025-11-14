@@ -1,0 +1,44 @@
+<section class="space-y-8">
+  <header class="space-y-2">
+    <h1 class="text-2xl font-bold text-slate-900">تکمیل سفارش</h1>
+    <p class="text-sm text-slate-600">اطلاعات تماس و نشانی خود را وارد کنید تا سفارش شما ثبت شود.</p>
+  </header>
+  <form data-checkout-form class="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+    <section class="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900">اطلاعات تماس</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="space-y-2 text-xs font-medium text-slate-500">
+          <span>نام و نام خانوادگی</span>
+          <input name="name" type="text" placeholder="مثال: علی رضایی" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white" />
+        </label>
+        <label class="space-y-2 text-xs font-medium text-slate-500">
+          <span>ایمیل</span>
+          <input name="email" type="email" placeholder="example@email.com" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white" />
+        </label>
+        <label class="space-y-2 text-xs font-medium text-slate-500">
+          <span>شماره تماس</span>
+          <input name="phone" type="tel" placeholder="0912xxxxxxx" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white" />
+        </label>
+        <label class="space-y-2 text-xs font-medium text-slate-500">
+          <span>استان</span>
+          <input name="province" type="text" placeholder="تهران" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white" />
+        </label>
+        <label class="sm:col-span-2 space-y-2 text-xs font-medium text-slate-500">
+          <span>نشانی</span>
+          <textarea name="address" rows="3" placeholder="تهران، خیابان ..." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:bg-white"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <aside class="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900">خلاصه پرداخت</h2>
+      <div class="space-y-3 text-sm text-slate-600">
+        <p class="flex items-center justify-between">جمع کل <span data-checkout-subtotal>۰ تومان</span></p>
+        <p class="flex items-center justify-between">هزینه ارسال <span data-checkout-shipping>۰ تومان</span></p>
+        <p class="flex items-center justify-between text-base font-bold text-slate-900">مبلغ قابل پرداخت <span data-checkout-total>۰ تومان</span></p>
+      </div>
+      <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">ثبت سفارش</button>
+      <p class="text-xs leading-6 text-slate-500">با ثبت سفارش، شرایط استفاده و قوانین بازگشت کالا را می‌پذیرید.</p>
+    </aside>
+  </form>
+</section>
