@@ -1197,3 +1197,23 @@ document.addEventListener('submit', (event) => {
         handleAdminNoteFormSubmit(event.target);
     }
 });
+(function(){
+  if (typeof document === 'undefined') return;
+  const body = document.body;
+  if (!body || body.dataset.page !== 'admin') return;
+
+  function activate(){
+    const target = '#admin';
+    if (location.hash !== target) {
+      location.hash = target;
+    } else if (typeof renderPage === 'function') {
+      renderPage();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', activate);
+  } else {
+    activate();
+  }
+})();
