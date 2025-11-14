@@ -609,6 +609,9 @@ function renderAdminPage(options = {}) {
         `).join('')
         : `<p class="text-sm text-gray-500 dark:text-gray-400">هنوز یادداشتی ثبت نشده است.</p>`;
 
+    const themeTarget = typeof root !== 'undefined' ? root : document.documentElement;
+    const isDarkTheme = themeTarget.classList.contains('dark');
+
     const page = document.createElement('div');
     page.className = 'space-y-8';
     page.innerHTML = `
@@ -619,11 +622,14 @@ function renderAdminPage(options = {}) {
                 <p class="text-xs text-white/60 mt-2">آخرین ورود: ${lastLogin}</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <button type="button" class="admin-action-btn admin-action-btn--secondary" id="adminThemeToggle">
-                    <iconify-icon icon="${(typeof root !== 'undefined' ? root : document.documentElement).classList.contains('dark') ? 'ph:sun-duotone' : 'ph:moon-duotone'}" width="20"></iconify-icon>
-                    <span>${(typeof root !== 'undefined' ? root : document.documentElement).classList.contains('dark') ? 'حالت روشن' : 'حالت تیره'}</span>
+                <button type="button" class="admin-action-btn admin-action-btn--secondary" id="adminThemeToggle" aria-pressed="${isDarkTheme ? 'true' : 'false'}" data-theme-state="${isDarkTheme ? 'dark' : 'light'}">
+                    <iconify-icon data-theme-icon icon="${isDarkTheme ? 'ph:sun-duotone' : 'ph:moon-duotone'}" width="20"></iconify-icon>
+                    <span data-theme-label>${isDarkTheme ? 'حالت روشن' : 'حالت تیره'}</span>
                 </button>
                 <button type="button" class="admin-action-btn admin-action-btn--primary" data-admin-action="reports">گزارش امروز</button>
+                <button type="button" class="admin-action-btn admin-action-btn--secondary" data-admin-action="finance">خلاصه مالی</button>
+                <button type="button" class="admin-action-btn" data-admin-action="tasks">برنامه کاری</button>
+                <button type="button" class="admin-action-btn" data-admin-action="insights">بینش مشتریان</button>
                 <button type="button" class="admin-action-btn admin-action-btn--secondary" data-admin-open-store>نمایش فروشگاه</button>
                 <button type="button" class="admin-action-btn admin-action-btn--danger" data-admin-logout>خروج از مدیریت</button>
             </div>
@@ -708,11 +714,15 @@ function renderAdminPage(options = {}) {
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
                 <h3 class="text-lg font-semibold mb-4">عملیات سریع</h3>
-                <div class="space-y-3">
-                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="inventory">بررسی موجودی انبار</button>
-                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="users">مدیریت مشتریان وفادار</button>
-                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="support">ارسال پیام پشتیبانی</button>
-                    <button type="button" class="w-full px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="campaign">ایجاد کمپین تبلیغاتی</button>
+                <div class="admin-quick-actions grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="reports">گزارش امروز</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="inventory">کنترل موجودی</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="finance">خلاصه مالی</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="users">مشتریان وفادار</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="insights">بینش مشتریان</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="tasks">برنامه کاری امروز</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="support">پشتیبانی مشتریان</button>
+                    <button type="button" class="px-4 py-3 rounded-xl border border-primary/20 text-right hover:bg-primary/10 transition-all duration-200" data-admin-action="campaign">کمپین تبلیغاتی</button>
                 </div>
             </div>
             <div class="admin-dashboard-card bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 p-6 shadow-md">
@@ -795,34 +805,18 @@ function renderAdminPage(options = {}) {
     setupBlogManagement();
     const adminThemeToggle = $('#adminThemeToggle', page);
     if (adminThemeToggle) {
-        const target = typeof root !== 'undefined' ? root : document.documentElement;
-        const updateThemeToggleUi = () => {
-            const isDark = target.classList.contains('dark');
-            const icon = adminThemeToggle.querySelector('iconify-icon');
-            const label = adminThemeToggle.querySelector('span');
-            if (icon) {
-                icon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone');
+        if (typeof ensureAdminThemeStyles === 'function') {
+            ensureAdminThemeStyles();
+        }
+        if (typeof updateAdminThemeButton === 'function') {
+            updateAdminThemeButton(isDarkTheme);
+        }
+        adminThemeToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (typeof toggleAdminTheme === 'function') {
+                toggleAdminTheme();
             }
-            if (label) {
-                label.textContent = isDark ? 'حالت روشن' : 'حالت تیره';
-            }
-        };
-
-        adminThemeToggle.addEventListener('click', () => {
-            target.classList.toggle('dark');
-            const isDark = target.classList.contains('dark');
-            try {
-                localStorage.setItem('hdk_dark', String(isDark));
-            } catch (err) {
-                // Ignore storage errors
-            }
-            if (typeof themeIcon !== 'undefined' && themeIcon) {
-                themeIcon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone');
-            }
-            updateThemeToggleUi();
         });
-
-        updateThemeToggleUi();
     }
     if (!options.skipWelcome && typeof handleAdminQuickAction === 'function') {
         handleAdminQuickAction('reports', { notifyMessage: 'شما وارد پنل مدیریت شدید' });
