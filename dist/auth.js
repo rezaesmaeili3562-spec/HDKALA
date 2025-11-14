@@ -59,6 +59,172 @@ function updateUserDropdown() {
 }
 
 /* ---------- Authentication System ---------- */
+const SIGNUP_TIMER_KEY = 'HDK_signup_timer';
+const SIGNUP_TIMER_DURATION = 2 * 60 * 1000; // 2 minutes
+
+function createSignupTimer(phone) {
+    const now = Date.now();
+    const timerData = {
+        phone: phone || '',
+        startedAt: now,
+        expiresAt: now + SIGNUP_TIMER_DURATION
+    };
+
+    try {
+        localStorage.setItem(SIGNUP_TIMER_KEY, JSON.stringify(timerData));
+    } catch (err) {
+        // Ignore storage errors
+    }
+
+    return timerData;
+}
+
+function getSignupTimer() {
+    try {
+        const raw = localStorage.getItem(SIGNUP_TIMER_KEY);
+        if (!raw) {
+            return null;
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.expiresAt !== 'number') {
+            return null;
+        }
+        return parsed;
+    } catch (err) {
+        return null;
+    }
+}
+
+function clearSignupTimer() {
+    try {
+        localStorage.removeItem(SIGNUP_TIMER_KEY);
+    } catch (err) {
+        // Ignore
+    }
+}
+
+function ensureSignupTimer(phone) {
+    const existing = getSignupTimer();
+    if (existing && existing.phone === phone && existing.expiresAt > Date.now()) {
+        return existing;
+    }
+    return createSignupTimer(phone);
+}
+
+function formatSignupRemaining(ms) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+    return `${minutes}:${seconds}`;
+}
+
+function setFormDisabledState(form, disabled) {
+    if (!form) return;
+    const elements = form.querySelectorAll('input, select, textarea, button');
+    elements.forEach((el) => {
+        if (el.dataset.keepEnabled === 'true') return;
+        el.disabled = disabled;
+    });
+}
+
+function setupSignupTimerUI(container, phone, options = {}) {
+    if (!container) return;
+
+    const timerDisplay = container.querySelector('[data-signup-timer]');
+    if (!timerDisplay) return;
+
+    const form = options.formSelector ? container.querySelector(options.formSelector) : null;
+    const resendBtn = container.querySelector('[data-signup-resend]');
+    const onExpire = typeof options.onExpire === 'function' ? options.onExpire : null;
+    const onResend = typeof options.onResend === 'function' ? options.onResend : null;
+    const disableFormOnExpire = options.disableForm !== false;
+    const resetOtp = options.resetOtp === true;
+
+    let intervalId = null;
+    let expiredFired = false;
+
+    function applyTimerState(timer) {
+        if (!timer || timer.phone !== phone) {
+            timerDisplay.textContent = '00:00';
+            if (resendBtn) resendBtn.disabled = false;
+            if (disableFormOnExpire) setFormDisabledState(form, true);
+            if (!expiredFired && onExpire) onExpire({ expired: true });
+            expiredFired = true;
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            return;
+        }
+
+        const remaining = timer.expiresAt - Date.now();
+        if (remaining <= 0) {
+            timerDisplay.textContent = '00:00';
+            if (resendBtn) resendBtn.disabled = false;
+            if (disableFormOnExpire) setFormDisabledState(form, true);
+            if (!expiredFired && onExpire) onExpire({ expired: true });
+            expiredFired = true;
+            clearSignupTimer();
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            return;
+        }
+
+        timerDisplay.textContent = formatSignupRemaining(remaining);
+        if (disableFormOnExpire) setFormDisabledState(form, false);
+        if (resendBtn) resendBtn.disabled = true;
+    }
+
+    function tick() {
+        applyTimerState(getSignupTimer());
+    }
+
+    function startInterval() {
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+        intervalId = setInterval(tick, 1000);
+    }
+
+    const initialTimer = ensureSignupTimer(phone);
+    applyTimerState(initialTimer);
+    startInterval();
+    tick();
+
+    if (resendBtn) {
+        resendBtn.addEventListener('click', () => {
+            const newTimer = createSignupTimer(phone);
+            if (disableFormOnExpire) setFormDisabledState(form, false);
+            timerDisplay.textContent = formatSignupRemaining(SIGNUP_TIMER_DURATION);
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            startInterval();
+            expiredFired = false;
+            if (resetOtp && typeof resetOtpInputs === 'function') {
+                resetOtpInputs(container);
+            }
+            if (typeof highlightOtpInputs === 'function') {
+                highlightOtpInputs(container, false);
+            }
+            if (typeof notify === 'function') {
+                notify('کد جدید ارسال شد.');
+            }
+            if (onResend) {
+                onResend({ timer: newTimer });
+            }
+        });
+    }
+
+    if (options.onCleanup && typeof options.onCleanup === 'function') {
+        options.onCleanup(() => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        });
+    }
+}
+
 function renderLoginPage() {
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
@@ -129,6 +295,7 @@ function renderLoginPage() {
 
         phoneError.classList.add('hidden');
         if (phone) {
+            createSignupTimer(phone);
             renderVerifyPage(phone);
         }
     });
@@ -185,18 +352,40 @@ function renderVerifyPage(phone) {
                     </button>
                 </div>
             </form>
-            <div class="text-center">
-                <button type="button" id="backToLogin" class="text-sm text-primary hover:text-primary/80 transition-colors">
-                    تغییر شماره تلفن
-                </button>
+            <div class="space-y-4">
+                <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+                    <span>زمان باقی‌مانده برای تکمیل ثبت‌نام:</span>
+                    <span class="font-semibold text-primary ms-1" data-signup-timer>02:00</span>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <button type="button" id="backToLogin" class="text-sm text-primary hover:text-primary/80 transition-colors">
+                        تغییر شماره تلفن
+                    </button>
+                    <button type="button" class="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-60 transition-colors" data-signup-resend disabled>
+                        ارسال مجدد کد
+                    </button>
+                </div>
             </div>
         </div>
     `;
     contentRoot.innerHTML = '';
     contentRoot.appendChild(page);
-    
+
     // Setup OTP inputs
     setupOtpInputs(page);
+
+    setupSignupTimerUI(page, phone, {
+        formSelector: '#verifyForm',
+        resetOtp: true,
+        onExpire: () => {
+            notify('مهلت ثبت‌نام به پایان رسید. لطفا دوباره کد دریافت کنید.', true);
+        },
+        onResend: () => {
+            if (typeof setupOtpInputs === 'function') {
+                setupOtpInputs(page);
+            }
+        }
+    });
     
     $('#verifyForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -221,6 +410,7 @@ function renderVerifyPage(phone) {
             LS.set('HDK_user', user);
             updateUserLabel();
             notify('با موفقیت وارد شدید!');
+            clearSignupTimer();
             navigate('home');
         } else {
             notify('حسابی با این شماره پیدا نشد. لطفا ثبت‌نام را تکمیل کنید.', true);
@@ -250,6 +440,18 @@ function renderSignupPage(phone = '', options = {}) {
                 <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
                     ${fromLogin ? 'برای فعال‌سازی حساب، فرم زیر را کامل کنید.' : 'لطفا اطلاعات خود را برای ساخت حساب کاربری وارد کنید.'}
                 </p>
+
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                        <span>زمان باقی‌مانده برای تکمیل ثبت‌نام:</span>
+                        <span class="font-semibold text-primary ms-1" data-signup-timer>02:00</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" class="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-60 transition-colors" data-signup-resend disabled>
+                            ارسال مجدد کد
+                        </button>
+                    </div>
+                </div>
 
                 <form class="space-y-6" id="userInfoForm">
                     <div>
@@ -352,7 +554,19 @@ function renderSignupPage(phone = '', options = {}) {
     `;
     contentRoot.innerHTML = '';
     contentRoot.appendChild(page);
-    
+
+    setupSignupTimerUI(page, phone, {
+        formSelector: '#userInfoForm',
+        onExpire: () => {
+            notify('مهلت ثبت‌نام به پایان رسید. لطفا دوباره کد دریافت کنید.', true);
+        },
+        onResend: () => {
+            setTimeout(() => {
+                renderVerifyPage(phone);
+            }, 150);
+        }
+    });
+
     // Load provinces
     loadProvinces();
 
@@ -428,6 +642,7 @@ function renderSignupPage(phone = '', options = {}) {
             LS.set('HDK_user', user);
             updateUserLabel();
             notify('ثبت‌نام با موفقیت انجام شد!');
+            clearSignupTimer();
             navigate('home');
         });
     }

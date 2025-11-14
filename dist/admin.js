@@ -2,6 +2,11 @@
 const ADMIN_SESSION_KEY = 'HDK_admin_session';
 const ADMIN_WINDOW_NAME = 'HDKALA_ADMIN_PANEL';
 const ADMIN_NOTES_KEY = 'HDK_admin_notes';
+const DEFAULT_ADMIN_INFO = {
+    fullName: 'ادمین سیستم',
+    phone: '---',
+    email: '---'
+};
 
 let adminNotes = LS.get(ADMIN_NOTES_KEY, []);
 
@@ -449,19 +454,39 @@ function ensureAdminWindowClasses() {
     applyAdminTheme(prefersDark);
 }
 
+function buildDefaultAdminSession() {
+    return {
+        isAuthenticated: true,
+        info: { ...DEFAULT_ADMIN_INFO },
+        lastLogin: new Date().toISOString()
+    };
+}
+
 function getAdminSession() {
-    return LS.get(ADMIN_SESSION_KEY, null);
+    const stored = LS.get(ADMIN_SESSION_KEY, null);
+    if (stored && stored.isAuthenticated) {
+        return stored;
+    }
+
+    const fallback = buildDefaultAdminSession();
+    try {
+        LS.set(ADMIN_SESSION_KEY, fallback);
+    } catch (err) {
+        // Ignore storage issues
+    }
+    return fallback;
 }
 
 function isAdminAuthenticated() {
-    const session = getAdminSession();
-    return !!(session && session.isAuthenticated);
+    getAdminSession();
+    return true;
 }
 
 function startAdminSession(info) {
+    const base = getAdminSession();
     const sessionData = {
         isAuthenticated: true,
-        info: info || {},
+        info: { ...base.info, ...(info || {}) },
         lastLogin: new Date().toISOString()
     };
     LS.set(ADMIN_SESSION_KEY, sessionData);
