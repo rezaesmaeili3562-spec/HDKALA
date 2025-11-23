@@ -1,4 +1,4 @@
-/* ---------- User Dropdown ---------- */
+// ---------- مدیریت منوی کاربر ----------
 function updateUserDropdown() {
     if (!userDropdownContent) return;
 
@@ -58,7 +58,7 @@ function updateUserDropdown() {
     }
 }
 
-/* ---------- Authentication System ---------- */
+// ---------- سیستم احراز هویت کاربران ----------
 function renderLoginPage() {
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
@@ -163,6 +163,9 @@ function renderVerifyPage(phone) {
                         کد ۴ رقمی ارسال شده به ${phone} را وارد کنید
                     </p>
                 </div>
+                <div class="mt-3 text-center text-sm text-primary bg-primary/10 border border-primary/20 rounded-lg py-2" id="otpTimerBox">
+                    زمان باقی‌مانده: <span id="otpTimer" class="font-semibold">02:00</span>
+                </div>
                 <p class="mt-2 text-center text-xs text-primary bg-primary/10 p-2 rounded-lg">
                     💡 لطفا کد ۴ رقمی ارسال شده را وارد کنید.
                 </p>
@@ -180,7 +183,7 @@ function renderVerifyPage(phone) {
                     `).join('')}
                 </div>
                 <div>
-                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    <button type="submit" id="verifySubmit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                         تأیید و ورود
                     </button>
                 </div>
@@ -194,12 +197,63 @@ function renderVerifyPage(phone) {
     `;
     contentRoot.innerHTML = '';
     contentRoot.appendChild(page);
-    
-    // Setup OTP inputs
+
+    // راه‌اندازی ورودی‌های کد تأیید
     setupOtpInputs(page);
-    
+
+    // مدیریت تایمر دو دقیقه‌ای ارسال کد تأیید
+    const otpTimer = page.querySelector('#otpTimer');
+    const verifyButton = page.querySelector('#verifySubmit');
+    let otpInterval = null;
+    let isOtpExpired = false;
+    let remainingSeconds = 120;
+
+    // توقف تایمر در زمان خروج از صفحه یا ارسال مجدد
+    function stopOtpCountdown() {
+        if (otpInterval) {
+            clearInterval(otpInterval);
+            otpInterval = null;
+        }
+    }
+
+    // به‌روزرسانی نمایش تایمر به‌صورت دقیقه و ثانیه
+    function updateOtpTimer() {
+        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+        const seconds = String(remainingSeconds % 60).padStart(2, '0');
+        if (otpTimer) {
+            otpTimer.textContent = `${minutes}:${seconds}`;
+        }
+    }
+
+    // آغاز شمارش معکوس کد تأیید
+    function startOtpCountdown() {
+        updateOtpTimer();
+        otpInterval = setInterval(() => {
+            remainingSeconds -= 1;
+            updateOtpTimer();
+
+            if (remainingSeconds <= 0) {
+                stopOtpCountdown();
+                isOtpExpired = true;
+                if (verifyButton) {
+                    verifyButton.textContent = 'ارسال مجدد کد تأیید';
+                }
+            }
+        }, 1000);
+    }
+
+    startOtpCountdown();
+
     $('#verifyForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        // اگر کد منقضی شده باشد، رندر مجدد صفحه برای ارسال کد جدید
+        if (isOtpExpired) {
+            notify('کد قبلی منقضی شده است. در حال ارسال مجدد کد.', false);
+            stopOtpCountdown();
+            renderVerifyPage(phone);
+            return;
+        }
+
         const code = getOtpCode(page);
         if (code.length !== 4) {
             notify('لطفا کد ۴ رقمی را کامل وارد کنید.', true);
@@ -213,24 +267,29 @@ function renderVerifyPage(phone) {
             highlightOtpInputs(page, true);
         }
 
-        // Check if user exists (login) or new (signup)
+        // بررسی اینکه کاربر از قبل وجود دارد یا نیاز به ثبت‌نام جدید دارد
         const existingUser = LS.get('HDK_user');
         if (existingUser && existingUser.phone === phone) {
-            // Login
+            // ورود کاربر موجود
             user = existingUser;
             LS.set('HDK_user', user);
             updateUserLabel();
             notify('با موفقیت وارد شدید!');
+            stopOtpCountdown();
             navigate('home');
         } else {
             notify('حسابی با این شماره پیدا نشد. لطفا ثبت‌نام را تکمیل کنید.', true);
+            stopOtpCountdown();
             setTimeout(() => {
                 renderSignupPage(phone, { fromLogin: true });
             }, 600);
         }
     });
-    
-    $('#backToLogin').addEventListener('click', renderLoginPage);
+
+    $('#backToLogin').addEventListener('click', () => {
+        stopOtpCountdown();
+        renderLoginPage();
+    });
 }
 
 function renderSignupPage(phone = '', options = {}) {
