@@ -310,7 +310,7 @@
   </div>
   
   <!-- Filter Sidebar -->
-  <div id="filterSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+  <div id="filterSidebar" class="fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
     <div class="p-4 border-b border-primary/20">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold text-primary">فیلترها</h2>
@@ -602,7 +602,7 @@
   </div>
 
   <!-- Cart Sidebar -->
-  <div id="cartSidebar" class="filter-sidebar fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
+  <div id="cartSidebar" class="fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl z-40 overflow-y-auto transform translate-x-full transition-transform duration-300 custom-scrollbar">
     <div class="p-4 border-b border-primary/20">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold text-primary">سبد خرید</h2>
@@ -794,12 +794,13 @@
   </div>
 
   <!-- Component Templates -->
+  
   <template id="tpl-product-card">
-    <article class="product-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20" data-element="product-card">
+    <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20 hover:-translate-y-2 hover:shadow-[0_16px_32px_rgba(0,0,0,0.12)]" data-element="product-card">
       <div class="relative overflow-hidden">
         <a data-element="product-link" href="#">
           <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <img data-element="product-image" src="" alt="" class="w-full h-48 object-cover product-image zoom-image hidden" loading="lazy" />
+            <img data-element="product-image" src="" alt="" class="w-full h-48 object-cover hidden transition-transform duration-300 cursor-zoom-in hover:scale-105" loading="lazy" />
             <iconify-icon data-element="product-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
           </div>
         </a>
@@ -812,10 +813,10 @@
           </button>
         </div>
         <div class="absolute top-2 right-2 flex flex-col gap-2" data-element="badge-container">
-          <div class="badge badge-discount hidden" data-element="badge-discount"></div>
-          <div class="badge badge-new hidden" data-element="badge-new">جدید</div>
-          <div class="badge badge-hot hidden" data-element="badge-hot">فروش ویژه</div>
-          <div class="badge bg-purple-500 text-white hidden" data-element="badge-bestseller">پرفروش</div>
+          <div class="hidden px-2 py-1 text-xs font-bold rounded-full bg-red-500 text-white" data-element="badge-discount"></div>
+          <div class="hidden px-2 py-1 text-xs font-bold rounded-full bg-blue-500 text-white" data-element="badge-new">جدید</div>
+          <div class="hidden px-2 py-1 text-xs font-bold rounded-full bg-amber-500 text-white" data-element="badge-hot">فروش ویژه</div>
+          <div class="hidden px-2 py-1 text-xs font-bold rounded-full bg-purple-500 text-white" data-element="badge-bestseller">پرفروش</div>
         </div>
       </div>
       <div class="p-4">
@@ -833,7 +834,7 @@
           <div class="text-gray-500 dark:text-gray-400" data-element="product-brand"></div>
         </div>
         <div class="flex gap-2">
-          <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-semibold transition-colors" data-element="add-to-cart" data-id=""></button>
+          <button class="add-to-cart flex-1 bg-gradient-to-br from-[#1d4ed8] to-[#6d28d9] hover:from-[#1e3a8a] hover:to-[#5b21b6] text-white py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm" data-element="add-to-cart" data-id=""></button>
           <a class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات" data-element="detail-button" href="#">
             <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
           </a>
@@ -841,6 +842,7 @@
       </div>
     </article>
   </template>
+
 
   <template id="tpl-product-empty">
     <div class="col-span-full text-center text-gray-500 py-10">

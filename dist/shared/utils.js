@@ -356,13 +356,44 @@ function setupIconAnimations() {
     const markIcon = (icon) => {
         if (!(icon instanceof HTMLElement)) return;
 
-        icon.classList.add('icon-animated');
-
         const interactiveParent = icon.closest(interactiveSelector);
         const hasPointerClass = icon.classList.contains('cursor-pointer') || icon.classList.contains('hover:text-primary');
         const isInteractive = Boolean(interactiveParent) || hasPointerClass || icon.hasAttribute('data-icon-interactive');
 
-        icon.dataset.iconInteractive = isInteractive ? 'true' : 'false';
+        icon.classList.add(
+            'inline-flex',
+            'items-center',
+            'justify-center',
+            'align-middle',
+            'leading-none',
+            'origin-center',
+            'transition',
+            'duration-200',
+            'ease-out',
+            'animate-icon-pop'
+        );
+
+        if (isInteractive) {
+            const hoverClasses = ['-translate-y-0.5', 'scale-105'];
+            const activeClasses = ['scale-95'];
+
+            icon.classList.add('cursor-pointer');
+
+            const resetTransforms = () => {
+                icon.classList.remove(...hoverClasses, ...activeClasses);
+            };
+
+            icon.addEventListener('mouseenter', () => {
+                icon.classList.add(...hoverClasses);
+                icon.classList.remove(...activeClasses);
+            });
+
+            icon.addEventListener('mouseleave', resetTransforms);
+            icon.addEventListener('focus', () => icon.classList.add(...hoverClasses));
+            icon.addEventListener('blur', resetTransforms);
+            icon.addEventListener('mousedown', () => icon.classList.add(...activeClasses));
+            icon.addEventListener('mouseup', () => icon.classList.remove(...activeClasses));
+        }
     };
 
     const enhanceTree = (root) => {

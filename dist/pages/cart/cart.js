@@ -432,22 +432,30 @@ function setupCheckoutEvents() {
         const allOptions = $$('.payment-option');
 
         allOptions.forEach(option => {
-            option.classList.remove('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
-            option.classList.add('border-gray-300');
+            option.classList.remove(
+                'border-green-500',
+                'bg-green-50',
+                'dark:bg-emerald-500/10',
+                'shadow-[0_6px_18px_rgba(37,99,235,0.2)]'
+            );
+            option.classList.add('border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
             option.dataset.selected = 'false';
             option.setAttribute('aria-checked', 'false');
 
             const indicator = option.querySelector('.payment-option-indicator');
             if (indicator) {
-                indicator.classList.remove('payment-option-indicator--active');
+                indicator.classList.remove('bg-blue-600', 'border-blue-600', 'text-white', 'shadow-[0_6px_18px_rgba(37,99,235,0.2)]');
             }
 
             const icon = option.querySelector('.payment-option-icon');
             if (icon) {
-                icon.classList.remove('text-green-500');
-                if (!icon.classList.contains('text-gray-500')) {
-                    icon.classList.add('text-gray-500');
-                }
+                icon.classList.remove('text-emerald-500');
+                icon.classList.add('text-gray-500');
+            }
+
+            const indicatorCheck = option.querySelector('.payment-option-check');
+            if (indicatorCheck) {
+                indicatorCheck.classList.add('opacity-0');
             }
         });
 
@@ -456,20 +464,25 @@ function setupCheckoutEvents() {
             return;
         }
 
-        paymentOption.classList.add('payment-option--active', 'border-green-500', 'bg-green-50', 'dark:bg-green-500/10');
-        paymentOption.classList.remove('border-gray-300');
+        paymentOption.classList.add('border-green-500', 'bg-green-50', 'dark:bg-emerald-500/10', 'shadow-[0_6px_18px_rgba(37,99,235,0.2)]');
+        paymentOption.classList.remove('border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800');
         paymentOption.dataset.selected = 'true';
         paymentOption.setAttribute('aria-checked', 'true');
 
         const indicator = paymentOption.querySelector('.payment-option-indicator');
         if (indicator) {
-            indicator.classList.add('payment-option-indicator--active');
+            indicator.classList.add('bg-blue-600', 'border-blue-600', 'text-white', 'shadow-[0_6px_18px_rgba(37,99,235,0.2)]');
+        }
+
+        const indicatorCheck = paymentOption.querySelector('.payment-option-check');
+        if (indicatorCheck) {
+            indicatorCheck.classList.remove('opacity-0');
         }
 
         const icon = paymentOption.querySelector('.payment-option-icon');
         if (icon) {
             icon.classList.remove('text-gray-500');
-            icon.classList.add('text-green-500');
+            icon.classList.add('text-emerald-500');
         }
     };
 
