@@ -218,10 +218,12 @@ function setupFilterToggle() {
     
     filterBtn.addEventListener('click', () => {
         if (isFilterOpen) {
-            filterSidebar.classList.remove('open');
+            filterSidebar.classList.add('translate-x-full');
+            filterSidebar.classList.remove('translate-x-0');
             isFilterOpen = false;
         } else {
-            filterSidebar.classList.add('open');
+            filterSidebar.classList.remove('translate-x-full');
+            filterSidebar.classList.add('translate-x-0');
             isFilterOpen = true;
         }
     });
@@ -229,7 +231,8 @@ function setupFilterToggle() {
     // بستن فیلتر با کلیک خارج
     document.addEventListener('click', (e) => {
         if (isFilterOpen && !filterSidebar.contains(e.target) && !filterBtn.contains(e.target)) {
-            filterSidebar.classList.remove('open');
+            filterSidebar.classList.add('translate-x-full');
+            filterSidebar.classList.remove('translate-x-0');
             isFilterOpen = false;
         }
     });
@@ -237,7 +240,8 @@ function setupFilterToggle() {
     // بستن با دکمه بستن
     document.addEventListener('click', (e) => {
         if (e.target.closest('#closeFilters') || e.target.closest('#filterCollapse')) {
-            filterSidebar.classList.remove('open');
+            filterSidebar.classList.add('translate-x-full');
+            filterSidebar.classList.remove('translate-x-0');
             isFilterOpen = false;
         }
     });
@@ -330,11 +334,13 @@ function setupPriceValidation() {
 
 /* ---------- Event Listeners ---------- */
 filterBtn.addEventListener('click', () => {
-    filterSidebar.classList.add('open');
+    filterSidebar.classList.remove('translate-x-full');
+    filterSidebar.classList.add('translate-x-0');
 });
 
 closeFilters.addEventListener('click', () => {
-    filterSidebar.classList.remove('open');
+    filterSidebar.classList.add('translate-x-full');
+    filterSidebar.classList.remove('translate-x-0');
 });
 
 // Filter event listeners
@@ -364,9 +370,10 @@ if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
     if (stockFilter) stockFilter.value = '';
     if (ratingFilter) ratingFilter.value = '';
     if (priceRange) priceRange.value = '50000000';
-    
+
     applyFilters();
-    filterSidebar.classList.remove('open');
+    filterSidebar.classList.add('translate-x-full');
+    filterSidebar.classList.remove('translate-x-0');
 });
 
 if (searchInput) {

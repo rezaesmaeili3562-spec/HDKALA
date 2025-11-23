@@ -106,10 +106,10 @@ function createPaymentOptions(selectedMethod = 'online') {
                 const isSelected = selectedMethod === method.id;
                 const inputId = `payment-${method.id}`;
                 return `
-                    <label class="payment-option flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    <label class="payment-option flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:-translate-y-0.5 ${
                         isSelected
-                            ? 'payment-option--active border-green-500 bg-green-50 dark:bg-green-500/10'
-                            : 'border-gray-300 hover:border-primary/50'
+                            ? 'border-green-500 bg-green-50 dark:bg-emerald-500/10 shadow-[0_6px_18px_rgba(37,99,235,0.2)]'
+                            : 'border-gray-300 hover:border-primary/50 dark:border-gray-700 dark:hover:border-primary/50 bg-white dark:bg-gray-800'
                     }"
                            data-method="${method.id}"
                            data-selected="${isSelected}"
@@ -122,12 +122,12 @@ function createPaymentOptions(selectedMethod = 'online') {
                                value="${method.id}"
                                ${isSelected ? 'checked' : ''}
                                class="payment-option-input sr-only">
-                        <span class="payment-option-indicator ${isSelected ? 'payment-option-indicator--active' : ''}" aria-hidden="true">
-                            <iconify-icon icon="mdi:check" class="payment-option-check text-white text-sm"></iconify-icon>
+                        <span class="payment-option-indicator inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#cbd5f5] bg-white text-transparent transition-all duration-200 dark:bg-slate-900/60 dark:border-slate-400/70 ${isSelected ? 'bg-blue-600 border-blue-600 text-white shadow-[0_6px_18px_rgba(37,99,235,0.2)]' : ''}" aria-hidden="true">
+                            <iconify-icon icon="mdi:check" class="payment-option-check text-white text-sm transition-opacity duration-200 ${isSelected ? 'opacity-100' : 'opacity-0'}"></iconify-icon>
                         </span>
                         <div class="flex items-center gap-3 flex-1">
-                            <iconify-icon icon="${method.icon}" width="24" class="payment-option-icon ${
-                                isSelected ? 'text-green-500' : 'text-gray-500'
+                            <iconify-icon icon="${method.icon}" width="24" class="payment-option-icon transition-colors duration-150 ${
+                                isSelected ? 'text-emerald-500' : 'text-gray-500'
                             }"></iconify-icon>
                             <div class="flex-1">
                                 <div class="font-medium">${method.name}</div>
