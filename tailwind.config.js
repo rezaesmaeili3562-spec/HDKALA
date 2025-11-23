@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   content: [
     "./index.html",
@@ -49,5 +51,19 @@ module.exports = {
       }
     }
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const darkBgColor = 'oklch(21% 0.034 264.665)';
+
+      addUtilities(
+        {
+          '.dark .dark\\:bg-gray-900': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-gray-800': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-gray-700': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-slate-900\\/80': { backgroundColor: `${darkBgColor} !important` },
+        },
+        { respectImportant: false }
+      );
+    }),
+  ],
 }
