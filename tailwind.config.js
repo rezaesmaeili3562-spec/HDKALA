@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
+const darkBgColor = 'oklch(21% 0.034 264.665)';
+
 module.exports = {
   content: [
     "./index.html",
@@ -27,9 +30,10 @@ module.exports = {
           900: '#312e81'
         },
         dark: {
-          900: '#0f172a',
-          800: '#1e293b',
-          700: '#334155'
+          DEFAULT: darkBgColor,
+          900: darkBgColor,
+          800: darkBgColor,
+          700: darkBgColor
         }
       },
       fontFamily: {
@@ -49,5 +53,17 @@ module.exports = {
       }
     }
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities(
+        {
+          '.dark .dark\\:bg-gray-900': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-gray-800': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-gray-700': { backgroundColor: `${darkBgColor} !important` },
+          '.dark .dark\\:bg-slate-900\\/80': { backgroundColor: `${darkBgColor} !important` },
+        },
+        { respectImportant: false }
+      );
+    }),
+  ],
 }
