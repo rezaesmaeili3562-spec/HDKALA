@@ -20,6 +20,10 @@ const $$ = (s, ctx=document) => {
 };
 const notifyEl = document.getElementById('notification');
 const notifyMessageEl = document.getElementById('notificationMessage');
+const notifyBaseHide = ['opacity-0', 'translate-y-4', 'scale-[0.98]', 'pointer-events-none'];
+const notifyShowClasses = ['opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto'];
+const notifyErrorClasses = ['border-red-500'];
+const notifySuccessClasses = ['border-green-500'];
 
 function notify(msg, isError=false){
     if (!notifyEl) return;
@@ -30,14 +34,16 @@ function notify(msg, isError=false){
         notifyEl.textContent = msg;
     }
 
-    notifyEl.classList.remove('notification--error', 'notification--success', 'show');
+    notifyEl.classList.remove('notification--error', 'notification--success', 'show', ...notifyShowClasses, ...notifyErrorClasses, ...notifySuccessClasses);
+    notifyEl.classList.add(...notifyBaseHide);
     void notifyEl.offsetWidth;
     notifyEl.classList.add(isError ? 'notification--error' : 'notification--success');
-    notifyEl.classList.add('show');
+    notifyEl.classList.add('show', ...(isError ? notifyErrorClasses : notifySuccessClasses), ...notifyShowClasses);
 
     clearTimeout(notifyEl._t);
     notifyEl._t = setTimeout(() => {
-        notifyEl.classList.remove('show');
+        notifyEl.classList.remove('show', ...notifyShowClasses, ...notifyErrorClasses, ...notifySuccessClasses);
+        notifyEl.classList.add(...notifyBaseHide);
     }, 3500);
 }
 
