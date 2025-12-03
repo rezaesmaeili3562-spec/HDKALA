@@ -12,300 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Iconify -->
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <style>
-    :root {
-      --brand-primary: #4338ca;
-      --brand-secondary: #6d28d9;
-      --brand-accent: #1d4ed8;
-      --brand-gradient: linear-gradient(135deg, var(--brand-accent), var(--brand-secondary));
-      --brand-gradient-hover: linear-gradient(135deg, #1e3a8a, #5b21b6);
-    }
-
-    body.admin-mode {
-      background: linear-gradient(135deg, rgba(67, 56, 202, 0.15), rgba(109, 40, 217, 0.08));
-    }
-
-    body.admin-mode .admin-dashboard-card {
-      box-shadow: 0 20px 45px -18px rgba(67, 56, 202, 0.25);
-      border-color: rgba(255, 255, 255, 0.45);
-    }
-
-    body.admin-window {
-      background: radial-gradient(circle at 20% 20%, rgba(148, 163, 184, 0.25), transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(96, 165, 250, 0.25), transparent 55%),
-        #0f172a;
-      color: #e2e8f0;
-    }
-
-    body.admin-window #app > header,
-    body.admin-window #app > footer,
-    body.admin-window #mobileMenu,
-    body.admin-window #cartSidebar,
-    body.admin-window #filterSidebar,
-    body.admin-window #compareModal,
-    body.admin-window #addressQuickPanel {
-      display: none !important;
-    }
-
-    body.admin-window #app {
-      padding-top: 2.5rem;
-      padding-bottom: 2.5rem;
-    }
-
-    body.admin-window #content {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    body.admin-window .notification-toast {
-      background: rgba(15, 23, 42, 0.92);
-      color: #f8fafc;
-      border-color: rgba(96, 165, 250, 0.35);
-      box-shadow: 0 28px 60px -24px rgba(14, 116, 144, 0.6);
-    }
-
-    body.admin-window .admin-dashboard-card {
-      background: rgba(15, 23, 42, 0.75);
-      border-color: rgba(148, 163, 184, 0.25);
-      box-shadow: 0 24px 50px -24px rgba(8, 47, 73, 0.45);
-    }
-
-    .admin-topbar {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 20px 45px -25px rgba(14, 116, 144, 0.55);
-      backdrop-filter: blur(16px);
-    }
-
-    .admin-note-card {
-      background: rgba(30, 41, 59, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .admin-action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.6rem 1.25rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      color: #e2e8f0;
-      background: rgba(30, 41, 59, 0.55);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-
-    .admin-action-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 32px -20px rgba(14, 165, 233, 0.65);
-      background: rgba(59, 130, 246, 0.2);
-    }
-
-    .admin-action-btn--primary {
-      border-color: rgba(99, 102, 241, 0.45);
-      color: #c7d2fe;
-      background: rgba(99, 102, 241, 0.18);
-    }
-
-    .admin-action-btn--secondary {
-      border-color: rgba(14, 165, 233, 0.45);
-      color: #bae6fd;
-      background: rgba(14, 165, 233, 0.2);
-    }
-
-    .admin-action-btn--danger {
-      border-color: rgba(248, 113, 113, 0.45);
-      color: #fecaca;
-      background: rgba(248, 113, 113, 0.18);
-    }
-
-    .admin-status-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.35rem 0.75rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #e2e8f0;
-      background: rgba(30, 41, 59, 0.55);
-      font-size: 0.7rem;
-      font-weight: 500;
-      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-    }
-
-    .admin-status-btn:hover {
-      background: rgba(96, 165, 250, 0.25);
-      border-color: rgba(96, 165, 250, 0.4);
-    }
-
-    .admin-status-btn[disabled] {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .admin-stock-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(34, 197, 94, 0.35);
-      color: #bbf7d0;
-      background: rgba(22, 101, 52, 0.3);
-      font-size: 0.75rem;
-      font-weight: 500;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .admin-stock-btn:hover {
-      background: rgba(34, 197, 94, 0.35);
-      border-color: rgba(34, 197, 94, 0.5);
-    }
-
-    .admin-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #f1f5f9;
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .admin-input::placeholder {
-      color: rgba(226, 232, 240, 0.6);
-    }
-
-    .admin-input:focus {
-      outline: none;
-      border-color: rgba(96, 165, 250, 0.55);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    }
-
-    .admin-textarea {
-      width: 100%;
-      min-height: 140px;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #f1f5f9;
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      resize: vertical;
-    }
-
-    .admin-textarea::placeholder {
-      color: rgba(226, 232, 240, 0.6);
-    }
-
-    .admin-textarea:focus {
-      outline: none;
-      border-color: rgba(165, 180, 252, 0.6);
-      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
-    }
-
-    .nav-auth-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.45rem 1.15rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      line-height: 1.25rem;
-      transition: all 0.25s ease;
-      transform-origin: center;
-      box-shadow: 0 10px 28px -20px rgba(15, 23, 42, 0.3);
-    }
-
-    .nav-auth-btn:hover {
-      transform: translateY(-2px) scale(1.005);
-    }
-
-    .brand-outline {
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--brand-primary);
-      border: 1px solid rgba(67, 56, 202, 0.45);
-      box-shadow: 0 20px 45px -20px rgba(67, 56, 202, 0.35);
-    }
-
-    .brand-outline:hover {
-      background-image: var(--brand-gradient);
-      color: #ffffff;
-      border-color: rgba(99, 102, 241, 0.6);
-      box-shadow: 0 25px 55px -22px rgba(67, 56, 202, 0.55);
-    }
-
-    .brand-gradient {
-      background-image: var(--brand-gradient);
-      color: #ffffff;
-      border: 1px solid rgba(99, 102, 241, 0.45);
-      box-shadow: 0 18px 40px -22px rgba(79, 70, 229, 0.55);
-    }
-
-    .brand-gradient:hover {
-      background-image: var(--brand-gradient-hover);
-      box-shadow: 0 26px 60px -20px rgba(55, 48, 163, 0.6);
-    }
-
-    .auth-tab {
-      border-radius: 9999px;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-      font-weight: 600;
-    }
-
-    .auth-tab.active {
-      box-shadow: 0 18px 36px -22px rgba(79, 70, 229, 0.65);
-      border-color: rgba(79, 70, 229, 0.35);
-    }
-
-    .notification-toast {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      z-index: 50;
-      max-width: 20rem;
-      width: calc(100% - 3rem);
-      background: rgba(255, 255, 255, 0.95);
-      color: #1f2937;
-      border-radius: 1rem;
-      border: 2px solid transparent;
-      padding: 0.9rem 1.2rem;
-      box-shadow: 0 20px 45px -22px rgba(15, 23, 42, 0.28);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(1rem) scale(0.98);
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
-
-    .notification-toast.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-
-    .notification-toast.notification--error {
-      border-color: #ef4444;
-    }
-
-    .notification-toast.notification--success {
-      border-color: #22c55e;
-    }
-
-    html.dark .notification-toast {
-      background: rgba(17, 24, 39, 0.92);
-      color: #f9fafb;
-      box-shadow: 0 25px 50px -25px rgba(15, 23, 42, 0.6);
-    }
-  </style>
 </head>
-<body data-page="addresses" class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
+<body data-page="addresses" class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50">
   <!-- Notification Container -->
-  <div id="notification" class="notification-toast">
+  <div id="notification" class="notification-toast fixed right-6 bottom-6 z-50 max-w-xs w-[calc(100%-3rem)] rounded-2xl border-2 border-transparent px-5 py-4 shadow-[0_20px_45px_-22px_rgba(15,23,42,0.28)] bg-white/95 text-gray-800 opacity-0 pointer-events-none translate-y-4 scale-[0.98] transition duration-200 ease-out dark:bg-gray-900/90 dark:text-gray-50 dark:shadow-[0_25px_50px_-25px_rgba(15,23,42,0.6)]">
     <span id="notificationMessage" class="block text-sm leading-relaxed"></span>
   </div>
   
@@ -335,8 +45,8 @@
       <div>
         <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر قیمت</label>
         <div class="flex gap-2">
-          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" />
+          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" />
         </div>
         <div class="mt-2">
           <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full" />
@@ -419,11 +129,11 @@
           <form id="adminLoginForm" class="space-y-4">
             <div>
               <label for="adminFullName" class="block text-sm font-medium mb-2">نام و نام خانوادگی مدیر</label>
-              <input id="adminFullName" name="fullName" type="text" required maxlength="60" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="مثال: رضا محمدی">
+              <input id="adminFullName" name="fullName" type="text" required maxlength="60" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" placeholder="مثال: رضا محمدی">
             </div>
             <div>
               <label for="adminNationalCode" class="block text-sm font-medium mb-2">کد ملی</label>
-              <input id="adminNationalCode" name="nationalCode" type="text" required data-national maxlength="10" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="مثال: ۱۲۳۴۵۶۷۸۹۰">
+              <input id="adminNationalCode" name="nationalCode" type="text" required data-national maxlength="10" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" placeholder="مثال: ۱۲۳۴۵۶۷۸۹۰">
             </div>
             <div>
               <label for="adminPhone" class="block text-sm font-medium mb-2">شماره تماس</label>
@@ -431,11 +141,11 @@
             </div>
             <div>
               <label for="adminEmail" class="block text-sm font-medium mb-2">ایمیل</label>
-              <input id="adminEmail" name="email" type="email" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="admin@example.com">
+              <input id="adminEmail" name="email" type="email" required class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" placeholder="admin@example.com">
             </div>
             <div>
               <label for="adminCode" class="block text-sm font-medium mb-2">کد ادمین</label>
-              <input id="adminCode" name="adminCode" type="password" required minlength="4" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="کد امنیتی">
+              <input id="adminCode" name="adminCode" type="password" required minlength="4" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" placeholder="کد امنیتی">
             </div>
             <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
               ارسال کد تأیید
@@ -447,12 +157,12 @@
           </div>
           <form id="adminOtpForm" class="space-y-4">
             <div class="flex justify-center gap-2" dir="ltr">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" >
             </div>
             <div class="flex gap-3">
               <button type="button" id="adminOtpBack" class="flex-1 border border-primary text-primary py-2 rounded-lg hover:bg-primary/10 transition-colors">ویرایش اطلاعات</button>
@@ -687,8 +397,8 @@
         </button>
         <!-- Auth buttons -->
         <div id="authButtonGroup" class="hidden md:flex items-center gap-2">
-          <button id="navLoginBtn" class="nav-auth-btn brand-outline">ورود</button>
-          <button id="navSignupBtn" class="nav-auth-btn brand-gradient">ثبت‌نام</button>
+          <button id="navLoginBtn" class="inline-flex items-center justify-center px-5 py-2.5 rounded-full font-semibold text-[0.95rem] leading-5 transition-all duration-200 origin-center shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 hover:scale-[1.005] bg-white/90 text-indigo-700 border border-indigo-500/45 shadow-[0_20px_45px_-20px_rgba(67,56,202,0.35)] hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 hover:text-white hover:border-indigo-400">ورود</button>
+          <button id="navSignupBtn" class="inline-flex items-center justify-center px-5 py-2.5 rounded-full font-semibold text-[0.95rem] leading-5 transition-all duration-200 origin-center shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 hover:scale-[1.005] bg-gradient-to-br from-blue-600 to-purple-700 text-white border border-indigo-500/45 shadow-[0_18px_40px_-22px_rgba(79,70,229,0.55)] hover:from-blue-800 hover:to-purple-800">ثبت‌نام</button>
         </div>
         <!-- User -->
         <div class="relative" id="userArea">
@@ -704,7 +414,7 @@
           </div>
         </div>
         <!-- Mobile Menu -->
-        <button id="mobileMenuBtn" class="md:hidden text-gray-700 dark:text-white">
+        <button id="mobileMenuBtn" class="md:hidden text-gray-700 dark:text-white dark:bg-slate-900/80 dark:border-slate-600 dark:text-slate-50">
           <iconify-icon icon="mdi:menu" width="26"></iconify-icon>
         </button>
       </div>
@@ -734,8 +444,8 @@
         <button type="button" class="address-quick-trigger block w-full text-right py-2 text-gray-700 dark:text-white hover:text-primary transition-colors focus:outline-none">آدرس‌های من</button>
       </div>
       <div id="mobileAuthButtons" class="mt-4 flex flex-col gap-2">
-        <button id="mobileLoginBtn" class="nav-auth-btn brand-outline">ورود</button>
-        <button id="mobileSignupBtn" class="nav-auth-btn brand-gradient">ثبت‌نام</button>
+        <button id="mobileLoginBtn" class="inline-flex items-center justify-center px-5 py-2.5 rounded-full font-semibold text-[0.95rem] leading-5 transition-all duration-200 origin-center shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 hover:scale-[1.005] bg-white/90 text-indigo-700 border border-indigo-500/45 shadow-[0_20px_45px_-20px_rgba(67,56,202,0.35)] hover:bg-gradient-to-br hover:from-blue-700 hover:to-purple-700 hover:text-white hover:border-indigo-400">ورود</button>
+        <button id="mobileSignupBtn" class="inline-flex items-center justify-center px-5 py-2.5 rounded-full font-semibold text-[0.95rem] leading-5 transition-all duration-200 origin-center shadow-[0_10px_28px_-20px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 hover:scale-[1.005] bg-gradient-to-br from-blue-600 to-purple-700 text-white border border-indigo-500/45 shadow-[0_18px_40px_-22px_rgba(79,70,229,0.55)] hover:from-blue-800 hover:to-purple-800">ثبت‌نام</button>
       </div>
     </div>
     <!-- Main Content -->
