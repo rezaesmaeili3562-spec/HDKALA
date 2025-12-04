@@ -2,8 +2,7 @@
 module.exports = {
   content: [
     "./store/templates/**/*.{html,js}",
-    "./store/scripts/**/*.js",
-    "./store/js-loader/*.js"
+    "./store/scripts/**/*.js"
   ],
   darkMode: 'class',
   theme: {
