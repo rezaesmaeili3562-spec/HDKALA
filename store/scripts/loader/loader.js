@@ -15,13 +15,25 @@
   ];
 
   const currentScript = document.currentScript;
-  const sharedBase = new URL('../scripts/scripts-shared/', currentScript.src);
+  const sharedBase = (() => {
+    if (currentScript?.dataset?.sharedBase) {
+      return currentScript.dataset.sharedBase;
+    }
 
-  modules.forEach(({ file }) => {
+    if (currentScript?.src) {
+      return new URL('../scripts/scripts-shared/', currentScript.src).toString();
+    }
+
+    return new URL('../scripts/scripts-shared/', document.baseURI).toString();
+  })();
+
+  modules.forEach(({ file, role }) => {
     const script = document.createElement('script');
     script.src = new URL(file, sharedBase).toString();
     script.async = false;
     script.defer = true;
+    script.dataset.role = role;
+    script.onerror = () => console.error(`Failed to load shared module: ${script.src}`);
     document.head.appendChild(script);
   });
 })();

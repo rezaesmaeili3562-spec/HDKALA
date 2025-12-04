@@ -2,9 +2,9 @@
   "name": "hdkala-shop",
   "version": "1.0.0",
   "scripts": {
-    "dev": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "build": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
-    "server": "npx serve dist/pages"
+    "dev": "npx tailwindcss -i ./store/css/input.css -o ./store/css/output.css --watch",
+    "build": "npx tailwindcss -i ./store/css/input.css -o ./store/css/output.css --minify",
+    "server": "npx serve store/templates"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.0"
