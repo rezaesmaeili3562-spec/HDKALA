@@ -4,6 +4,8 @@ const LS = {
     set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
 };
 
+const ADMIN_NOTES_KEY = 'HDK_admin_notes';
+
 /* ---------- Sample Data ---------- */
 const sampleProducts = [
     { 
@@ -218,6 +220,7 @@ if(!LS.get('HDK_wishlist')) LS.set('HDK_wishlist', []);
 if(!LS.get('HDK_comments')) LS.set('HDK_comments', {});
 if(!LS.get('HDK_viewHistory')) LS.set('HDK_viewHistory', []);
 if(!LS.get('HDK_compare')) LS.set('HDK_compare', []);
+if(!LS.get(ADMIN_NOTES_KEY)) LS.set(ADMIN_NOTES_KEY, []);
 if(!LS.get('HDK_blogs')) LS.set('HDK_blogs', sampleBlogs);
 if(!LS.get('HDK_addresses')) LS.set('HDK_addresses', sampleAddresses);
 if(!LS.get('HDK_notifications')) LS.set('HDK_notifications', sampleNotifications);
@@ -234,6 +237,7 @@ let compareList = LS.get('HDK_compare', []);
 let blogs = LS.get('HDK_blogs', []);
 let addresses = LS.get('HDK_addresses', []);
 let notifications = LS.get('HDK_notifications', []);
+let adminNotes = LS.get(ADMIN_NOTES_KEY, []);
 let currentPage = 'home';
 let currentProductId = null;
 let editingProductId = null;
@@ -330,11 +334,288 @@ function addViewedProduct(id) {
     LS.set('HDK_viewHistory', viewHistory);
 }
 
-function updateCartBadge(){ 
+function updateCartDisplay() {
+    if (typeof Templates === 'undefined') return;
+    if (!cartItems) return;
+    cartItems.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartItems.appendChild(Templates.clone('tpl-cart-empty'));
+        cartTotal.textContent = '۰ تومان';
+        cartDiscount.textContent = '۰ تومان';
+        cartFinalTotal.textContent = '۰ تومان';
+        return;
+    }
+
+    let total = 0;
+    let totalDiscount = 0;
+
+    cart.forEach(item => {
+        const product = getProductById(item.productId);
+        if (!product) return;
+
+        const finalPrice = product.discount > 0 ?
+            product.price * (1 - product.discount / 100) : product.price;
+        const itemTotal = finalPrice * item.qty;
+        const itemDiscount = (product.price - finalPrice) * item.qty;
+
+        total += itemTotal;
+        totalDiscount += itemDiscount;
+
+        const fragment = Templates.clone('tpl-cart-item');
+        const cartItemEl = fragment.querySelector('[data-element="cart-item"]') || fragment.firstElementChild;
+        if (!cartItemEl) {
+            return;
+        }
+
+        const nameEl = fragment.querySelector('[data-element="cart-item-name"]');
+        if (nameEl) {
+            nameEl.textContent = product.name;
+        }
+
+        const qtyEl = fragment.querySelector('[data-element="cart-qty"]');
+        if (qtyEl) {
+            qtyEl.textContent = item.qty;
+        }
+
+        const priceEl = fragment.querySelector('[data-element="cart-price"]');
+        if (priceEl) {
+            priceEl.textContent = formatPrice(finalPrice);
+        }
+
+        const savingsEl = fragment.querySelector('[data-element="cart-savings"]');
+        if (savingsEl) {
+            if (itemDiscount > 0) {
+                savingsEl.textContent = `${formatPrice(itemDiscount)} صرفه‌جویی`;
+                savingsEl.classList.remove('hidden');
+            } else {
+                savingsEl.classList.add('hidden');
+            }
+        }
+
+        const decreaseBtn = fragment.querySelector('[data-element="cart-decrease"]');
+        if (decreaseBtn) {
+            decreaseBtn.dataset.id = product.id;
+            decreaseBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                updateCartItemQty(productId, -1);
+            });
+        }
+
+        const increaseBtn = fragment.querySelector('[data-element="cart-increase"]');
+        if (increaseBtn) {
+            increaseBtn.dataset.id = product.id;
+            increaseBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                updateCartItemQty(productId, 1);
+            });
+        }
+
+        const removeBtn = fragment.querySelector('[data-element="cart-remove"]');
+        if (removeBtn) {
+            removeBtn.dataset.id = product.id;
+            removeBtn.addEventListener('click', (e) => {
+                const productId = e.currentTarget.getAttribute('data-id');
+                removeFromCart(productId);
+            });
+        }
+
+        cartItems.appendChild(fragment);
+    });
+
+    const shippingCost = total > 500000 ? 0 : 30000;
+    const finalTotal = total + shippingCost;
+
+    cartTotal.textContent = formatPrice(total + totalDiscount);
+    cartDiscount.textContent = formatPrice(totalDiscount);
+    cartShipping.textContent = shippingCost === 0 ? 'رایگان' : formatPrice(shippingCost);
+    cartFinalTotal.textContent = formatPrice(finalTotal);
+}
+
+function updateCartItemQty(productId, change) {
+    const item = cart.find(i => i.productId === productId);
+    if (!item) return;
+
+    const product = getProductById(productId);
+    if (!product) return;
+
+    if (change > 0 && item.qty >= product.stock) {
+        notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, true);
+        return;
+    }
+
+    item.qty += change;
+    if (item.qty <= 0) {
+        removeFromCart(productId);
+    } else {
+        LS.set('HDK_cart', cart);
+        updateCartBadge();
+        updateCartDisplay();
+        notify(change > 0 ? 'تداد محصول افزایش یافت' : 'تعداد محصول کاهش یافت');
+    }
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(i => i.productId !== productId);
+    LS.set('HDK_cart', cart);
+    updateCartBadge();
+    updateCartDisplay();
+    notify('محصول از سبد خرید حذف شد');
+}
+
+function addToCart(productId, qty=1){
+    const product = getProductById(productId);
+    if (!product) return;
+
+    if (product.stock === 0) {
+        notify('این محصول در حال حاضر موجود نیست', true);
+        return;
+    }
+
+    const existing = cart.find(i => i.productId === productId);
+    if(existing) {
+        if (existing.qty + qty > product.stock) {
+            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, true);
+            return;
+        }
+        existing.qty += qty;
+    } else {
+        if (qty > product.stock) {
+            notify(`فقط ${product.stock} عدد از این محصول در انبار موجود است`, true);
+            return;
+        }
+        cart.push({ productId, qty });
+    }
+
+    LS.set('HDK_cart', cart);
+    updateCartBadge();
+    updateCartDisplay();
+    notify('محصول به سبد اضافه شد.');
+}
+
+function toggleWishlist(productId) {
+    if (!productId) return;
+
+    const index = wishlist.indexOf(productId);
+    if (index > -1) {
+        wishlist.splice(index, 1);
+        notify('محصول از علاقه‌مندی‌ها حذف شد');
+    } else {
+        wishlist.push(productId);
+        notify('محصول به علاقه‌مندی‌ها اضافه شد');
+    }
+
+    LS.set('HDK_wishlist', wishlist);
+    updateWishlistBadge();
+
+    const isInWishlist = wishlist.includes(productId);
+    $$(`.add-to-wishlist[data-id="${productId}"]`).forEach(btn => {
+        btn.classList.toggle('active', isInWishlist);
+        btn.setAttribute('aria-pressed', isInWishlist ? 'true' : 'false');
+
+        const icon = btn.querySelector('iconify-icon');
+        if (icon) {
+            icon.setAttribute('icon', isInWishlist ? 'mdi:heart' : 'mdi:heart-outline');
+            icon.classList.toggle('text-red-500', isInWishlist);
+            icon.classList.toggle('text-gray-600', !isInWishlist);
+            icon.classList.toggle('dark:text-gray-400', !isInWishlist);
+        }
+    });
+}
+
+function toggleCompare(productId) {
+    const index = compareList.indexOf(productId);
+    if (index > -1) {
+        compareList.splice(index, 1);
+        notify('محصول از لیست مقایسه حذف شد');
+    } else {
+        if (compareList.length >= 4) {
+            notify('حداکثر ۴ محصول قابل مقایسه هستند', true);
+            return;
+        }
+        compareList.push(productId);
+        notify('محصول به لیست مقایسه اضافه شد');
+    }
+    LS.set('HDK_compare', compareList);
+    updateCompareBadge();
+}
+
+function openCompareModal() {
+    if (compareList.length === 0) {
+        notify('لطفا ابتدا محصولاتی برای مقایسه انتخاب کنید', true);
+        return;
+    }
+    compareModal.classList.remove('hidden');
+    compareModal.classList.add('flex');
+    renderCompareProducts();
+}
+
+function renderCompareProducts() {
+    if (!compareProducts) return;
+    compareProducts.innerHTML = '';
+
+    if (compareList.length === 0) {
+        compareProducts.innerHTML = `
+            <div class="col-span-full text-center py-8 text-gray-500">
+                <iconify-icon icon="mdi:scale-off" width="48" class="mb-4"></iconify-icon>
+                <p>محصولی برای مقایسه وجود ندارد</p>
+            </div>
+        `;
+        return;
+    }
+
+    compareProducts.className = `grid grid-cols-1 md:grid-cols-${Math.min(compareList.length, 4)} gap-6`;
+
+    compareList.forEach(productId => {
+        const product = getProductById(productId);
+        if (!product) {
+            compareList = compareList.filter(id => id !== productId);
+            LS.set('HDK_compare', compareList);
+            updateCompareBadge();
+            return;
+        }
+
+        const productEl = document.createElement('div');
+        productEl.innerHTML = createCompareProduct(product);
+        compareProducts.appendChild(productEl);
+    });
+
+    $$('.remove-compare').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            removeFromCompare(productId);
+        });
+    });
+
+    $$('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            addToCart(productId, 1);
+        });
+    });
+
+    $$('.add-to-wishlist').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = e.target.closest('button').getAttribute('data-id');
+            toggleWishlist(productId);
+            renderCompareProducts();
+        });
+    });
+}
+
+function removeFromCompare(productId) {
+    compareList = compareList.filter(id => id !== productId);
+    LS.set('HDK_compare', compareList);
+    updateCompareBadge();
+    renderCompareProducts();
+    notify('محصول از مقایسه حذف شد');
+}
+
+function updateCartBadge(){
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
     if(totalItems === 0) {
-        cartCountEl.classList.add('hidden'); 
-    } else { 
+        cartCountEl.classList.add('hidden');
+    } else {
         cartCountEl.classList.remove('hidden'); 
         cartCountEl.textContent = String(totalItems); 
     } 

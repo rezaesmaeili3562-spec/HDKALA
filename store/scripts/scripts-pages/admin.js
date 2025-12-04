@@ -1,9 +1,6 @@
 /* ---------- Admin Session Management ---------- */
 const ADMIN_SESSION_KEY = 'HDK_admin_session';
 const ADMIN_WINDOW_NAME = 'HDKALA_ADMIN_PANEL';
-const ADMIN_NOTES_KEY = 'HDK_admin_notes';
-
-let adminNotes = LS.get(ADMIN_NOTES_KEY, []);
 
 function saveAdminNotes() {
     LS.set(ADMIN_NOTES_KEY, adminNotes);
