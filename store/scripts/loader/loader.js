@@ -15,16 +15,22 @@
   ];
 
   const currentScript = document.currentScript;
+
   const sharedBase = (() => {
+    // اگر مسیر sharedBase در HTML داده شده باشد
     if (currentScript?.dataset?.sharedBase) {
       return currentScript.dataset.sharedBase;
     }
 
+    // اگر فایل loader.js از طریق src لود شده باشد (که معمولاً همین است)
     if (currentScript?.src) {
-      return new URL('../scripts/scripts-shared/', currentScript.src).toString();
+      // مسیر صحیح نسبت به ساختار پوشه‌های شما:
+      // store/scripts/loader/loader.js → ../scripts-shared/
+      return new URL('../scripts-shared/', currentScript.src).toString();
     }
 
-    return new URL('../scripts/scripts-shared/', document.baseURI).toString();
+    // حالت fallback، اگر به هر دلیلی currentScript.src وجود نداشت
+    return new URL('../scripts-shared/', document.baseURI).toString();
   })();
 
   modules.forEach(({ file, role }) => {
@@ -33,7 +39,10 @@
     script.async = false;
     script.defer = true;
     script.dataset.role = role;
-    script.onerror = () => console.error(`Failed to load shared module: ${script.src}`);
+
+    script.onerror = () =>
+      console.error(`Failed to load shared module: ${script.src}`);
+
     document.head.appendChild(script);
   });
 })();

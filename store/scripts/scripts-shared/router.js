@@ -501,7 +501,10 @@ function renderAddressesPage() {
 
 
 function renderAdminPage(options = {}) {
-    ensureAdminWindowClasses();
+    // ✅ این گارد خطای ensureAdminWindowClasses is not defined را حل می‌کند
+    if (typeof ensureAdminWindowClasses === 'function') {
+        ensureAdminWindowClasses();
+    }
 
     const adminSession = typeof getAdminSession === 'function' ? getAdminSession() : null;
     const adminInfo = adminSession && adminSession.info ? adminSession.info : {};
