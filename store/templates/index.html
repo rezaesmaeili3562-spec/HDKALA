@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل ادمین</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-primary': '#0f0f23',
+                        'dark-secondary': '#1a1a2e',
+                        'dark-tertiary': '#16213e',
+                        'yellow-primary': '#ffd700',
+                        'yellow-secondary': '#ffed4e',
+                        'yellow-dark': '#b7791f'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, transparent 100%);
+            border-right: 3px solid #ffd700;
+        }
+
+        /* Mobile sidebar overlay */
+        .sidebar-overlay {
+            transition: all 0.3s ease;
+        }
+
+        /* Table responsive styles */
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: #ffd700 #1a1a2e;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button class="fixed top-4 right-4 z-50 lg:hidden bg-yellow-primary text-dark-primary p-3 rounded-full shadow-lg"
+        onclick="toggleMobileSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden" id="sidebar-overlay"
+        onclick="toggleMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-full w-64 bg-dark-secondary shadow-2xl z-50 transform translate-x-full lg:translate-x-0 transition-transform duration-300"
+        id="sidebar">
+        <div class="p-4 lg:p-6 border-b border-yellow-primary/20">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div
+                    class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-yellow-primary to-yellow-dark rounded-full flex items-center justify-center glow-effect">
+                    <i class="fas fa-crown text-dark-primary text-lg lg:text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-yellow-primary font-bold text-base lg:text-lg">پنل ادمین</h2>
+                    <p class="text-gray-400 text-xs lg:text-sm">مدیریت سیستم</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-6 overflow-y-auto h-[calc(100vh-200px)]">
+            <!-- Dashboard -->
+            <div
+                class="sidebar-item px-4 lg:px-6 py-3 text-yellow-primary bg-yellow-primary/10 border-r-3 border-yellow-primary">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="font-medium text-sm lg:text-base">داشبورد</span>
+                </div>
+            </div>
+
+            <!-- Users Dropdown -->
+            <div class="sidebar-item">
+                <div class="px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer flex items-center justify-between"
+                    onclick="toggleDropdown('users')">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <i class="fas fa-users"></i>
+                        <span class="font-medium text-sm lg:text-base">کاربران</span>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform duration-300" id="users-arrow"></i>
+                </div>
+                <div class="hidden bg-dark-tertiary" id="users-dropdown">
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">مدیریت
+                        کاربران</a>
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">افزودن
+                        کاربر</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">نقش‌ها</a>
+                </div>
+            </div>
+
+            <!-- Products Dropdown -->
+            <div class="sidebar-item">
+                <div class="px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer flex items-center justify-between"
+                    onclick="toggleDropdown('products')">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <i class="fas fa-box"></i>
+                        <span class="font-medium text-sm lg:text-base">محصولات</span>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform duration-300" id="products-arrow"></i>
+                </div>
+                <div class="hidden bg-dark-tertiary" id="products-dropdown">
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">لیست
+                        محصولات</a>
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">افزودن
+                        محصول</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">دسته‌بندی</a>
+                </div>
+            </div>
+
+            <!-- Orders Dropdown -->
+            <div class="sidebar-item">
+                <div class="px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer flex items-center justify-between"
+                    onclick="toggleDropdown('orders')">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="font-medium text-sm lg:text-base">سفارشات</span>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform duration-300" id="orders-arrow"></i>
+                </div>
+                <div class="hidden bg-dark-tertiary" id="orders-dropdown">
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">سفارشات
+                        جدید</a>
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">تاریخچه
+                        سفارشات</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">گزارشات</a>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="sidebar-item px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="font-medium text-sm lg:text-base">آمار و تحلیل</span>
+                </div>
+            </div>
+
+            <!-- Finance Dropdown -->
+            <div class="sidebar-item">
+                <div class="px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer flex items-center justify-between"
+                    onclick="toggleDropdown('finance')">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <i class="fas fa-coins"></i>
+                        <span class="font-medium text-sm lg:text-base">مالی</span>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform duration-300" id="finance-arrow"></i>
+                </div>
+                <div class="hidden bg-dark-tertiary" id="finance-dropdown">
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">گزارش
+                        درآمد</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">تراکنش‌ها</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">صورتحساب</a>
+                </div>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <div class="sidebar-item">
+                <div class="px-4 lg:px-6 py-3 text-gray-300 hover:text-yellow-primary cursor-pointer flex items-center justify-between"
+                    onclick="toggleDropdown('settings')">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <i class="fas fa-cog"></i>
+                        <span class="font-medium text-sm lg:text-base">تنظیمات</span>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform duration-300" id="settings-arrow"></i>
+                </div>
+                <div class="hidden bg-dark-tertiary" id="settings-dropdown">
+                    <a href="#" class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">تنظیمات
+                        عمومی</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">پیکربندی</a>
+                    <a href="#"
+                        class="block px-8 lg:px-12 py-2 text-gray-400 hover:text-yellow-primary text-sm">پشتیبان‌گیری</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="absolute bottom-4 lg:bottom-6 right-4 lg:right-6 left-4 lg:left-6">
+            <div class="bg-dark-tertiary rounded-lg p-3 lg:p-4 border border-yellow-primary/20">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=ffd700&color=0f0f23&bold=true"
+                        class="w-8 h-8 lg:w-10 lg:h-10 rounded-full">
+                    <div>
+                        <p class="text-yellow-primary font-medium text-sm">ادمین سیستم</p>
+                        <p class="text-gray-400 text-xs">آنلاین</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:mr-64 min-h-screen">
+        <!-- Header -->
+        <header
+            class="bg-dark-secondary/50 backdrop-blur-sm border-b border-yellow-primary/20 p-4 lg:p-6 pt-16 lg:pt-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                    <h1 class="text-xl lg:text-2xl font-bold text-yellow-primary">داشبورد مدیریت</h1>
+                    <p class="text-gray-400 text-sm lg:text-base">خوش آمدید به پنل کنترل</p>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="relative">
+                        <button
+                            class="bg-dark-tertiary p-2 lg:p-3 rounded-full text-yellow-primary hover:bg-yellow-primary hover:text-dark-primary transition-all glow-effect">
+                            <i class="fas fa-bell text-sm lg:text-base"></i>
+                        </button>
+                        <span
+                            class="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center text-xs">3</span>
+                    </div>
+                    <button
+                        class="bg-gradient-to-r from-yellow-primary to-yellow-dark text-dark-primary px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium hover:shadow-lg transition-all text-sm lg:text-base">
+                        پروفایل
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-4 lg:p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-xs lg:text-sm">کل کاربران</p>
+                            <p class="text-xl lg:text-2xl font-bold text-yellow-primary">12,458</p>
+                            <p class="text-green-400 text-xs lg:text-sm">↑ 12% از ماه قبل</p>
+                        </div>
+                        <div class="bg-yellow-primary/20 p-3 lg:p-4 rounded-full">
+                            <i class="fas fa-users text-yellow-primary text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-xs lg:text-sm">فروش امروز</p>
+                            <p class="text-xl lg:text-2xl font-bold text-yellow-primary">$24,500</p>
+                            <p class="text-green-400 text-xs lg:text-sm">↑ 8% از دیروز</p>
+                        </div>
+                        <div class="bg-green-500/20 p-3 lg:p-4 rounded-full">
+                            <i class="fas fa-dollar-sign text-green-400 text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-xs lg:text-sm">سفارشات جدید</p>
+                            <p class="text-xl lg:text-2xl font-bold text-yellow-primary">156</p>
+                            <p class="text-red-400 text-xs lg:text-sm">↓ 3% از دیروز</p>
+                        </div>
+                        <div class="bg-blue-500/20 p-3 lg:p-4 rounded-full">
+                            <i class="fas fa-shopping-cart text-blue-400 text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-xs lg:text-sm">بازدید سایت</p>
+                            <p class="text-xl lg:text-2xl font-bold text-yellow-primary">89,420</p>
+                            <p class="text-green-400 text-xs lg:text-sm">↑ 15% از هفته قبل</p>
+                        </div>
+                        <div class="bg-purple-500/20 p-3 lg:p-4 rounded-full">
+                            <i class="fas fa-eye text-purple-400 text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Activity Row -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                <!-- Chart -->
+                <div class="xl:col-span-2 bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20">
+                    <h3 class="text-yellow-primary font-bold text-base lg:text-lg mb-4">نمودار فروش</h3>
+                    <div class="h-48 lg:h-64 bg-dark-tertiary rounded-lg flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-yellow-primary text-3xl lg:text-4xl mb-2"></i>
+                            <p class="text-gray-400 text-sm lg:text-base">نمودار فروش ماهانه</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20">
+                    <h3 class="text-yellow-primary font-bold text-base lg:text-lg mb-4">فعالیت‌های اخیر</h3>
+                    <div class="space-y-3 lg:space-y-4">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div
+                                class="w-6 h-6 lg:w-8 lg:h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user-plus text-white text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-gray-300 text-xs lg:text-sm">کاربر جدید عضو شد</p>
+                                <p class="text-gray-500 text-xs">5 دقیقه پیش</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div
+                                class="w-6 h-6 lg:w-8 lg:h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-shopping-bag text-white text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-gray-300 text-xs lg:text-sm">سفارش جدید ثبت شد</p>
+                                <p class="text-gray-500 text-xs">12 دقیقه پیش</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div
+                                class="w-6 h-6 lg:w-8 lg:h-8 bg-yellow-primary rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-star text-dark-primary text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-gray-300 text-xs lg:text-sm">نظر جدید دریافت شد</p>
+                                <p class="text-gray-500 text-xs">25 دقیقه پیش</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div
+                                class="w-6 h-6 lg:w-8 lg:h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-exclamation text-white text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-gray-300 text-xs lg:text-sm">خطا در سیستم</p>
+                                <p class="text-gray-500 text-xs">1 ساعت پیش</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables Row -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                <!-- Recent Orders Table -->
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                        <h3 class="text-yellow-primary font-bold text-base lg:text-lg">آخرین سفارشات</h3>
+                        <button
+                            class="text-yellow-primary hover:text-yellow-secondary text-xs lg:text-sm self-start sm:self-auto">مشاهده
+                            همه</button>
+                    </div>
+                    <div class="table-container overflow-x-auto">
+                        <table class="w-full min-w-[500px]">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        شماره</th>
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        مشتری</th>
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        مبلغ</th>
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        وضعیت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">#1234</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">احمد محمدی</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$899</td>
+                                    <td class="py-2 lg:py-3">
+                                        <span
+                                            class="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs">تکمیل</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">#1235</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">مریم احمدی</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$699</td>
+                                    <td class="py-2 lg:py-3">
+                                        <span
+                                            class="bg-yellow-primary/20 text-yellow-primary px-2 py-1 rounded-full text-xs">انتظار</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">#1236</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">علی رضایی</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$199</td>
+                                    <td class="py-2 lg:py-3">
+                                        <span
+                                            class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs">ارسال</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top Products Table -->
+                <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                        <h3 class="text-yellow-primary font-bold text-base lg:text-lg">محصولات پرفروش</h3>
+                        <button
+                            class="text-yellow-primary hover:text-yellow-secondary text-xs lg:text-sm self-start sm:self-auto">مشاهده
+                            همه</button>
+                    </div>
+                    <div class="table-container overflow-x-auto">
+                        <table class="w-full min-w-[400px]">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        محصول</th>
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        فروش</th>
+                                    <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                        درآمد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">لپ تاپ ایسوس</td>
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">45</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$40,455</td>
+                                </tr>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">گوشی سامسونگ</td>
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">38</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$26,562</td>
+                                </tr>
+                                <tr class="border-b border-gray-800">
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">هدفون بی‌سیم</td>
+                                    <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm">29</td>
+                                    <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$5,771</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Width Table -->
+            <div class="bg-dark-secondary rounded-xl p-4 lg:p-6 border border-yellow-primary/20">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                    <h3 class="text-yellow-primary font-bold text-base lg:text-lg">گزارش مالی ماهانه</h3>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button class="bg-yellow-primary text-dark-primary px-3 py-1 rounded text-xs font-medium">صادرات
+                            Excel</button>
+                        <button class="text-yellow-primary hover:text-yellow-secondary text-xs">فیلتر</button>
+                    </div>
+                </div>
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full min-w-[800px]">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">ماه
+                                </th>
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">کل فروش
+                                </th>
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">
+                                    هزینه‌ها</th>
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">سود
+                                    خالص</th>
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">تعداد
+                                    سفارش</th>
+                                <th class="text-right text-gray-400 font-medium py-2 lg:py-3 text-xs lg:text-sm">رشد
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm font-medium">آبان 1403
+                                </td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$125,400</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$45,200</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">$80,200</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">1,240</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">↑ 12%</td>
+                            </tr>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm font-medium">مهر 1403
+                                </td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$112,800</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$42,500</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">$70,300</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">1,128</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">↑ 8%</td>
+                            </tr>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm font-medium">شهریور 1403
+                                </td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$98,600</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$38,900</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">$59,700</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">986</td>
+                                <td class="py-2 lg:py-3 text-red-400 text-xs lg:text-sm">↓ 3%</td>
+                            </tr>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-2 lg:py-3 text-yellow-primary text-xs lg:text-sm font-medium">مرداد 1403
+                                </td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$104,200</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">$41,200</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">$63,000</td>
+                                <td class="py-2 lg:py-3 text-gray-300 text-xs lg:text-sm">1,042</td>
+                                <td class="py-2 lg:py-3 text-green-400 text-xs lg:text-sm">↑ 5%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(`${id}-dropdown`);
+            const arrow = document.getElementById(`${id}-arrow`);
+
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            sidebar.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const menuButton = event.target.closest('button');
+
+            if (window.innerWidth < 1024 && !sidebar.contains(event.target) && !menuButton?.onclick?.toString().includes('toggleMobileSidebar')) {
+                if (!sidebar.classList.contains('translate-x-full')) {
+                    toggleMobileSidebar();
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        });
+
+        // Animate cards on load
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.card-hover');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+
+</html>
