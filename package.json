@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "npx tailwindcss -i ./store/css/input.css -o ./store/css/output.css --watch",
     "build": "npx tailwindcss -i ./store/css/input.css -o ./store/css/output.css --minify",
-    "server": "npx serve store/templates"
+    "server": "npx serve store"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.0"
