@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لیست محصولات</title>
+  <link rel="stylesheet" href="../css/output.css">
+</head>
+<body class="bg-slate-950 text-slate-100" data-page-key="product-list" data-page-title="لیست محصولات" data-page-description="کنترل موجودی، قیمت و وضعیت نمایش کالاها">
+  <div class="flex min-h-screen">
+    <aside id="admin-sidebar" class="fixed inset-y-0 right-0 z-30 w-72 transform border-l border-slate-800 bg-slate-900/70 backdrop-blur lg:translate-x-0 transition duration-200 translate-x-full">
+      <div class="flex items-center justify-between border-b border-slate-800 p-4">
+        <div>
+          <p class="text-xs text-slate-400">HDKALA</p>
+          <p class="text-lg font-semibold text-slate-50">پنل مدیریت</p>
+        </div>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-emerald-400 text-slate-950 font-bold">HD</span>
+      </div>
+      <div class="p-4 space-y-6 overflow-y-auto h-[calc(100vh-80px)]">
+        <nav id="admin-sidebar-nav" class="space-y-1"></nav>
+      </div>
+    </aside>
+
+    <div id="admin-sidebar-overlay" class="fixed inset-0 z-20 hidden bg-slate-900/60 backdrop-blur"></div>
+
+    <div class="flex flex-1 flex-col lg:mr-72">
+      <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur">
+        <div class="flex items-center justify-between px-4 py-3 lg:px-8">
+          <div class="flex items-center gap-3">
+            <button id="admin-mobile-toggle" class="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-200">☰</button>
+            <div>
+              <p id="admin-page-title" class="text-xl font-bold text-white"></p>
+              <p id="admin-page-subtitle" class="text-sm text-slate-400"></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-sm">
+            <button class="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2">تنظیم ستون‌ها</button>
+            <a href="./add-product.html" class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-900">محصول جدید</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 space-y-6 px-4 py-6 lg:px-8">
+        <section class="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <label class="md:col-span-2 text-sm space-y-1">
+            <span class="text-slate-400">جستجو</span>
+            <input id="product-search" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none" placeholder="نام یا شناسه محصول" />
+          </label>
+          <label class="text-sm space-y-1">
+            <span class="text-slate-400">دسته‌بندی</span>
+            <select id="product-category" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none">
+              <option value="all">همه</option>
+            </select>
+          </label>
+          <label class="text-sm space-y-1">
+            <span class="text-slate-400">وضعیت</span>
+            <select id="product-status" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none">
+              <option value="all">همه</option>
+              <option value="فعال">فعال</option>
+              <option value="در انتظار">در انتظار</option>
+              <option value="معلق">معلق</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+          <div class="flex items-center justify-between pb-3">
+            <div class="space-y-1">
+              <p class="text-lg font-semibold text-white">موجودی و قیمت</p>
+              <p class="text-xs text-slate-400">ویرایش سریع وضعیت فروش</p>
+            </div>
+            <button id="product-reset" class="text-sm text-sky-300">بازنشانی فیلتر</button>
+          </div>
+          <div class="overflow-hidden rounded-xl border border-slate-800">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-900/70 text-slate-400">
+                <tr>
+                  <th class="px-3 py-2 text-right">کالا</th>
+                  <th class="px-3 py-2 text-right">دسته</th>
+                  <th class="px-3 py-2 text-right">قیمت</th>
+                  <th class="px-3 py-2 text-right">موجودی</th>
+                  <th class="px-3 py-2 text-right">وضعیت</th>
+                  <th class="px-3 py-2 text-right">عملیات</th>
+                </tr>
+              </thead>
+              <tbody id="product-table" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="../scripts/admin/data.js"></script>
+  <script src="../scripts/admin/layout.js"></script>
+  <script src="../scripts/admin/products.js"></script>
+</body>
+</html>
