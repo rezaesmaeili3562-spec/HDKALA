@@ -7,7 +7,7 @@
   --cta-glow-strong: 0 25px 55px -22px rgba(34, 211, 238, 0.65);
 }
 
-button, .motion-cta {
+:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -15,7 +15,7 @@ button, .motion-cta {
   transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.9s ease;
 }
 
-button::after, .motion-cta::after {
+:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare)::after {
   content: "";
   position: absolute;
   inset: -40%;
@@ -26,27 +26,27 @@ button::after, .motion-cta::after {
   z-index: -1;
 }
 
-button:hover, .motion-cta:hover {
+:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]):hover {
   transform: translateY(-1px) scale(1.01);
   box-shadow: var(--cta-glow);
   background-position: 120% 120%;
 }
 
-button:hover::after, .motion-cta:hover::after {
+:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare):hover::after {
   opacity: 1;
   transform: scale(1.05);
 }
 
-button:active, .motion-cta:active {
+:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]):active {
   transform: translateY(0);
   box-shadow: var(--cta-glow-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  button, .motion-cta {
+  :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
     transition: none;
   }
-  button::after, .motion-cta::after {
+  :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare)::after {
     display: none;
   }
 }
@@ -73,6 +73,26 @@ button:active, .motion-cta:active {
   gap: 1rem;
 }
 
+.admin-nav-group .admin-submenu {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s ease;
+}
+
+.admin-nav-group.open .admin-submenu {
+  max-height: 420px;
+  opacity: 1;
+}
+
+.admin-nav-chevron {
+  transition: transform 0.3s ease;
+}
+
+.admin-nav-group.open .admin-nav-chevron {
+  transform: rotate(180deg);
+}
+
 @media (max-width: 1024px) {
   .admin-shell header .action-toolbar {
     width: 100%;
@@ -97,6 +117,24 @@ button:active, .motion-cta:active {
   }
 }
 
+@media (max-width: 768px) {
+  #cartSidebar,
+  #filterSidebar {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  #compareModal > div {
+    border-radius: 0;
+  }
+
+  #addressQuickPanel {
+    left: 0;
+    right: 0;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 520px) {
   .admin-shell header .action-toolbar {
     flex-direction: column;
@@ -106,7 +144,7 @@ button:active, .motion-cta:active {
     width: 100%;
     text-align: center;
   }
-  button, .motion-cta {
+  :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
     width: 100%;
   }
 }
