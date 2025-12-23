@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>افزودن محصول</title>
+  <link rel="stylesheet" href="../../css/output.css">
+</head>
+<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="add-product" data-page-title="افزودن محصول" data-page-description="ثبت سریع کالا و همگام‌سازی موجودی">
+  <div class="flex min-h-screen">
+    <aside id="admin-sidebar" class="fixed inset-y-0 right-0 z-30 w-72 transform border-l border-slate-800 bg-slate-900/70 backdrop-blur lg:translate-x-0 transition duration-200 translate-x-full">
+      <div class="flex items-center justify-between border-b border-slate-800 p-4">
+        <div>
+          <p class="text-xs text-slate-400">HDKALA</p>
+          <p class="text-lg font-semibold text-slate-50">پنل مدیریت</p>
+        </div>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-emerald-400 text-slate-950 font-bold">HD</span>
+      </div>
+      <div class="p-4 space-y-6 overflow-y-auto h-[calc(100vh-80px)]">
+        <nav id="admin-sidebar-nav" class="space-y-1"></nav>
+      </div>
+    </aside>
+
+    <div id="admin-sidebar-overlay" class="fixed inset-0 z-20 hidden bg-slate-900/60 backdrop-blur"></div>
+
+    <div class="flex flex-1 flex-col lg:mr-72">
+      <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur">
+        <div class="flex items-center justify-between px-4 py-3 lg:px-8">
+          <div class="flex items-center gap-3">
+            <button id="admin-mobile-toggle" class="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-200 motion-cta">☰</button>
+            <div>
+              <p id="admin-page-title" class="text-xl font-bold text-white"></p>
+              <p id="admin-page-subtitle" class="text-sm text-slate-400"></p>
+            </div>
+          </div>
+          <div class="action-toolbar text-sm">
+            <button class="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 motion-cta">پیش‌نویس</button>
+            <button class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-900 motion-cta">ذخیره نهایی</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 space-y-6 px-4 py-6 lg:px-8">
+        <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <form id="add-product-form" class="lg:col-span-2 space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label class="space-y-1 text-sm">
+                <span class="text-slate-300">نام محصول</span>
+                <input name="name" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
+              </label>
+              <label class="space-y-1 text-sm">
+                <span class="text-slate-300">دسته‌بندی</span>
+                <input name="category" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
+              </label>
+              <label class="space-y-1 text-sm">
+                <span class="text-slate-300">قیمت (تومان)</span>
+                <input name="price" type="number" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
+              </label>
+              <label class="space-y-1 text-sm">
+                <span class="text-slate-300">موجودی</span>
+                <input name="stock" type="number" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
+              </label>
+              <label class="space-y-1 text-sm">
+                <span class="text-slate-300">وضعیت</span>
+                <select name="status" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta">
+                  <option value="فعال">فعال</option>
+                  <option value="در انتظار">در انتظار</option>
+                  <option value="معلق">معلق</option>
+                </select>
+              </label>
+            </div>
+            <label class="space-y-1 text-sm">
+              <span class="text-slate-300">توضیحات کوتاه</span>
+              <textarea name="description" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" rows="3" placeholder="جزئیات برجسته محصول"></textarea>
+            </label>
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900" checked /> نمایش در صفحه اصلی</label>
+              <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900" /> فعال‌سازی تخفیف پویا</label>
+              <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900" /> اطلاع‌رسانی به انبار</label>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <button type="submit" class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 motion-cta">انتشار محصول</button>
+              <button type="reset" class="rounded-xl border border-slate-800 px-4 py-2 text-sm motion-cta">پاکسازی</button>
+            </div>
+          </form>
+          <div class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+            <p class="text-lg font-semibold text-white">پیش‌نمایش سریع</p>
+            <div id="add-product-summary" class="rounded-xl bg-slate-900/80 p-3 text-sm space-y-2"></div>
+            <div id="add-product-feedback" class="rounded-xl bg-slate-800/70 p-3 text-sm text-slate-200">در انتظار ثبت</div>
+            <div class="rounded-xl bg-slate-900/80 p-3 text-xs text-slate-400 space-y-1">
+              <p>همگام‌سازی با انبار و لیست فروش ویژه بلافاصله پس از تایید انجام می‌شود.</p>
+              <p>مراقب وضعیت نمایش در نسخه موبایل باشید؛ کارت محصول در دو ستون نمایش داده می‌شود.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="../../scripts/admin/data.js"></script>
+  <script src="../../scripts/admin/layout.js"></script>
+  <script src="../../scripts/admin/operations.js"></script>
+</body>
+</html>
