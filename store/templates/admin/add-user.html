@@ -6,7 +6,7 @@
   <title>افزودن کاربر</title>
   <link rel="stylesheet" href="../../css/output.css">
 </head>
-<body class="bg-slate-950 text-slate-100" data-page-key="add-user" data-page-title="افزودن کاربر جدید" data-page-description="تعریف دسترسی و اطلاعات هویتی کاربران تازه">
+<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="add-user" data-page-title="افزودن کاربر جدید" data-page-description="تعریف دسترسی و اطلاعات هویتی کاربران تازه">
   <div class="flex min-h-screen">
     <aside id="admin-sidebar" class="fixed inset-y-0 right-0 z-30 w-72 transform border-l border-slate-800 bg-slate-900/70 backdrop-blur lg:translate-x-0 transition duration-200 translate-x-full">
       <div class="flex items-center justify-between border-b border-slate-800 p-4">
@@ -27,7 +27,7 @@
       <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur">
         <div class="flex items-center justify-between px-4 py-3 lg:px-8">
           <div class="flex items-center gap-3">
-            <button id="admin-mobile-toggle" class="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-200">☰</button>
+            <button id="admin-mobile-toggle" class="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-200 motion-cta">☰</button>
             <div>
               <p id="admin-page-title" class="text-xl font-bold text-white"></p>
               <p id="admin-page-subtitle" class="text-sm text-slate-400"></p>
@@ -43,27 +43,27 @@
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">نام و نام خانوادگی</span>
-                <input name="name" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none" />
+              <input name="name" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
               </label>
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">ایمیل</span>
-                <input name="email" type="email" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none" />
+                <input name="email" type="email" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
               </label>
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">شماره تماس</span>
-                <input name="phone" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none" />
+                <input name="phone" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
               </label>
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">نقش</span>
-                <select name="role" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none"></select>
+                <select name="role" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta"></select>
               </label>
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">کلمه عبور موقت</span>
-                <input name="password" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none" />
+                <input name="password" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
               </label>
               <label class="space-y-1 text-sm">
                 <span class="text-slate-300">وضعیت</span>
-                <select name="status" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none">
+                <select name="status" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta">
                   <option value="فعال">فعال</option>
                   <option value="در انتظار">در انتظار</option>
                 </select>
@@ -80,8 +80,8 @@
               </label>
             </div>
             <div class="flex items-center gap-3">
-              <button type="submit" class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950">ثبت کاربر</button>
-              <button type="reset" class="rounded-xl border border-slate-800 px-4 py-2 text-sm">پاکسازی</button>
+              <button type="submit" class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 motion-cta">ثبت کاربر</button>
+              <button type="reset" class="rounded-xl border border-slate-800 px-4 py-2 text-sm motion-cta">پاکسازی</button>
             </div>
           </form>
           <div class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4" id="add-user-preview">

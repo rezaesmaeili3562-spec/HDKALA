@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>نقش‌ها</title>
+  <title>صورتحساب‌ها</title>
   <link rel="stylesheet" href="../../css/output.css">
 </head>
-<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="roles" data-page-title="نقش‌ها" data-page-description="مدیریت دسترسی‌ها و اعضا">
+<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="invoices" data-page-title="صورتحساب‌ها" data-page-description="مدیریت فاکتورهای صادر شده و سررسیدها">
   <div class="flex min-h-screen">
     <aside id="admin-sidebar" class="fixed inset-y-0 right-0 z-30 w-72 transform border-l border-slate-800 bg-slate-900/70 backdrop-blur lg:translate-x-0 transition duration-200 translate-x-full">
-      <div class="flex items-center justify-between border-b border-slate-800 p-4">
+      <div class="flex items-center justify_between border-b border-slate-800 p-4">
         <div>
           <p class="text-xs text-slate-400">HDKALA</p>
           <p class="text-lg font-semibold text-slate-50">پنل مدیریت</p>
@@ -33,36 +33,35 @@
               <p id="admin-page-subtitle" class="text-sm text-slate-400"></p>
             </div>
           </div>
-          <div class="text-sm text-slate-300">تعریف سیاست‌های دسترسی</div>
+          <div class="action-toolbar text-sm">
+            <select id="invoice-status" class="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-500 focus:outline-none motion-cta">
+              <option value="all">همه وضعیت‌ها</option>
+              <option value="پرداخت شده">پرداخت شده</option>
+              <option value="سررسید">سررسید</option>
+              <option value="پیش‌نویس">پیش‌نویس</option>
+            </select>
+            <button class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-900 motion-cta">صدور فاکتور</button>
+          </div>
         </div>
       </header>
 
       <main class="flex-1 space-y-6 px-4 py-6 lg:px-8">
-        <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div class="lg:col-span-2 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 table-responsive">
+        <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+          <div class="overflow-hidden rounded-xl border border-slate-800 table-responsive">
             <table class="w-full text-sm">
               <thead class="bg-slate-900/70 text-slate-400">
                 <tr>
-                  <th class="px-3 py-2 text-right">نقش</th>
-                  <th class="px-3 py-2 text-right">دسترسی‌ها</th>
-                  <th class="px-3 py-2 text-right">تعداد اعضا</th>
+                  <th class="px-3 py-2 text-right">شماره</th>
+                  <th class="px-3 py-2 text-right">مشتری</th>
+                  <th class="px-3 py-2 text-right">مبلغ</th>
+                  <th class="px-3 py-2 text-right">وضعیت</th>
+                  <th class="px-3 py-2 text-right">تاریخ صدور</th>
+                  <th class="px-3 py-2 text-right">سررسید</th>
                 </tr>
               </thead>
-              <tbody id="roles-table" class="divide-y divide-slate-800"></tbody>
+              <tbody id="invoices-table" class="divide-y divide-slate-800"></tbody>
             </table>
           </div>
-          <form id="role-form" class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm">
-            <p class="text-lg font-semibold text-white">افزودن نقش</p>
-            <label class="space-y-1">
-              <span class="text-slate-300">نام نقش</span>
-              <input name="name" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
-            </label>
-            <label class="space-y-1">
-              <span class="text-slate-300">دسترسی‌ها (با کاما جدا کنید)</span>
-              <input name="permissions" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" placeholder="کاربران, محصولات, گزارشات" />
-            </label>
-            <button class="w-full rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-950 motion-cta">ثبت نقش</button>
-          </form>
         </section>
       </main>
     </div>
