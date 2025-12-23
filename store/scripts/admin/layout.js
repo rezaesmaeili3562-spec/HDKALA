@@ -96,18 +96,34 @@ function createNavLink(item, activeKey) {
   if (item.children) {
     const childActive = item.children.some((child) => child.key === activeKey);
     const wrapper = document.createElement('div');
-    wrapper.className = 'space-y-1';
+    wrapper.className = `admin-nav-group space-y-1 ${childActive ? 'open' : ''}`;
+    const listId = `admin-submenu-${item.key}`;
 
     const header = document.createElement('button');
+    header.type = 'button';
     header.className = `${baseClasses} w-full ${childActive ? 'bg-sky-900/40 text-sky-100 border border-sky-500/40' : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'}`;
+    header.setAttribute('aria-expanded', childActive ? 'true' : 'false');
+    header.setAttribute('aria-controls', listId);
     header.innerHTML = `
       <span class="flex items-center gap-2">${iconMap[item.icon] || ''}<span class="text-sm font-semibold">${item.title}</span></span>
-      <span class="text-xs text-slate-400">${childActive ? 'باز' : 'بسته'}</span>
+      <span class="flex items-center gap-2 text-xs text-slate-400">
+        <span data-status>${childActive ? 'باز' : 'بسته'}</span>
+        <span class="admin-nav-chevron text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </span>
     `;
-    header.addEventListener('click', () => wrapper.classList.toggle('open'));
+    header.addEventListener('click', () => {
+      const isOpen = wrapper.classList.toggle('open');
+      header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      const status = header.querySelector('[data-status]');
+      if (status) status.textContent = isOpen ? 'باز' : 'بسته';
+    });
 
     const list = document.createElement('div');
-    list.className = 'space-y-1 ps-7 pt-2';
+    list.className = 'admin-submenu space-y-1 ps-7 pt-2';
+    list.id = listId;
+    list.setAttribute('role', 'group');
     item.children.forEach((child) => {
       const childLink = document.createElement('a');
       childLink.href = child.href;
