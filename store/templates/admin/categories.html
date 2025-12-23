@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>نقش‌ها</title>
+  <title>دسته‌بندی‌ها</title>
   <link rel="stylesheet" href="../../css/output.css">
 </head>
-<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="roles" data-page-title="نقش‌ها" data-page-description="مدیریت دسترسی‌ها و اعضا">
+<body class="bg-slate-950 text-slate-100 admin-shell" data-page-key="categories" data-page-title="دسته‌بندی‌ها" data-page-description="گروه‌بندی و اولویت‌بندی کالاها">
   <div class="flex min-h-screen">
     <aside id="admin-sidebar" class="fixed inset-y-0 right-0 z-30 w-72 transform border-l border-slate-800 bg-slate-900/70 backdrop-blur lg:translate-x-0 transition duration-200 translate-x-full">
       <div class="flex items-center justify-between border-b border-slate-800 p-4">
@@ -33,35 +33,26 @@
               <p id="admin-page-subtitle" class="text-sm text-slate-400"></p>
             </div>
           </div>
-          <div class="text-sm text-slate-300">تعریف سیاست‌های دسترسی</div>
+          <div class="action-toolbar text-sm">
+            <button class="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 motion-cta">مرتب‌سازی خودکار</button>
+            <button class="rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-900 motion-cta">ذخیره تغییرات</button>
+          </div>
         </div>
       </header>
 
       <main class="flex-1 space-y-6 px-4 py-6 lg:px-8">
         <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div class="lg:col-span-2 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 table-responsive">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-900/70 text-slate-400">
-                <tr>
-                  <th class="px-3 py-2 text-right">نقش</th>
-                  <th class="px-3 py-2 text-right">دسترسی‌ها</th>
-                  <th class="px-3 py-2 text-right">تعداد اعضا</th>
-                </tr>
-              </thead>
-              <tbody id="roles-table" class="divide-y divide-slate-800"></tbody>
-            </table>
+          <div class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 lg:col-span-2">
+            <p class="text-lg font-semibold text-white">لیست دسته‌بندی‌ها</p>
+            <div id="category-list" class="space-y-2"></div>
           </div>
-          <form id="role-form" class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm">
-            <p class="text-lg font-semibold text-white">افزودن نقش</p>
+          <form id="category-form" class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm">
+            <p class="text-lg font-semibold text-white">افزودن دسته</p>
             <label class="space-y-1">
-              <span class="text-slate-300">نام نقش</span>
+              <span class="text-slate-300">نام دسته</span>
               <input name="name" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" />
             </label>
-            <label class="space-y-1">
-              <span class="text-slate-300">دسترسی‌ها (با کاما جدا کنید)</span>
-              <input name="permissions" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 focus:border-sky-500 focus:outline-none motion-cta" placeholder="کاربران, محصولات, گزارشات" />
-            </label>
-            <button class="w-full rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-950 motion-cta">ثبت نقش</button>
+            <button class="w-full rounded-xl bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 font-semibold text-slate-950 motion-cta">ثبت دسته</button>
           </form>
         </section>
       </main>
