@@ -629,15 +629,6 @@
         <button id="themeToggle" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="تغییر حالت">
           <iconify-icon id="themeIcon" icon="ph:moon-duotone" width="20"></iconify-icon>
         </button>
-        <!-- Compare -->
-        <button id="compareBtn" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors relative" aria-label="مقایسه محصولات">
-          <iconify-icon icon="mdi:compare" width="24"></iconify-icon>
-          <span id="compareCount" class="absolute -top-2 -left-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
-        </button>
-        <!-- Filter Button -->
-        <button id="filterBtn" class="p-2 text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="فیلترها">
-          <iconify-icon icon="mdi:filter-outline" width="24"></iconify-icon>
-        </button>
         <!-- Wishlist -->
         <button id="wishlistBtn" class="relative text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="لیست علاقه‌مندی‌ها">
           <iconify-icon icon="mdi:heart-outline" width="26"></iconify-icon>
@@ -687,6 +678,17 @@
         </div>
       </div>
     </header>
+    <div class="flex flex-wrap items-center gap-3 mb-4 max-md:justify-between">
+      <button id="compareBtn" class="flex items-center gap-2 rounded-full border border-primary/20 px-4 py-2 text-sm text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="مقایسه محصولات">
+        <iconify-icon icon="mdi:compare" width="20"></iconify-icon>
+        <span>مقایسه</span>
+        <span id="compareCount" class="bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
+      </button>
+      <button id="filterBtn" class="flex items-center gap-2 rounded-full border border-primary/20 px-4 py-2 text-sm text-gray-700 dark:text-white hover:text-primary transition-colors" aria-label="فیلترها">
+        <iconify-icon icon="mdi:filter-outline" width="20"></iconify-icon>
+        <span>فیلترها</span>
+      </button>
+    </div>
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="md:hidden hidden mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-primary/30">
       <div class="flex flex-col gap-3">
