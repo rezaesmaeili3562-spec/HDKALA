@@ -341,6 +341,7 @@ function setupLazyLoading() {
 // تابع برای مدیریت responsive
 function setupResponsiveHandlers() {
     function handleResize() {
+        if (!mobileMenu) return;
         if (window.innerWidth >= 1024) {
             mobileMenu.classList.add('hidden');
         }

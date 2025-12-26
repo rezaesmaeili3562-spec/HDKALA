@@ -17,29 +17,30 @@ function applyFilters(){
     const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
     if(q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q));
     
-    const mn = Number(minPrice.value||0), mx = Number(maxPrice.value||0);
+    const mn = Number(minPrice?.value || 0);
+    const mx = Number(maxPrice?.value || 0);
     if(mn>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) >= mn);
     if(mx>0) list = list.filter(p => (p.price * (1 - (p.discount / 100))) <= mx);
     
-    const cat = categoryFilter.value;
+    const cat = categoryFilter?.value;
     if(cat) list = list.filter(p => p.category === cat);
     
-    const disc = discountFilter.value;
+    const disc = discountFilter?.value;
     if(disc === 'has_discount') list = list.filter(p => p.discount > 0);
     if(disc === 'no_discount') list = list.filter(p => p.discount === 0);
     if(disc === 'high_discount') list = list.filter(p => p.discount >= 50);
     
-    const brand = brandFilter.value;
+    const brand = brandFilter?.value;
     if(brand) list = list.filter(p => p.brand === brand);
     
-    const stock = stockFilter.value;
+    const stock = stockFilter?.value;
     if(stock === 'in_stock') list = list.filter(p => p.stock > 0);
     if(stock === 'out_of_stock') list = list.filter(p => p.stock === 0);
     
-    const rating = ratingFilter.value;
+    const rating = ratingFilter?.value;
     if(rating) list = list.filter(p => p.rating >= parseInt(rating));
     
-    const sort = sortSelect.value;
+    const sort = sortSelect?.value || 'popular';
     if(sort==='price_asc') list.sort((a,b)=> (a.price*(1-a.discount/100)) - (b.price*(1-b.discount/100)));
     else if(sort==='price_desc') list.sort((a,b)=> (b.price*(1-b.discount/100)) - (a.price*(1-a.discount/100)));
     else if(sort==='discount') list.sort((a,b)=>b.discount - a.discount);
@@ -60,21 +61,21 @@ function updateActiveFilters() {
     
     const filters = [];
     
-    if (minPrice.value || maxPrice.value) {
-        const min = minPrice.value ? formatPrice(parseInt(minPrice.value)) : '۰';
-        const max = maxPrice.value ? formatPrice(parseInt(maxPrice.value)) : '∞';
+    if ((minPrice && minPrice.value) || (maxPrice && maxPrice.value)) {
+        const min = minPrice && minPrice.value ? formatPrice(parseInt(minPrice.value)) : '۰';
+        const max = maxPrice && maxPrice.value ? formatPrice(parseInt(maxPrice.value)) : '∞';
         filters.push(`قیمت: ${min} - ${max}`);
     }
     
-    if (categoryFilter.value) {
+    if (categoryFilter && categoryFilter.value) {
         filters.push(`دسته: ${getCategoryName(categoryFilter.value)}`);
     }
     
-    if (brandFilter.value) {
+    if (brandFilter && brandFilter.value) {
         filters.push(`برند: ${brandFilter.value}`);
     }
     
-    if (discountFilter.value) {
+    if (discountFilter && discountFilter.value) {
         const discountLabels = {
             'has_discount': 'دارای تخفیف',
             'no_discount': 'بدون تخفیف',
@@ -83,11 +84,11 @@ function updateActiveFilters() {
         filters.push(discountLabels[discountFilter.value]);
     }
     
-    if (stockFilter.value) {
+    if (stockFilter && stockFilter.value) {
         filters.push(stockFilter.value === 'in_stock' ? 'فقط موجود' : 'فقط ناموجود');
     }
     
-    if (ratingFilter.value) {
+    if (ratingFilter && ratingFilter.value) {
         filters.push(`${ratingFilter.value} ستاره و بالاتر`);
     }
     
@@ -354,7 +355,9 @@ if (stockFilter) stockFilter.addEventListener('change', applyFilters);
 if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
 
 if (priceRange) priceRange.addEventListener('input', (e) => {
-    maxPrice.value = e.target.value;
+    if (maxPrice) {
+        maxPrice.value = e.target.value;
+    }
     applyFilters();
 });
 
@@ -372,18 +375,24 @@ if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
     if (priceRange) priceRange.value = '50000000';
 
     applyFilters();
-    filterSidebar.classList.add('translate-x-full');
-    filterSidebar.classList.remove('translate-x-0');
+    if (filterSidebar) {
+        filterSidebar.classList.add('translate-x-full');
+        filterSidebar.classList.remove('translate-x-0');
+    }
 });
 
 if (searchInput) {
     searchInput.addEventListener('input', applyFilters);
 }
 
-mobileMenuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('hidden'));
+if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+}
 
-$('#wishlistBtn').addEventListener('click', () => location.hash = 'wishlist');
-$('#homeLink').addEventListener('click', () => location.hash = 'home');
+const wishlistBtn = $('#wishlistBtn');
+if (wishlistBtn) wishlistBtn.addEventListener('click', () => location.hash = 'wishlist');
+const homeLink = $('#homeLink');
+if (homeLink) homeLink.addEventListener('click', () => location.hash = 'home');
 
 $$('a[href="#products"]').forEach(el => el.addEventListener('click', (e) => {
     e.preventDefault();
@@ -406,19 +415,23 @@ $$('a[href="#blog"]').forEach(el => el.addEventListener('click', (e) => {
 }));
 
 /* ---------- Theme toggle ---------- */
-if(localStorage.getItem('hdk_dark') === 'true'){
-    root.classList.add('dark'); 
-    themeIcon.setAttribute('icon','ph:sun-duotone');
-} else {
-    themeIcon.setAttribute('icon','ph:moon-duotone');
+if (root && themeIcon) {
+    if(localStorage.getItem('hdk_dark') === 'true'){
+        root.classList.add('dark'); 
+        themeIcon.setAttribute('icon','ph:sun-duotone');
+    } else {
+        themeIcon.setAttribute('icon','ph:moon-duotone');
+    }
 }
 
-themeToggle.addEventListener('click', ()=> { 
-    root.classList.toggle('dark'); 
-    const isDark = root.classList.contains('dark'); 
-    localStorage.setItem('hdk_dark', String(isDark)); 
-    themeIcon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone'); 
-});
+if (themeToggle && root && themeIcon) {
+    themeToggle.addEventListener('click', ()=> { 
+        root.classList.toggle('dark'); 
+        const isDark = root.classList.contains('dark'); 
+        localStorage.setItem('hdk_dark', String(isDark)); 
+        themeIcon.setAttribute('icon', isDark ? 'ph:sun-duotone' : 'ph:moon-duotone'); 
+    });
+}
 
 /* ---------- Initialize Filters ---------- */
 function initializeFilters() {

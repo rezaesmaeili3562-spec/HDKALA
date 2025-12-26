@@ -105,8 +105,12 @@ function renderPage(){
         contentRoot.classList.add('page-motion');
     }
     
-    mobileMenu.classList.add('hidden');
-    userDropdown.classList.remove('open');
+    if (mobileMenu) {
+        mobileMenu.classList.add('hidden');
+    }
+    if (userDropdown) {
+        userDropdown.classList.remove('open');
+    }
 }
 
 function quickAddDemoProduct(e){
