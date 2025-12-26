@@ -75,6 +75,18 @@ function renderPage(){
         case 'blog':
             renderBlogPage();
             break;
+        case 'shipping':
+            renderShippingPage();
+            break;
+        case 'terms':
+            renderTermsPage();
+            break;
+        case 'privacy':
+            renderPrivacyPage();
+            break;
+        case 'faq':
+            renderFaqPage();
+            break;
         case 'profile':
             renderProfilePage();
             break;
