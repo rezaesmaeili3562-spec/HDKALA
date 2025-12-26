@@ -155,13 +155,23 @@ function bindMobileToggle() {
   const sidebar = document.getElementById('admin-sidebar');
   const overlay = document.getElementById('admin-sidebar-overlay');
 
-  const toggle = () => {
-    sidebar.classList.toggle('translate-x-full');
-    overlay.classList.toggle('hidden');
+  if (!toggler || !sidebar || !overlay) return;
+
+  const setOpenState = (isOpen) => {
+    sidebar.classList.toggle('translate-x-full', !isOpen);
+    sidebar.classList.toggle('translate-x-0', isOpen);
+    overlay.classList.toggle('hidden', !isOpen);
+    toggler.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    document.body.classList.toggle('overflow-hidden', isOpen);
   };
 
-  if (toggler) toggler.addEventListener('click', toggle);
-  if (overlay) overlay.addEventListener('click', toggle);
+  const toggle = () => {
+    const isOpen = sidebar.classList.contains('translate-x-full');
+    setOpenState(isOpen);
+  };
+
+  toggler.addEventListener('click', toggle);
+  overlay.addEventListener('click', () => setOpenState(false));
 }
 
 function initHeaderTitle() {
