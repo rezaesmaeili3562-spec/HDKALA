@@ -7,15 +7,17 @@
   --cta-glow-strong: 0 25px 55px -22px rgba(34, 211, 238, 0.65);
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
+.global-cta,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background-size: 180% 180%;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.9s ease;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1), background-position 0.9s ease;
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after {
+.global-cta::after,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after {
   content: "";
   position: absolute;
   inset: -40%;
@@ -26,18 +28,21 @@
   z-index: -1;
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):hover {
-  transform: translateY(-1px) scale(1.01);
+.global-cta:hover,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):hover {
+  transform: translateY(-2px) scale(1.01);
   box-shadow: var(--cta-glow);
   background-position: 120% 120%;
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::after {
+.global-cta:hover::after,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::after {
   opacity: 1;
   transform: scale(1.05);
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):active {
+.global-cta:active,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):active {
   transform: translateY(0);
   box-shadow: var(--cta-glow-strong);
 }
@@ -56,7 +61,8 @@
   }
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
+.global-cta::before,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -67,19 +73,58 @@
   z-index: -1;
 }
 
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::before,
-:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):focus-visible::before {
+.global-cta:hover::before,
+.global-cta:focus-visible::before,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::before,
+:where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):focus-visible::before {
   animation: cta-sheen 1.1s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
+  .global-cta,
+  :where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
     transition: none;
   }
-  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after,
-  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
+  .global-cta::after,
+  .global-cta::before,
+  :where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after,
+  :where(button, a, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
     display: none;
   }
+}
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.55);
+}
+
+.admin-action-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.admin-action-btn--primary {
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #c7d2fe;
+  background: rgba(99, 102, 241, 0.18);
+}
+
+.admin-action-btn--secondary {
+  border-color: rgba(14, 165, 233, 0.45);
+  color: #bae6fd;
+  background: rgba(14, 165, 233, 0.2);
+}
+
+.admin-action-btn--danger {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.18);
 }
 
 .admin-shell header .action-toolbar {
