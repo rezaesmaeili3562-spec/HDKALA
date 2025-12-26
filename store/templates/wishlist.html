@@ -298,11 +298,11 @@
       <div>
         <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">فیلتر قیمت</label>
         <div class="flex gap-2">
-          <input id="minPrice" type="number" placeholder="حداقل" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
-          <input id="maxPrice" type="number" placeholder="حداکثر" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          <input id="minPrice" type="number" placeholder="حداقل" aria-label="حداقل قیمت" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
+          <input id="maxPrice" type="number" placeholder="حداکثر" aria-label="حداکثر قیمت" class="flex-1 p-2 border border-primary/30 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" />
         </div>
         <div class="mt-2">
-          <input type="range" id="priceRange" min="0" max="50000000" step="100000" class="w-full" />
+          <input type="range" id="priceRange" min="0" max="50000000" step="100000" aria-label="بازه قیمت" class="w-full" />
         </div>
       </div>
       <!-- Category Filter -->
@@ -705,7 +705,20 @@
     </div>
     <!-- Main Content -->
     <div id="content" class="min-h-screen">
-      <!-- Content will be populated dynamically -->
+      <div class="rounded-2xl border border-primary/20 bg-white/70 dark:bg-gray-800/70 p-6 text-center text-gray-600 dark:text-gray-300">
+        <h2 class="text-lg font-semibold text-primary mb-2">در حال بارگذاری محتوا...</h2>
+        <p class="text-sm leading-relaxed">اگر چیزی نمایش داده نمی‌شود، لطفاً جاوااسکریپت را فعال کنید یا صفحه را دوباره بارگذاری کنید.</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-3 text-sm">
+          <a href="#home" class="text-primary hover:text-primary/80 transition-colors">صفحه اصلی</a>
+          <a href="#products" class="text-primary hover:text-primary/80 transition-colors">محصولات</a>
+          <a href="#contact" class="text-primary hover:text-primary/80 transition-colors">تماس با ما</a>
+        </div>
+      </div>
+      <noscript>
+        <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          برای مشاهده کامل محتوا، فعال بودن JavaScript الزامی است.
+        </div>
+      </noscript>
     </div>
     <!-- Footer -->
     <footer class="mt-16 border-t border-primary/20 pt-8 pb-6">
@@ -763,9 +776,9 @@
   <template id="tpl-product-card">
     <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 relative border border-primary/20 hover:-translate-y-2 hover:shadow-[0_16px_32px_rgba(0,0,0,0.12)]" data-element="product-card">
       <div class="relative overflow-hidden">
-        <a data-element="product-link" href="#">
+        <a data-element="product-link" href="#product">
           <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <img data-element="product-image" src="" alt="" class="w-full h-48 object-cover hidden transition-transform duration-300 cursor-zoom-in hover:scale-105" loading="lazy" />
+            <img data-element="product-image" src="" alt="تصویر محصول" class="w-full h-48 object-cover hidden transition-transform duration-300 cursor-zoom-in hover:scale-105" loading="lazy" />
             <iconify-icon data-element="product-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
           </div>
         </a>
@@ -800,7 +813,7 @@
         </div>
         <div class="flex gap-2">
           <button class="add-to-cart flex-1 bg-gradient-to-br from-[#1d4ed8] to-[#6d28d9] hover:from-[#1e3a8a] hover:to-[#5b21b6] text-white py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm" data-element="add-to-cart" data-id=""></button>
-          <a class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات" data-element="detail-button" href="#">
+          <a class="view-detail w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="جزئیات" data-element="detail-button" href="#product">
             <iconify-icon icon="mdi:eye" width="18"></iconify-icon>
           </a>
         </div>
@@ -820,7 +833,7 @@
   <template id="tpl-blog-card">
     <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-primary/20" data-element="blog-card">
       <div class="h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center" data-element="blog-image-wrapper">
-        <img data-element="blog-image" src="" alt="" class="w-full h-48 object-cover hidden" loading="lazy" />
+        <img data-element="blog-image" src="" alt="تصویر مطلب" class="w-full h-48 object-cover hidden" loading="lazy" />
         <iconify-icon data-element="blog-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
       </div>
       <div class="p-4 space-y-3">
@@ -829,7 +842,7 @@
         <p class="text-gray-600 dark:text-gray-400 text-sm" data-element="blog-excerpt"></p>
         <div class="flex justify-between items-center text-xs text-gray-500">
           <span data-element="blog-date"></span>
-          <a href="#" class="text-primary hover:text-primary/80 transition-colors" data-element="blog-link">ادامه مطلب</a>
+          <a href="#blog" class="text-primary hover:text-primary/80 transition-colors" data-element="blog-link">ادامه مطلب</a>
         </div>
       </div>
     </article>

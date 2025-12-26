@@ -291,6 +291,82 @@ function renderContactPage(){
     contentRoot.appendChild(page);
 }
 
+function renderInfoPage({ title, description, sections = [] }){
+    const page = document.createElement('div');
+    const sectionMarkup = sections.map(section => `
+            <div class="rounded-xl border border-primary/10 bg-primary/5 p-4">
+                <h3 class="text-lg font-semibold mb-2">${section.title}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">${section.body}</p>
+            </div>
+        `).join('');
+
+    page.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20 space-y-6">
+            <div>
+                <h1 class="text-3xl font-bold text-primary mb-3">${title}</h1>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">${description}</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${sectionMarkup}
+            </div>
+        </div>
+    `;
+    contentRoot.appendChild(page);
+}
+
+/* ---------- Shipping & Policies ---------- */
+function renderShippingPage(){
+    renderInfoPage({
+        title: 'ارسال و بازگشت',
+        description: 'شفافیت در روند ارسال و بازگشت کالا باعث می‌شود با خیال راحت خرید کنید.',
+        sections: [
+            { title: 'زمان‌بندی ارسال', body: 'سفارش‌های تهران در بازه ۲۴ تا ۴۸ ساعت و سایر شهرها در بازه ۲ تا ۴ روز کاری تحویل می‌شوند.' },
+            { title: 'هزینه ارسال', body: 'ارسال برای خریدهای بالای ۵۰۰ هزار تومان رایگان است. برای سفارش‌های پایین‌تر، هزینه ارسال در سبد خرید نمایش داده می‌شود.' },
+            { title: 'بازگشت ۷ روزه', body: 'در صورت سلامت کالا، تا ۷ روز پس از دریافت امکان بازگشت وجود دارد. کالا باید در بسته‌بندی اصلی باشد.' },
+            { title: 'پیگیری سفارش', body: 'کد پیگیری از طریق پیامک ارسال می‌شود و از بخش سفارش‌ها نیز قابل مشاهده است.' }
+        ]
+    });
+}
+
+function renderTermsPage(){
+    renderInfoPage({
+        title: 'قوانین و مقررات',
+        description: 'با ثبت سفارش در HDKALA، قوانین زیر مورد پذیرش شما خواهد بود.',
+        sections: [
+            { title: 'ثبت سفارش', body: 'مسئولیت وارد کردن اطلاعات صحیح بر عهده کاربر است و سفارش پس از تأیید نهایی قابل پردازش است.' },
+            { title: 'پرداخت', body: 'پرداخت‌ها از طریق درگاه‌های امن انجام می‌شوند و اطلاعات کارت نزد HDKALA ذخیره نمی‌شود.' },
+            { title: 'لغو سفارش', body: 'تا پیش از ارسال کالا امکان لغو سفارش وجود دارد و مبلغ در کوتاه‌ترین زمان بازگردانده می‌شود.' },
+            { title: 'حقوق مالکیت محتوا', body: 'تمامی محتوا، تصاویر و برند HDKALA تحت قوانین کپی‌رایت محفوظ است.' }
+        ]
+    });
+}
+
+function renderPrivacyPage(){
+    renderInfoPage({
+        title: 'حریم خصوصی',
+        description: 'حریم خصوصی شما برای ما اولویت دارد و اطلاعات تنها برای بهبود تجربه خرید استفاده می‌شود.',
+        sections: [
+            { title: 'داده‌های جمع‌آوری‌شده', body: 'اطلاعات تماس، آدرس و سوابق سفارش برای ارائه خدمات بهتر ذخیره می‌شوند.' },
+            { title: 'امنیت اطلاعات', body: 'اطلاعات کاربران با استانداردهای امنیتی محافظت می‌شود و به اشخاص ثالث واگذار نمی‌گردد.' },
+            { title: 'کوکی‌ها', body: 'برای بهبود تجربه کاربری و تحلیل رفتار خرید از کوکی استفاده می‌شود.' },
+            { title: 'حق ویرایش', body: 'کاربر می‌تواند اطلاعات حساب را در پروفایل به‌روزرسانی کند.' }
+        ]
+    });
+}
+
+function renderFaqPage(){
+    renderInfoPage({
+        title: 'سوالات متداول',
+        description: 'پاسخ سوالات پرتکرار درباره خرید، ارسال و خدمات پس از فروش.',
+        sections: [
+            { title: 'چطور سفارش ثبت کنم؟', body: 'کالا را به سبد خرید اضافه کرده و مراحل پرداخت را تکمیل کنید.' },
+            { title: 'چطور کد تخفیف وارد کنم؟', body: 'در مرحله نهایی پرداخت، کد تخفیف را وارد کرده و اعمال کنید.' },
+            { title: 'چطور مرجوع کنم؟', body: 'از بخش سفارش‌ها درخواست مرجوعی ثبت کرده و منتظر تماس پشتیبانی بمانید.' },
+            { title: 'چطور وضعیت سفارش را ببینم؟', body: 'در بخش سفارش‌ها می‌توانید وضعیت هر سفارش را مشاهده کنید.' }
+        ]
+    });
+}
+
 /* ---------- Blog Page ---------- */
 function renderBlogPage(){
     const page = document.createElement('div');
