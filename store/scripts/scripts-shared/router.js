@@ -98,6 +98,12 @@ function renderPage(){
         default:
             renderHomePage();
     }
+
+    if (contentRoot) {
+        contentRoot.classList.remove('page-motion');
+        void contentRoot.offsetWidth;
+        contentRoot.classList.add('page-motion');
+    }
     
     mobileMenu.classList.add('hidden');
     userDropdown.classList.remove('open');

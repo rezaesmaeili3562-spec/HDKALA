@@ -475,18 +475,10 @@ function clearAdminSession() {
 
 function openAdminDashboardWindow() {
     try {
-        const adminUrl = new URL(window.location.href);
-        adminUrl.hash = 'admin';
-        adminUrl.searchParams.set('adminWindow', '1');
-        const win = window.open(adminUrl.toString(), ADMIN_WINDOW_NAME, 'noopener');
-        if (win && typeof win.focus === 'function') {
-            win.focus();
-        }
+        const adminUrl = new URL('admin/index.html', window.location.href);
+        window.location.assign(adminUrl.toString());
     } catch (err) {
-        const fallback = window.open('?adminWindow=1#admin', ADMIN_WINDOW_NAME);
-        if (fallback && typeof fallback.focus === 'function') {
-            fallback.focus();
-        }
+        window.location.href = 'admin/index.html';
     }
 }
 
