@@ -7,7 +7,7 @@
   --cta-glow-strong: 0 25px 55px -22px rgba(34, 211, 238, 0.65);
 }
 
-:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -15,7 +15,7 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.9s ease;
 }
 
-:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare)::after {
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after {
   content: "";
   position: absolute;
   inset: -40%;
@@ -26,27 +26,58 @@
   z-index: -1;
 }
 
-:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]):hover {
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):hover {
   transform: translateY(-1px) scale(1.01);
   box-shadow: var(--cta-glow);
   background-position: 120% 120%;
 }
 
-:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare):hover::after {
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::after {
   opacity: 1;
   transform: scale(1.05);
 }
 
-:where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]):active {
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]):active {
   transform: translateY(0);
   box-shadow: var(--cta-glow-strong);
 }
 
+@keyframes cta-sheen {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(120%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.35) 45%, transparent 90%);
+  transform: translateX(-120%) skewX(-12deg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):hover::before,
+:where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail):focus-visible::before {
+  animation: cta-sheen 1.1s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
+  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail, input[type="button"], input[type="submit"], input[type="reset"]) {
     transition: none;
   }
-  :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare)::after {
+  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::after,
+  :where(button, [role="button"], .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, .brand-gradient, .brand-outline, .view-detail)::before {
     display: none;
   }
 }
@@ -146,5 +177,173 @@
   }
   :where(button, .motion-cta, .nav-auth-btn, .admin-action-btn, .admin-status-btn, .admin-stock-btn, .add-to-wishlist, .add-to-compare, input[type="button"], input[type="submit"], input[type="reset"]) {
     width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  #app > header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  #app > header > div:first-child,
+  #app > header > div:last-child {
+    width: 100%;
+  }
+
+  #app > header > div:last-child {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  #app > header #userArea {
+    margin-right: auto;
+  }
+
+  #homeHero {
+    padding: 1.5rem;
+  }
+
+  .home-hero-cta {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.home-hero-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero-animated::before {
+  content: "";
+  position: absolute;
+  inset: -60% 0 0;
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.45), transparent 60%);
+  opacity: 0.6;
+  pointer-events: none;
+  animation: home-glow 6s ease-in-out infinite;
+}
+
+@keyframes home-glow {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-8%);
+    opacity: 0.75;
+  }
+}
+
+@keyframes home-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.home-animate-rise {
+  opacity: 0;
+  animation: home-fade-up 0.8s ease forwards;
+}
+
+.home-animate-stagger > * {
+  opacity: 0;
+  animation: home-fade-up 0.8s ease forwards;
+}
+
+.home-animate-stagger > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.home-animate-stagger > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.home-animate-stagger > *:nth-child(4) {
+  animation-delay: 0.24s;
+}
+
+.home-animate-stagger > *:nth-child(5) {
+  animation-delay: 0.32s;
+}
+
+.home-animate-stagger > *:nth-child(6) {
+  animation-delay: 0.4s;
+}
+
+.home-animate-float {
+  animation: home-float 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-animate-rise,
+  .home-animate-stagger > *,
+  .home-animate-float {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #app > header button,
+  #app > header a {
+    width: auto;
+  }
+
+  #mobileAuthButtons button {
+    width: 100%;
+  }
+}
+
+@keyframes page-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#content.page-motion > * {
+  animation: page-rise 0.7s ease both;
+}
+
+#content.page-motion .grid > * {
+  animation: page-rise 0.7s ease both;
+}
+
+#content.page-motion .grid > *:nth-child(2) { animation-delay: 0.06s; }
+#content.page-motion .grid > *:nth-child(3) { animation-delay: 0.12s; }
+#content.page-motion .grid > *:nth-child(4) { animation-delay: 0.18s; }
+#content.page-motion .grid > *:nth-child(5) { animation-delay: 0.24s; }
+#content.page-motion .grid > *:nth-child(6) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  #content.page-motion > *,
+  #content.page-motion .grid > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
