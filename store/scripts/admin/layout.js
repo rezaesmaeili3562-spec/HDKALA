@@ -113,17 +113,21 @@ function createNavLink(item, activeKey) {
         </span>
       </span>
     `;
-    header.addEventListener('click', () => {
-      const isOpen = wrapper.classList.toggle('open');
+    const updateSubmenuState = (isOpen) => {
+      wrapper.classList.toggle('open', isOpen);
       header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      list.style.maxHeight = isOpen ? `${list.scrollHeight}px` : '0px';
+      list.style.opacity = isOpen ? '1' : '0';
       const status = header.querySelector('[data-status]');
       if (status) status.textContent = isOpen ? 'باز' : 'بسته';
-    });
+    };
 
     const list = document.createElement('div');
     list.className = 'admin-submenu space-y-1 ps-7 pt-2';
     list.id = listId;
     list.setAttribute('role', 'group');
+    list.style.overflow = 'hidden';
+    list.style.transition = 'max-height 0.35s ease, opacity 0.3s ease';
     item.children.forEach((child) => {
       const childLink = document.createElement('a');
       childLink.href = child.href;
@@ -133,6 +137,11 @@ function createNavLink(item, activeKey) {
     });
 
     wrapper.append(header, list);
+    updateSubmenuState(childActive);
+    header.addEventListener('click', () => {
+      const isOpen = !wrapper.classList.contains('open');
+      updateSubmenuState(isOpen);
+    });
     return wrapper;
   }
 
