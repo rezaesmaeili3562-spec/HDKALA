@@ -8,263 +8,11 @@
   <title>HDKALA — صفحه addresses</title>
   <!-- Tailwind CSS -->
   <link href="../css/output.css" rel="stylesheet" />
+  <link href="../css/addresses.css" rel="stylesheet" />
   <!-- Vazirmatn Font -->
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Iconify -->
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-  <style>
-    :root {
-      --brand-primary: #4338ca;
-      --brand-secondary: #6d28d9;
-      --brand-accent: #1d4ed8;
-      --brand-gradient: linear-gradient(135deg, var(--brand-accent), var(--brand-secondary));
-      --brand-gradient-hover: linear-gradient(135deg, #1e3a8a, #5b21b6);
-    }
-
-    body.admin-mode {
-      background: linear-gradient(135deg, rgba(67, 56, 202, 0.15), rgba(109, 40, 217, 0.08));
-    }
-
-    body.admin-mode .admin-dashboard-card {
-      box-shadow: 0 20px 45px -18px rgba(67, 56, 202, 0.25);
-      border-color: rgba(255, 255, 255, 0.45);
-    }
-
-    body.admin-window {
-      background: radial-gradient(circle at 20% 20%, rgba(148, 163, 184, 0.25), transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(96, 165, 250, 0.25), transparent 55%),
-        #0f172a;
-      color: #e2e8f0;
-    }
-
-    body.admin-window #app > header,
-    body.admin-window #app > footer,
-    body.admin-window #mobileMenu,
-    body.admin-window #cartSidebar,
-    body.admin-window #filterSidebar,
-    body.admin-window #compareModal,
-    body.admin-window #addressQuickPanel {
-      display: none !important;
-    }
-
-    body.admin-window #app {
-      padding-top: 2.5rem;
-      padding-bottom: 2.5rem;
-    }
-
-    body.admin-window #content {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    body.admin-window .notification-toast {
-      background: rgba(15, 23, 42, 0.92);
-      color: #f8fafc;
-      border-color: rgba(96, 165, 250, 0.35);
-      box-shadow: 0 28px 60px -24px rgba(14, 116, 144, 0.6);
-    }
-
-    body.admin-window .admin-dashboard-card {
-      background: rgba(15, 23, 42, 0.75);
-      border-color: rgba(148, 163, 184, 0.25);
-      box-shadow: 0 24px 50px -24px rgba(8, 47, 73, 0.45);
-    }
-
-    .admin-topbar {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 20px 45px -25px rgba(14, 116, 144, 0.55);
-      backdrop-filter: blur(16px);
-    }
-
-    .admin-note-card {
-      background: rgba(30, 41, 59, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .admin-status-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.35rem 0.75rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #e2e8f0;
-      background: rgba(30, 41, 59, 0.55);
-      font-size: 0.7rem;
-      font-weight: 500;
-      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-    }
-
-    .admin-status-btn:hover {
-      background: rgba(96, 165, 250, 0.25);
-      border-color: rgba(96, 165, 250, 0.4);
-    }
-
-    .admin-status-btn[disabled] {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .admin-stock-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(34, 197, 94, 0.35);
-      color: #bbf7d0;
-      background: rgba(22, 101, 52, 0.3);
-      font-size: 0.75rem;
-      font-weight: 500;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .admin-stock-btn:hover {
-      background: rgba(34, 197, 94, 0.35);
-      border-color: rgba(34, 197, 94, 0.5);
-    }
-
-    .admin-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #f1f5f9;
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .admin-input::placeholder {
-      color: rgba(226, 232, 240, 0.6);
-    }
-
-    .admin-input:focus {
-      outline: none;
-      border-color: rgba(96, 165, 250, 0.55);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    }
-
-    .admin-textarea {
-      width: 100%;
-      min-height: 140px;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #f1f5f9;
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      resize: vertical;
-    }
-
-    .admin-textarea::placeholder {
-      color: rgba(226, 232, 240, 0.6);
-    }
-
-    .admin-textarea:focus {
-      outline: none;
-      border-color: rgba(165, 180, 252, 0.6);
-      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
-    }
-
-    .nav-auth-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.45rem 1.15rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      line-height: 1.25rem;
-      transition: all 0.25s ease;
-      transform-origin: center;
-      box-shadow: 0 10px 28px -20px rgba(15, 23, 42, 0.3);
-    }
-
-    .nav-auth-btn:hover {
-      transform: translateY(-2px) scale(1.005);
-    }
-
-    .brand-outline {
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--brand-primary);
-      border: 1px solid rgba(67, 56, 202, 0.45);
-      box-shadow: 0 20px 45px -20px rgba(67, 56, 202, 0.35);
-    }
-
-    .brand-outline:hover {
-      background-image: var(--brand-gradient);
-      color: #ffffff;
-      border-color: rgba(99, 102, 241, 0.6);
-      box-shadow: 0 25px 55px -22px rgba(67, 56, 202, 0.55);
-    }
-
-    .brand-gradient {
-      background-image: var(--brand-gradient);
-      color: #ffffff;
-      border: 1px solid rgba(99, 102, 241, 0.45);
-      box-shadow: 0 18px 40px -22px rgba(79, 70, 229, 0.55);
-    }
-
-    .brand-gradient:hover {
-      background-image: var(--brand-gradient-hover);
-      box-shadow: 0 26px 60px -20px rgba(55, 48, 163, 0.6);
-    }
-
-    .auth-tab {
-      border-radius: 9999px;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-      font-weight: 600;
-    }
-
-    .auth-tab.active {
-      box-shadow: 0 18px 36px -22px rgba(79, 70, 229, 0.65);
-      border-color: rgba(79, 70, 229, 0.35);
-    }
-
-    .notification-toast {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      z-index: 50;
-      max-width: 20rem;
-      width: calc(100% - 3rem);
-      background: rgba(255, 255, 255, 0.95);
-      color: #1f2937;
-      border-radius: 1rem;
-      border: 2px solid transparent;
-      padding: 0.9rem 1.2rem;
-      box-shadow: 0 20px 45px -22px rgba(15, 23, 42, 0.28);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(1rem) scale(0.98);
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
-
-    .notification-toast.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-
-    .notification-toast.notification--error {
-      border-color: #ef4444;
-    }
-
-    .notification-toast.notification--success {
-      border-color: #22c55e;
-    }
-
-    html.dark .notification-toast {
-      background: rgba(17, 24, 39, 0.92);
-      color: #f9fafb;
-      box-shadow: 0 25px 50px -25px rgba(15, 23, 42, 0.6);
-    }
-  </style>
 </head>
 <body data-page="addresses" class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors text-gray-800 dark:text-white">
   <!-- Notification Container -->
@@ -410,12 +158,12 @@
           </div>
           <form id="adminOtpForm" class="space-y-4">
             <div class="flex justify-center gap-2" dir="ltr">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
-              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition-colors text-gray-900 dark:text-white" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" style="background-color: rgba(15,23,42,0.85); color: #f8fafc; border-color: #475569;">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+              <input type="text" maxlength="1" class="otp-input admin-otp-input w-12 h-12 text-center text-xl border-2 border-slate-600 rounded-lg focus:border-primary focus:outline-none transition-colors text-slate-50 bg-slate-900/90" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
             </div>
             <div class="flex gap-3">
               <button type="button" id="adminOtpBack" class="flex-1 border border-primary text-primary py-2 rounded-lg hover:bg-primary/10 transition-colors">ویرایش اطلاعات</button>
@@ -616,7 +364,7 @@
           <a href="#contact" class="text-gray-700 dark:text-white hover:text-primary transition-colors">تماس با ما</a>
           <a href="#blog" class="text-gray-700 dark:text-white hover:text-primary transition-colors">بلاگ</a>
           <button type="button" class="address-quick-trigger text-gray-700 dark:text-white hover:text-primary transition-colors focus:outline-none">آدرس‌های من</button>
-          <a href="#admin" id="adminAccessLink" class="text-gray-700 dark:text-white hover:text-primary transition-colors">ورود مدیریت</a>
+          <a href="admin/index.html" id="adminAccessLink" class="text-gray-700 dark:text-white hover:text-primary transition-colors">ورود مدیریت</a>
         </div>
       </div>
       <div class="flex items-center gap-3 max-md:w-full max-md:flex-wrap max-md:justify-between max-sm:gap-2">
