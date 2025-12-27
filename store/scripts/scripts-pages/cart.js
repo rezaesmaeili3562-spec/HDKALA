@@ -286,38 +286,6 @@ function setupCheckoutEvents() {
     });
 }
 
-// Cart and Compare event listeners
-cartBtn.addEventListener('click', () => {
-    cartSidebar.classList.add('open');
-});
-
-closeCart.addEventListener('click', () => {
-    cartSidebar.classList.remove('open');
-});
-
-compareBtn.addEventListener('click', openCompareModal);
-
-closeCompareModal.addEventListener('click', () => {
-    compareModal.classList.add('hidden');
-    compareModal.classList.remove('flex');
-});
-
-compareModal.addEventListener('click', (event) => {
-    if (event.target === compareModal) {
-        compareModal.classList.add('hidden');
-        compareModal.classList.remove('flex');
-    }
-});
-
-checkoutBtn.addEventListener('click', () => {
-    if (cart.length === 0) {
-        notify('سبد خرید شما خالی است', true);
-        return;
-    }
-    location.hash = 'checkout';
-    cartSidebar.classList.remove('open');
-});
-
 // Replace original checkout with enhanced version
 function enhanceCheckoutRendering() {
     if (typeof window === 'undefined') return false;

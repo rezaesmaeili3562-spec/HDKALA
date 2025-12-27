@@ -525,3 +525,57 @@ function renderOrdersPage(){
     `;
     contentRoot.appendChild(page);
 }
+
+function closeCompareOverlay() {
+    if (!compareModal) return;
+    compareModal.classList.add('hidden');
+    compareModal.classList.remove('flex');
+}
+
+function initCartAndCompareControls() {
+    if (cartBtn && cartSidebar) {
+        cartBtn.addEventListener('click', () => {
+            cartSidebar.classList.add('open');
+        });
+    }
+
+    if (closeCart && cartSidebar) {
+        closeCart.addEventListener('click', () => {
+            cartSidebar.classList.remove('open');
+        });
+    }
+
+    if (compareBtn) {
+        compareBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            openCompareModal();
+        });
+    }
+
+    if (closeCompareModal) {
+        closeCompareModal.addEventListener('click', closeCompareOverlay);
+    }
+
+    if (compareModal) {
+        compareModal.addEventListener('click', (event) => {
+            if (event.target === compareModal) {
+                closeCompareOverlay();
+            }
+        });
+    }
+
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                notify('سبد خرید شما خالی است', true);
+                return;
+            }
+            location.hash = 'checkout';
+            if (cartSidebar) {
+                cartSidebar.classList.remove('open');
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initCartAndCompareControls);
