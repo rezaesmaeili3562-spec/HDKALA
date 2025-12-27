@@ -1,5 +1,8 @@
 /* ---------- Product Detail Page ---------- */
 function renderProductDetailPage(id){
+    if (!contentRoot || typeof getProductById !== 'function') {
+        return;
+    }
     const p = getProductById(id);
     if(!p){ 
         contentRoot.innerHTML = `
@@ -12,10 +15,14 @@ function renderProductDetailPage(id){
         return; 
     }
     
-    addViewedProduct(id);
+    if (typeof addViewedProduct === 'function') {
+        addViewedProduct(id);
+    }
     const finalPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
-    const inWishlist = wishlist.includes(p.id);
-    const inCompare = compareList.includes(p.id);
+    const wishlistSafe = Array.isArray(window.wishlist) ? window.wishlist : [];
+    const compareSafe = Array.isArray(window.compareList) ? window.compareList : [];
+    const inWishlist = wishlistSafe.includes(p.id);
+    const inCompare = compareSafe.includes(p.id);
     
     const page = document.createElement('div');
     page.innerHTML = `
@@ -25,82 +32,60 @@ function renderProductDetailPage(id){
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
             <a href="#products" class="hover:text-primary transition-colors">محصولات</a>
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <a href="#products:${p.category}" class="hover:text-primary transition-colors">${getCategoryName(p.category)}</a>
+            <a data-element="breadcrumb-category" class="hover:text-primary transition-colors"></a>
             <iconify-icon icon="mdi:chevron-left" width="16"></iconify-icon>
-            <span class="text-primary">${p.name}</span>
+            <span class="text-primary" data-element="breadcrumb-product"></span>
         </nav>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             <!-- Product Images -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                 <div class="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
-                    ${p.img ? 
-                        `<img src="${p.img}" alt="${p.name}" class="w-full h-96 object-cover rounded-lg zoom-image" />` :
-                        `<iconify-icon icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>`
-                    }
+                    <img data-element="product-image" class="w-full h-96 object-cover rounded-lg zoom-image hidden" />
+                    <iconify-icon data-element="product-image-placeholder" icon="mdi:image-off" width="64" class="text-gray-400"></iconify-icon>
                 </div>
-                <div class="grid grid-cols-4 gap-2">
-                    ${[1,2,3,4].map(i => `
-                        <div class="h-20 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center cursor-pointer border-2 border-transparent hover:border-primary transition-colors">
-                            ${p.img ? 
-                                `<img src="${p.img}" alt="${p.name}" class="w-full h-20 object-cover rounded-lg" />` :
-                                `<iconify-icon icon="mdi:image" width="24" class="text-gray-400"></iconify-icon>`
-                            }
-                        </div>
-                    `).join('')}
-                </div>
+                <div class="grid grid-cols-4 gap-2" data-element="product-thumbnails"></div>
             </div>
             
             <!-- Product Info -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                 <div class="flex justify-between items-start mb-4">
-                    <h1 class="text-2xl font-bold">${p.name}</h1>
+                    <h1 class="text-2xl font-bold" data-element="product-name"></h1>
                     <div class="flex gap-2">
-                        <button class="add-to-wishlist p-2 text-gray-500 hover:text-red-500 transition-colors" data-id="${p.id}">
-                            <iconify-icon icon="${inWishlist ? 'mdi:heart' : 'mdi:heart-outline'}" width="24"></iconify-icon>
+                        <button class="add-to-wishlist p-2 text-gray-500 hover:text-red-500 transition-colors" data-element="wishlist-button">
+                            <iconify-icon data-element="wishlist-icon" width="24"></iconify-icon>
                         </button>
-                        <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-id="${p.id}">
+                        <button class="add-to-compare p-2 text-gray-500 hover:text-primary transition-colors" data-element="compare-button">
                             <iconify-icon icon="mdi:scale-balance" width="24"></iconify-icon>
                         </button>
-                        <button class="notify-me p-2 text-gray-500 hover:text-blue-500 transition-colors" data-id="${p.id}">
+                        <button class="notify-me p-2 text-gray-500 hover:text-blue-500 transition-colors" data-element="notify-button">
                             <iconify-icon icon="mdi:bell-outline" width="24"></iconify-icon>
                         </button>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-2 mb-4">
-                    <div class="text-yellow-500">${'★'.repeat(p.rating)}${p.rating < 5 ? '☆'.repeat(5-p.rating) : ''}</div>
+                    <div class="text-yellow-500" data-element="product-rating"></div>
                     <span class="text-gray-500 text-sm">(۱۲ نظر)</span>
                 </div>
                 
                 <div class="mb-6">
-                    ${p.discount > 0 ? `
-                        <div class="flex items-center gap-4 mb-2">
-                            <span class="text-2xl font-bold text-primary">${formatPrice(finalPrice)}</span>
-                            <span class="text-lg text-gray-500 line-through">${formatPrice(p.price)}</span>
-                            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-sm">${p.discount}% تخفیف</span>
-                        </div>
-                    ` : `
-                        <div class="text-2xl font-bold text-primary mb-2">${formatPrice(finalPrice)}</div>
-                    `}
-                    
-                    ${p.status === 'new' ? `<span class="badge badge-new mr-2">جدید</span>` : ''}
-                    ${p.status === 'hot' ? `<span class="badge badge-hot mr-2">فروش ویژه</span>` : ''}
-                    ${p.status === 'bestseller' ? `<span class="badge bg-purple-500 text-white mr-2">پرفروش</span>` : ''}
-                </div>
-                
-                <p class="text-gray-600 dark:text-gray-400 mb-6">${p.desc}</p>
-                
-                ${p.colors.length > 0 ? `
-                <div class="mb-6">
-                    <h3 class="font-medium mb-2">رنگ‌بندی:</h3>
-                    <div class="flex gap-2">
-                        ${p.colors.map(color => `
-                            <button class="color-option px-3 py-1 border border-gray-300 rounded-lg hover:border-primary transition-colors" data-color="${color}">${color}</button>
-                        `).join('')}
+                    <div class="flex items-center gap-4 mb-2" data-element="price-with-discount">
+                        <span class="text-2xl font-bold text-primary" data-element="final-price"></span>
+                        <span class="text-lg text-gray-500 line-through" data-element="original-price"></span>
+                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-sm" data-element="discount-badge"></span>
                     </div>
+                    <div class="text-2xl font-bold text-primary mb-2" data-element="price-no-discount"></div>
+                    
+                    <div data-element="status-badges"></div>
                 </div>
-                ` : ''}
+                
+                <p class="text-gray-600 dark:text-gray-400 mb-6" data-element="product-description"></p>
+                
+                <div class="mb-6 hidden" data-element="color-section">
+                    <h3 class="font-medium mb-2">رنگ‌بندی:</h3>
+                    <div class="flex gap-2" data-element="color-options"></div>
+                </div>
                 
                 <div class="mb-6">
                     <h3 class="font-medium mb-2">تعداد:</h3>
@@ -110,21 +95,16 @@ function renderProductDetailPage(id){
                             <span class="w-12 text-center text-lg quantity-display">1</span>
                             <button class="increase-qty w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">+</button>
                         </div>
-                        <div class="text-sm text-gray-500">
-                            ${p.stock > 0 ? 
-                                `<span class="text-green-500">${p.stock} عدد در انبار</span>` : 
-                                `<span class="text-red-500">ناموجود</span>`
-                            }
-                        </div>
+                        <div class="text-sm text-gray-500" data-element="stock-status"></div>
                     </div>
                 </div>
                 
                 <div class="flex gap-3 mb-6">
-                    <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
+                    <button class="add-to-cart flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2" data-element="add-to-cart">
                         <iconify-icon icon="mdi:cart-plus" width="20"></iconify-icon>
-                        ${p.stock > 0 ? 'افزودن به سبد خرید' : 'ناموجود'}
+                        <span data-element="add-to-cart-text"></span>
                     </button>
-                    <button class="buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
+                    <button class="buy-now flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors" data-element="buy-now">
                         خرید الآن
                     </button>
                 </div>
@@ -155,31 +135,15 @@ function renderProductDetailPage(id){
             </div>
             <div class="p-6">
                 <div id="tab-description" class="tab-content active">
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">${p.desc}</p>
-                    ${p.features.length > 0 ? `
-                        <div class="mt-6">
-                            <h4 class="font-medium mb-3">ویژگی‌های اصلی:</h4>
-                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                ${p.features.map(feature => `
-                                    <li class="flex items-center gap-2 text-sm">
-                                        <iconify-icon icon="mdi:check-circle" class="text-green-500"></iconify-icon>
-                                        <span>${feature}</span>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-element="tab-description"></p>
+                    <div class="mt-6 hidden" data-element="feature-section">
+                        <h4 class="font-medium mb-3">ویژگی‌های اصلی:</h4>
+                        <ul class="grid grid-cols-1 md:grid-cols-2 gap-2" data-element="feature-list"></ul>
+                    </div>
                 </div>
                 
                 <div id="tab-specifications" class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${Object.entries(p.specifications).map(([key, value]) => `
-                            <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                                <span class="text-gray-600 dark:text-gray-400">${key}:</span>
-                                <span class="font-medium">${value}</span>
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-element="spec-list"></div>
                 </div>
                 
                 <div id="tab-reviews" class="tab-content">
@@ -248,15 +212,239 @@ function renderProductDetailPage(id){
         </section>
     `;
     contentRoot.appendChild(page);
+
+    const breadcrumbCategory = page.querySelector('[data-element="breadcrumb-category"]');
+    if (breadcrumbCategory) {
+        breadcrumbCategory.href = `#products:${p.category}`;
+        breadcrumbCategory.textContent = typeof getCategoryName === 'function' ? getCategoryName(p.category) : p.category;
+    }
+
+    const breadcrumbProduct = page.querySelector('[data-element="breadcrumb-product"]');
+    if (breadcrumbProduct) {
+        breadcrumbProduct.textContent = p.name;
+    }
+
+    const imageEl = page.querySelector('[data-element="product-image"]');
+    const placeholderEl = page.querySelector('[data-element="product-image-placeholder"]');
+    if (imageEl) {
+        if (p.img) {
+            imageEl.src = p.img;
+            imageEl.alt = p.name;
+            imageEl.classList.remove('hidden');
+            placeholderEl?.classList.add('hidden');
+        } else {
+            imageEl.classList.add('hidden');
+            placeholderEl?.classList.remove('hidden');
+        }
+    }
+
+    const thumbnails = page.querySelector('[data-element="product-thumbnails"]');
+    if (thumbnails) {
+        thumbnails.innerHTML = '';
+        [1,2,3,4].forEach(() => {
+            const thumb = document.createElement('div');
+            thumb.className = 'h-20 bg-gray-100 dark:bg-gray-600 rounded-lg flex items-center justify-center cursor-pointer border-2 border-transparent hover:border-primary transition-colors';
+            if (p.img) {
+                const img = document.createElement('img');
+                img.src = p.img;
+                img.alt = p.name;
+                img.className = 'w-full h-20 object-cover rounded-lg';
+                thumb.appendChild(img);
+            } else {
+                const icon = document.createElement('iconify-icon');
+                icon.setAttribute('icon', 'mdi:image');
+                icon.setAttribute('width', '24');
+                icon.className = 'text-gray-400';
+                thumb.appendChild(icon);
+            }
+            thumbnails.appendChild(thumb);
+        });
+    }
+
+    const nameEl = page.querySelector('[data-element="product-name"]');
+    if (nameEl) {
+        nameEl.textContent = p.name;
+    }
+
+    const wishlistButton = page.querySelector('[data-element="wishlist-button"]');
+    const wishlistIcon = page.querySelector('[data-element="wishlist-icon"]');
+    if (wishlistButton) {
+        wishlistButton.dataset.id = p.id;
+    }
+    if (wishlistIcon) {
+        wishlistIcon.setAttribute('icon', inWishlist ? 'mdi:heart' : 'mdi:heart-outline');
+    }
+
+    const compareButton = page.querySelector('[data-element="compare-button"]');
+    if (compareButton) {
+        compareButton.dataset.id = p.id;
+    }
+
+    const notifyButton = page.querySelector('[data-element="notify-button"]');
+    if (notifyButton) {
+        notifyButton.dataset.id = p.id;
+    }
+
+    const ratingEl = page.querySelector('[data-element="product-rating"]');
+    if (ratingEl) {
+        const rating = Math.max(0, Math.min(5, p.rating || 0));
+        ratingEl.textContent = `${'★'.repeat(rating)}${rating < 5 ? '☆'.repeat(5 - rating) : ''}`;
+    }
+
+    const priceWithDiscount = page.querySelector('[data-element="price-with-discount"]');
+    const priceNoDiscount = page.querySelector('[data-element="price-no-discount"]');
+    const finalPriceEl = page.querySelector('[data-element="final-price"]');
+    const originalPriceEl = page.querySelector('[data-element="original-price"]');
+    const discountBadgeEl = page.querySelector('[data-element="discount-badge"]');
+    const hasDiscount = p.discount > 0;
+    if (priceWithDiscount && priceNoDiscount) {
+        priceWithDiscount.classList.toggle('hidden', !hasDiscount);
+        priceNoDiscount.classList.toggle('hidden', hasDiscount);
+    }
+    if (finalPriceEl) {
+        finalPriceEl.textContent = formatPrice(finalPrice);
+    }
+    if (originalPriceEl) {
+        originalPriceEl.textContent = formatPrice(p.price);
+    }
+    if (discountBadgeEl) {
+        discountBadgeEl.textContent = `${p.discount}% تخفیف`;
+    }
+    if (priceNoDiscount && !hasDiscount) {
+        priceNoDiscount.textContent = formatPrice(finalPrice);
+    }
+
+    const statusBadges = page.querySelector('[data-element="status-badges"]');
+    if (statusBadges) {
+        statusBadges.innerHTML = '';
+        if (p.status === 'new') {
+            const badge = document.createElement('span');
+            badge.className = 'badge badge-new mr-2';
+            badge.textContent = 'جدید';
+            statusBadges.appendChild(badge);
+        }
+        if (p.status === 'hot') {
+            const badge = document.createElement('span');
+            badge.className = 'badge badge-hot mr-2';
+            badge.textContent = 'فروش ویژه';
+            statusBadges.appendChild(badge);
+        }
+        if (p.status === 'bestseller') {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-purple-500 text-white mr-2';
+            badge.textContent = 'پرفروش';
+            statusBadges.appendChild(badge);
+        }
+    }
+
+    const descEl = page.querySelector('[data-element="product-description"]');
+    if (descEl) {
+        descEl.textContent = p.desc || '';
+    }
+
+    const colorSection = page.querySelector('[data-element="color-section"]');
+    const colorOptions = page.querySelector('[data-element="color-options"]');
+    if (colorSection && colorOptions) {
+        if (Array.isArray(p.colors) && p.colors.length > 0) {
+            colorSection.classList.remove('hidden');
+            colorOptions.innerHTML = '';
+            p.colors.forEach(color => {
+                const button = document.createElement('button');
+                button.className = 'color-option px-3 py-1 border border-gray-300 rounded-lg hover:border-primary transition-colors';
+                button.dataset.color = color;
+                button.textContent = color;
+                colorOptions.appendChild(button);
+            });
+        } else {
+            colorSection.classList.add('hidden');
+        }
+    }
+
+    const stockStatus = page.querySelector('[data-element="stock-status"]');
+    if (stockStatus) {
+        stockStatus.innerHTML = '';
+        const span = document.createElement('span');
+        if (p.stock > 0) {
+            span.className = 'text-green-500';
+            span.textContent = `${p.stock} عدد در انبار`;
+        } else {
+            span.className = 'text-red-500';
+            span.textContent = 'ناموجود';
+        }
+        stockStatus.appendChild(span);
+    }
+
+    const addToCartButton = page.querySelector('[data-element="add-to-cart"]');
+    const addToCartText = page.querySelector('[data-element="add-to-cart-text"]');
+    if (addToCartButton && addToCartText) {
+        addToCartButton.dataset.id = p.id;
+        addToCartButton.disabled = p.stock === 0;
+        addToCartText.textContent = p.stock > 0 ? 'افزودن به سبد خرید' : 'ناموجود';
+    }
+
+    const buyNowButton = page.querySelector('[data-element="buy-now"]');
+    if (buyNowButton) {
+        buyNowButton.dataset.id = p.id;
+        buyNowButton.disabled = p.stock === 0;
+    }
+
+    const tabDescription = page.querySelector('[data-element="tab-description"]');
+    if (tabDescription) {
+        tabDescription.textContent = p.desc || '';
+    }
+
+    const featureSection = page.querySelector('[data-element="feature-section"]');
+    const featureList = page.querySelector('[data-element="feature-list"]');
+    if (featureSection && featureList) {
+        if (Array.isArray(p.features) && p.features.length > 0) {
+            featureSection.classList.remove('hidden');
+            featureList.innerHTML = '';
+            p.features.forEach(feature => {
+                const item = document.createElement('li');
+                item.className = 'flex items-center gap-2 text-sm';
+                const icon = document.createElement('iconify-icon');
+                icon.setAttribute('icon', 'mdi:check-circle');
+                icon.className = 'text-green-500';
+                const text = document.createElement('span');
+                text.textContent = feature;
+                item.appendChild(icon);
+                item.appendChild(text);
+                featureList.appendChild(item);
+            });
+        } else {
+            featureSection.classList.add('hidden');
+        }
+    }
+
+    const specList = page.querySelector('[data-element="spec-list"]');
+    if (specList) {
+        specList.innerHTML = '';
+        const specs = p.specifications && typeof p.specifications === 'object' ? p.specifications : {};
+        Object.entries(specs).forEach(([key, value]) => {
+            const row = document.createElement('div');
+            row.className = 'flex justify-between py-2 border-b border-gray-100 dark:border-gray-700';
+            const keyEl = document.createElement('span');
+            keyEl.className = 'text-gray-600 dark:text-gray-400';
+            keyEl.textContent = `${key}:`;
+            const valueEl = document.createElement('span');
+            valueEl.className = 'font-medium';
+            valueEl.textContent = value;
+            row.appendChild(keyEl);
+            row.appendChild(valueEl);
+            specList.appendChild(row);
+        });
+    }
     
     // Show related products (same category)
-    const related = products.filter(product => 
-        product.category === p.category && product.id !== p.id
-    ).slice(0, 4);
+    const related = Array.isArray(products)
+        ? products.filter(product => product.category === p.category && product.id !== p.id).slice(0, 4)
+        : [];
     renderProductsList(related, $('#relatedProducts'));
     
     // Add event listeners
-    setupProductDetailEvents(page, p);
+    if (typeof setupProductDetailEvents === 'function') {
+        setupProductDetailEvents(page, p);
+    }
 }
 
 function setupProductDetailEvents(page, product) {
@@ -345,9 +533,10 @@ function setupProductDetailEvents(page, product) {
 }
 
 function showNotifyMeModal(product) {
-    const modalHTML = createNotifyMeModal(product);
-    const modalContainer = document.createElement('div');
-    modalContainer.innerHTML = modalHTML;
+    const modalContainer = createNotifyMeModal(product);
+    if (!modalContainer) {
+        return;
+    }
     document.body.appendChild(modalContainer);
     
     // Event listeners for modal

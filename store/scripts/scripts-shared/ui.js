@@ -1,5 +1,8 @@
 /* ---------- Checkout Page ---------- */
 function renderCheckoutPage(){
+    if (!contentRoot) {
+        return;
+    }
     const page = document.createElement('div');
     page.innerHTML = `
         <h1 class="text-2xl font-bold mb-6">تسویه حساب</h1>
@@ -10,35 +13,35 @@ function renderCheckoutPage(){
                     <form class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2">نام</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.name : ''}">
+                                <label for="checkout-first-name" class="block text-sm font-medium mb-2">نام</label>
+                                <input id="checkout-first-name" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2">نام خانوادگی</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                                <label for="checkout-last-name" class="block text-sm font-medium mb-2">نام خانوادگی</label>
+                                <input id="checkout-last-name" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">آدرس</label>
-                            <textarea rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
+                            <label for="checkout-address" class="block text-sm font-medium mb-2">آدرس</label>
+                            <textarea id="checkout-address" rows="3" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"></textarea>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2">شهر</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                                <label for="checkout-city" class="block text-sm font-medium mb-2">شهر</label>
+                                <input id="checkout-city" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2">استان</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                                <label for="checkout-state" class="block text-sm font-medium mb-2">استان</label>
+                                <input id="checkout-state" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2">کد پستی</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                                <label for="checkout-postal-code" class="block text-sm font-medium mb-2">کد پستی</label>
+                                <input id="checkout-postal-code" type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">شماره تماس</label>
-                            <input type="tel" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.phone : ''}">
+                            <label for="checkout-phone" class="block text-sm font-medium mb-2">شماره تماس</label>
+                            <input id="checkout-phone" type="tel" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
                         </div>
                     </form>
                 </div>
@@ -81,6 +84,14 @@ function renderCheckoutPage(){
         </div>
     `;
     contentRoot.appendChild(page);
+    const firstNameInput = $('#checkout-first-name', page);
+    const phoneInput = $('#checkout-phone', page);
+    if (firstNameInput && user?.name) {
+        firstNameInput.value = user.name;
+    }
+    if (phoneInput && user?.phone) {
+        phoneInput.value = user.phone;
+    }
     updateCheckoutDisplay();
 }
 
@@ -91,10 +102,10 @@ function updateCheckoutDisplay() {
     const checkoutShipping = $('#checkoutShipping');
     const checkoutFinalTotal = $('#checkoutFinalTotal');
     
-    if (!checkoutItems) return;
+    if (!checkoutItems || !checkoutTotal || !checkoutDiscount || !checkoutShipping || !checkoutFinalTotal) return;
     
     checkoutItems.innerHTML = '';
-    if (cart.length === 0) {
+    if (!Array.isArray(window.cart) || cart.length === 0) {
         checkoutItems.innerHTML = '<p class="text-gray-500 text-center">سبد خرید خالی است</p>';
         checkoutTotal.textContent = '۰ تومان';
         checkoutDiscount.textContent = '۰ تومان';
@@ -106,6 +117,10 @@ function updateCheckoutDisplay() {
     let total = 0;
     let totalDiscount = 0;
     
+    if (typeof getProductById !== 'function') {
+        return;
+    }
+
     cart.forEach(item => {
         const product = getProductById(item.productId);
         if (!product) return;
@@ -120,13 +135,20 @@ function updateCheckoutDisplay() {
         
         const itemEl = document.createElement('div');
         itemEl.className = 'flex justify-between items-center text-sm';
-        itemEl.innerHTML = `
-            <div>
-                <div class="font-medium">${product.name}</div>
-                <div class="text-gray-500">${item.qty} × ${formatPrice(finalPrice)}</div>
-            </div>
-            <div class="font-medium">${formatPrice(itemTotal)}</div>
-        `;
+        const info = document.createElement('div');
+        const nameEl = document.createElement('div');
+        nameEl.className = 'font-medium';
+        nameEl.textContent = product.name;
+        const qtyEl = document.createElement('div');
+        qtyEl.className = 'text-gray-500';
+        qtyEl.textContent = `${item.qty} × ${formatPrice(finalPrice)}`;
+        info.appendChild(nameEl);
+        info.appendChild(qtyEl);
+        const totalEl = document.createElement('div');
+        totalEl.className = 'font-medium';
+        totalEl.textContent = formatPrice(itemTotal);
+        itemEl.appendChild(info);
+        itemEl.appendChild(totalEl);
         checkoutItems.appendChild(itemEl);
     });
     
@@ -410,11 +432,11 @@ function renderProfilePage(){
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">نام</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.name : ''}">
+                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" data-element="profile-name">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2">شماره تلفن</label>
-                                <input type="tel" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.phone : ''}" readonly>
+                                <input type="tel" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" data-element="profile-phone" readonly>
                             </div>
                         </div>
                         <div>
@@ -430,9 +452,9 @@ function renderProfilePage(){
                     <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <iconify-icon icon="mdi:user" width="32" class="text-primary"></iconify-icon>
                     </div>
-                    <h3 class="font-bold text-lg">${user ? user.name : 'کاربر'}</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">${user ? user.phone : ''}</p>
-                    <p class="text-gray-500 text-xs mt-2">عضو از ${user ? new Date(user.created).toLocaleDateString('fa-IR') : '---'}</p>
+                    <h3 class="font-bold text-lg" data-element="profile-display-name"></h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm" data-element="profile-display-phone"></p>
+                    <p class="text-gray-500 text-xs mt-2" data-element="profile-created-at"></p>
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                     <h3 class="font-bold mb-4">آمار شما</h3>
@@ -455,6 +477,28 @@ function renderProfilePage(){
         </div>
     `;
     contentRoot.appendChild(page);
+
+    const nameInput = page.querySelector('[data-element="profile-name"]');
+    const phoneInput = page.querySelector('[data-element="profile-phone"]');
+    const displayName = page.querySelector('[data-element="profile-display-name"]');
+    const displayPhone = page.querySelector('[data-element="profile-display-phone"]');
+    const createdAt = page.querySelector('[data-element="profile-created-at"]');
+
+    if (nameInput) {
+        nameInput.value = user?.name || '';
+    }
+    if (phoneInput) {
+        phoneInput.value = user?.phone || '';
+    }
+    if (displayName) {
+        displayName.textContent = user?.name || 'کاربر';
+    }
+    if (displayPhone) {
+        displayPhone.textContent = user?.phone || '';
+    }
+    if (createdAt) {
+        createdAt.textContent = `عضو از ${user ? new Date(user.created).toLocaleDateString('fa-IR') : '---'}`;
+    }
 }
 
 /* ---------- Orders Page ---------- */
@@ -469,61 +513,106 @@ function renderOrdersPage(){
                 <a href="#products" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">مشاهده محصولات</a>
             </div>
         ` : `
-            <div class="space-y-4">
-                ${orders.map(order => `
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg">سفارش #${order.id}</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm">${order.date}</p>
-                            </div>
-                            <span class="px-3 py-1 rounded-full text-sm ${
-                                order.status === 'delivered' ? 'bg-green-500/10 text-green-500' :
-                                order.status === 'shipped' ? 'bg-blue-500/10 text-blue-500' :
-                                order.status === 'processing' ? 'bg-yellow-500/10 text-yellow-500' :
-                                'bg-gray-500/10 text-gray-500'
-                            }">
-                                ${
-                                    order.status === 'delivered' ? 'تحویل شده' :
-                                    order.status === 'shipped' ? 'ارسال شده' :
-                                    order.status === 'processing' ? 'در حال پردازش' :
-                                    'لغو شده'
-                                }
-                            </span>
-                        </div>
-                        <div class="space-y-3 mb-4">
-                            ${order.items.map(item => {
-                                const product = getProductById(item.productId);
-                                if (!product) return '';
-                                return `
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                                ${product.img ? 
-                                                    `<img src="${product.img}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg" />` :
-                                                    `<iconify-icon icon="mdi:package" width="20" class="text-gray-400"></iconify-icon>`
-                                                }
-                                            </div>
-                                            <div>
-                                                <div class="font-medium">${product.name}</div>
-                                                <div class="text-gray-500 text-sm">${item.qty} عدد</div>
-                                            </div>
-                                        </div>
-                                        <div class="font-medium">${formatPrice((product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price) * item.qty)}</div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                        <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4">
-                            <div class="text-lg font-bold">${formatPrice(order.total)}</div>
-                            <button class="text-primary hover:text-primary/80 transition-colors">مشاهده جزئیات</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
+            <div class="space-y-4" data-element="orders-list"></div>
         `}
     `;
     contentRoot.appendChild(page);
+
+    if (orders.length === 0) {
+        return;
+    }
+
+    const list = page.querySelector('[data-element="orders-list"]');
+    if (!list || typeof getProductById !== 'function') {
+        return;
+    }
+
+    orders.forEach(order => {
+        const statusLabel = order.status === 'delivered'
+            ? 'تحویل شده'
+            : order.status === 'shipped'
+                ? 'ارسال شده'
+                : order.status === 'processing'
+                    ? 'در حال پردازش'
+                    : 'لغو شده';
+        const statusClass = order.status === 'delivered'
+            ? 'bg-green-500/10 text-green-500'
+            : order.status === 'shipped'
+                ? 'bg-blue-500/10 text-blue-500'
+                : order.status === 'processing'
+                    ? 'bg-yellow-500/10 text-yellow-500'
+                    : 'bg-gray-500/10 text-gray-500';
+
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20';
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg">سفارش #${order.id}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">${order.date}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="space-y-3 mb-4" data-element="order-items"></div>
+            <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div class="text-lg font-bold">${formatPrice(order.total)}</div>
+                <button class="text-primary hover:text-primary/80 transition-colors">مشاهده جزئیات</button>
+            </div>
+        `;
+
+        const itemsContainer = card.querySelector('[data-element="order-items"]');
+        if (itemsContainer) {
+            order.items.forEach(item => {
+                const product = getProductById(item.productId);
+                if (!product) return;
+                const itemRow = document.createElement('div');
+                itemRow.className = 'flex justify-between items-center';
+
+                const info = document.createElement('div');
+                info.className = 'flex items-center gap-3';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center';
+                if (product.img) {
+                    const img = document.createElement('img');
+                    img.src = product.img;
+                    img.alt = product.name;
+                    img.className = 'w-12 h-12 object-cover rounded-lg';
+                    imgWrapper.appendChild(img);
+                } else {
+                    const icon = document.createElement('iconify-icon');
+                    icon.setAttribute('icon', 'mdi:package');
+                    icon.setAttribute('width', '20');
+                    icon.className = 'text-gray-400';
+                    imgWrapper.appendChild(icon);
+                }
+
+                const textBlock = document.createElement('div');
+                const nameEl = document.createElement('div');
+                nameEl.className = 'font-medium';
+                nameEl.textContent = product.name;
+                const qtyEl = document.createElement('div');
+                qtyEl.className = 'text-gray-500 text-sm';
+                qtyEl.textContent = `${item.qty} عدد`;
+                textBlock.appendChild(nameEl);
+                textBlock.appendChild(qtyEl);
+
+                info.appendChild(imgWrapper);
+                info.appendChild(textBlock);
+
+                const priceEl = document.createElement('div');
+                priceEl.className = 'font-medium';
+                const unitPrice = product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price;
+                priceEl.textContent = formatPrice(unitPrice * item.qty);
+
+                itemRow.appendChild(info);
+                itemRow.appendChild(priceEl);
+                itemsContainer.appendChild(itemRow);
+            });
+        }
+
+        list.appendChild(card);
+    });
 }
 
 function closeCompareOverlay() {

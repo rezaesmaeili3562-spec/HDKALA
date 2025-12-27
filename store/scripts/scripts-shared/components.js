@@ -145,123 +145,219 @@ function createPaymentOptions(selectedMethod = 'online') {
 function createCompareProduct(product) {
     const finalPrice = product.discount > 0 ? 
         product.price * (1 - product.discount / 100) : product.price;
-    
-    return `
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-primary/20 p-4 relative">
-            <button class="remove-compare absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-                    data-id="${product.id}">
-                <iconify-icon icon="mdi:close"></iconify-icon>
-            </button>
-            
-            <div class="text-center mb-4">
-                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
-                <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
-                    ${product.img ? 
-                        `<img src="${product.img}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg">` :
-                        `<iconify-icon icon="mdi:image-off" width="32" class="text-gray-400"></iconify-icon>`
-                    }
-                </div>
-            </div>
-            
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600 dark:text-gray-400">قیمت:</span>
-                    <span class="font-medium text-primary">${formatPrice(finalPrice)}</span>
-                </div>
-                
-                ${product.discount > 0 ? `
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600 dark:text-gray-400">تخفیف:</span>
-                    <span class="text-green-500 font-medium">${product.discount}%</span>
-                </div>
-                ` : ''}
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600 dark:text-gray-400">امتیاز:</span>
-                    <span class="text-yellow-500">${'★'.repeat(product.rating)}${'☆'.repeat(5 - product.rating)}</span>
-                </div>
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600 dark:text-gray-400">برند:</span>
-                    <span class="font-medium">${product.brand}</span>
-                </div>
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600 dark:text-gray-400">موجودی:</span>
-                    <span class="${product.stock > 0 ? 'text-green-500' : 'text-red-500'} font-medium">
-                        ${product.stock > 0 ? product.stock + ' عدد' : 'ناموجود'}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4 space-y-2">
-                <button class="add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
-                        data-id="${product.id}">
-                    افزودن به سبد خرید
-                </button>
-                <button class="add-to-wishlist w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
-                        data-id="${product.id}">
-                    <iconify-icon icon="${wishlist.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline'}"></iconify-icon>
-                    علاقه‌مندی
-                </button>
+    const card = document.createElement('div');
+    card.className = 'bg-white dark:bg-gray-800 rounded-lg border border-primary/20 p-4 relative';
+    card.innerHTML = `
+        <button class="remove-compare absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                data-element="remove-compare">
+            <iconify-icon icon="mdi:close"></iconify-icon>
+        </button>
+        
+        <div class="text-center mb-4">
+            <h3 class="font-bold text-lg mb-2" data-element="product-name"></h3>
+            <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
+                <img data-element="product-image" class="w-full h-40 object-cover rounded-lg hidden">
+                <iconify-icon data-element="product-placeholder" icon="mdi:image-off" width="32" class="text-gray-400"></iconify-icon>
             </div>
         </div>
+        
+        <div class="space-y-2 text-sm">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 dark:text-gray-400">قیمت:</span>
+                <span class="font-medium text-primary" data-element="product-price"></span>
+            </div>
+            
+            <div class="flex justify-between items-center hidden" data-element="discount-row">
+                <span class="text-gray-600 dark:text-gray-400">تخفیف:</span>
+                <span class="text-green-500 font-medium" data-element="discount-value"></span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 dark:text-gray-400">امتیاز:</span>
+                <span class="text-yellow-500" data-element="product-rating"></span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 dark:text-gray-400">برند:</span>
+                <span class="font-medium" data-element="product-brand"></span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 dark:text-gray-400">موجودی:</span>
+                <span class="font-medium" data-element="product-stock"></span>
+            </div>
+        </div>
+        
+        <div class="mt-4 space-y-2">
+            <button class="add-to-cart w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
+                    data-element="add-to-cart">
+                افزودن به سبد خرید
+            </button>
+            <button class="add-to-wishlist w-full border border-primary text-primary py-2 rounded-lg font-medium hover:bg-primary/10 transition-colors text-sm flex items-center justify-center gap-2"
+                    data-element="add-to-wishlist">
+                <iconify-icon data-element="wishlist-icon"></iconify-icon>
+                علاقه‌مندی
+            </button>
+        </div>
     `;
+
+    const removeButton = card.querySelector('[data-element="remove-compare"]');
+    if (removeButton) {
+        removeButton.dataset.id = product.id;
+    }
+
+    const nameEl = card.querySelector('[data-element="product-name"]');
+    if (nameEl) {
+        nameEl.textContent = product.name;
+    }
+
+    const imageEl = card.querySelector('[data-element="product-image"]');
+    const placeholderEl = card.querySelector('[data-element="product-placeholder"]');
+    if (imageEl) {
+        if (product.img) {
+            imageEl.src = product.img;
+            imageEl.alt = product.name;
+            imageEl.classList.remove('hidden');
+            placeholderEl?.classList.add('hidden');
+        } else {
+            imageEl.classList.add('hidden');
+            placeholderEl?.classList.remove('hidden');
+        }
+    }
+
+    const priceEl = card.querySelector('[data-element="product-price"]');
+    if (priceEl) {
+        priceEl.textContent = formatPrice(finalPrice);
+    }
+
+    const discountRow = card.querySelector('[data-element="discount-row"]');
+    const discountValue = card.querySelector('[data-element="discount-value"]');
+    if (discountRow && discountValue) {
+        if (product.discount > 0) {
+            discountRow.classList.remove('hidden');
+            discountValue.textContent = `${product.discount}%`;
+        } else {
+            discountRow.classList.add('hidden');
+        }
+    }
+
+    const ratingEl = card.querySelector('[data-element="product-rating"]');
+    if (ratingEl) {
+        const rating = Math.max(0, Math.min(5, product.rating || 0));
+        ratingEl.textContent = `${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`;
+    }
+
+    const brandEl = card.querySelector('[data-element="product-brand"]');
+    if (brandEl) {
+        brandEl.textContent = product.brand || '---';
+    }
+
+    const stockEl = card.querySelector('[data-element="product-stock"]');
+    if (stockEl) {
+        if (product.stock > 0) {
+            stockEl.classList.add('text-green-500');
+            stockEl.textContent = `${product.stock} عدد`;
+        } else {
+            stockEl.classList.add('text-red-500');
+            stockEl.textContent = 'ناموجود';
+        }
+    }
+
+    const addToCartBtn = card.querySelector('[data-element="add-to-cart"]');
+    if (addToCartBtn) {
+        addToCartBtn.dataset.id = product.id;
+    }
+
+    const wishlistBtn = card.querySelector('[data-element="add-to-wishlist"]');
+    const wishlistIcon = card.querySelector('[data-element="wishlist-icon"]');
+    const wishlistSafe = Array.isArray(window.wishlist) ? window.wishlist : [];
+    if (wishlistBtn) {
+        wishlistBtn.dataset.id = product.id;
+    }
+    if (wishlistIcon) {
+        wishlistIcon.setAttribute('icon', wishlistSafe.includes(product.id) ? 'mdi:heart' : 'mdi:heart-outline');
+    }
+
+    return card;
 }
 
 // کامپوننت اطلاع‌رسانی موجود شدن محصول
 function createNotifyMeModal(product) {
-    return `
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold">اطلاع‌رسانی هنگام موجود شدن</h3>
-                    <button class="close-notify-modal p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                        <iconify-icon icon="mdi:close"></iconify-icon>
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">اطلاع‌رسانی هنگام موجود شدن</h3>
+                <button class="close-notify-modal p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                    <iconify-icon icon="mdi:close"></iconify-icon>
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                    <img data-element="product-image" class="w-12 h-12 object-cover rounded-lg hidden">
+                    <iconify-icon data-element="product-placeholder" icon="mdi:package" class="text-gray-400"></iconify-icon>
+                </div>
+                <div>
+                    <div class="font-medium" data-element="product-name"></div>
+                    <div class="text-sm text-gray-500" data-element="product-brand"></div>
+                </div>
+            </div>
+            
+            <form class="space-y-4" id="notifyMeForm">
+                <div>
+                    <label class="block text-sm font-medium mb-2">ایمیل</label>
+                    <input type="email" required 
+                           class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                           placeholder="email@example.com">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">شماره تلفن</label>
+                    <input type="tel" required 
+                           class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
+                           placeholder="09xxxxxxxxx"
+                           data-phone>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" class="close-notify-modal flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        انصراف
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        ثبت درخواست
                     </button>
                 </div>
-                
-                <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                        ${product.img ? 
-                            `<img src="${product.img}" alt="${product.name}" class="w-12 h-12 object-cover rounded-lg">` :
-                            `<iconify-icon icon="mdi:package" class="text-gray-400"></iconify-icon>`
-                        }
-                    </div>
-                    <div>
-                        <div class="font-medium">${product.name}</div>
-                        <div class="text-sm text-gray-500">${product.brand}</div>
-                    </div>
-                </div>
-                
-                <form class="space-y-4" id="notifyMeForm">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">ایمیل</label>
-                        <input type="email" required 
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               placeholder="email@example.com">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">شماره تلفن</label>
-                        <input type="tel" required 
-                               class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700"
-                               placeholder="09xxxxxxxxx"
-                               data-phone>
-                    </div>
-                    
-                    <div class="flex gap-3">
-                        <button type="button" class="close-notify-modal flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                            انصراف
-                        </button>
-                        <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
-                            ثبت درخواست
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     `;
+
+    const imageEl = modal.querySelector('[data-element="product-image"]');
+    const placeholderEl = modal.querySelector('[data-element="product-placeholder"]');
+    if (imageEl) {
+        if (product.img) {
+            imageEl.src = product.img;
+            imageEl.alt = product.name;
+            imageEl.classList.remove('hidden');
+            placeholderEl?.classList.add('hidden');
+        } else {
+            imageEl.classList.add('hidden');
+            placeholderEl?.classList.remove('hidden');
+        }
+    }
+
+    const nameEl = modal.querySelector('[data-element="product-name"]');
+    if (nameEl) {
+        nameEl.textContent = product.name;
+    }
+
+    const brandEl = modal.querySelector('[data-element="product-brand"]');
+    if (brandEl) {
+        brandEl.textContent = product.brand || '';
+    }
+
+    return modal;
 }
 
 // کامپوننت آدرس‌های کاربر

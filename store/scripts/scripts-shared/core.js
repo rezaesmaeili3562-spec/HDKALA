@@ -43,7 +43,16 @@ function notify(msg, isError=false){
 
 function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
 
-function formatPrice(n){ return n.toLocaleString('fa-IR') + ' تومان'; }
+function formatPrice(n){
+    if (n === null || n === undefined) {
+        return '۰ تومان';
+    }
+    const num = typeof n === 'number' ? n : Number(n);
+    if (!Number.isFinite(num)) {
+        return '۰ تومان';
+    }
+    return num.toLocaleString('fa-IR') + ' تومان';
+}
 
 function getCategoryName(category) {
     const categories = {
@@ -59,7 +68,9 @@ function getCategoryName(category) {
 function handleProductActions(e) {
     const addBtn = e.target.closest('.add-to-cart');
     if(addBtn){ 
-        addToCart(addBtn.getAttribute('data-id'), 1); 
+        if (typeof addToCart === 'function') {
+            addToCart(addBtn.getAttribute('data-id'), 1); 
+        }
         return; 
     }
     const viewBtn = e.target.closest('.view-detail');
@@ -69,12 +80,16 @@ function handleProductActions(e) {
     }
     const favBtn = e.target.closest('.add-to-wishlist');
     if(favBtn){ 
-        toggleWishlist(favBtn.getAttribute('data-id')); 
+        if (typeof toggleWishlist === 'function') {
+            toggleWishlist(favBtn.getAttribute('data-id')); 
+        }
         return; 
     }
     const compBtn = e.target.closest('.add-to-compare');
     if(compBtn){ 
-        toggleCompare(compBtn.getAttribute('data-id')); 
+        if (typeof toggleCompare === 'function') {
+            toggleCompare(compBtn.getAttribute('data-id')); 
+        }
         return; 
     }
 }
@@ -88,6 +103,9 @@ function renderProductsList(list, container){
         return;
     }
 
+    const wishlistSafe = Array.isArray(window.wishlist) ? window.wishlist : [];
+    const compareSafe = Array.isArray(window.compareList) ? window.compareList : [];
+
     list.forEach(p => {
         const fragment = Templates.clone('tpl-product-card');
         const root = fragment.querySelector('[data-element="product-card"]') || fragment.firstElementChild;
@@ -97,8 +115,8 @@ function renderProductsList(list, container){
 
         const finalPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
         const hasDiscount = p.discount > 0;
-        const inWishlist = wishlist.includes(p.id);
-        const inCompare = compareList.includes(p.id);
+        const inWishlist = wishlistSafe.includes(p.id);
+        const inCompare = compareSafe.includes(p.id);
 
         const productLink = fragment.querySelector('[data-element="product-link"]');
         if (productLink) {
@@ -282,7 +300,7 @@ function setupAutoClearInputs() {
                 e.target.value = '';
             }
         }
-    });
+    }, true);
 }
 
 function setupInputValidation() {
@@ -324,7 +342,7 @@ function setupInputValidation() {
                 input.classList.remove('border-red-500');
             }
         }
-    });
+    }, true);
 }
 
 // تابع برای مدیریت مربع‌های کد تأیید

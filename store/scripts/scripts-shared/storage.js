@@ -1,7 +1,13 @@
 /* ---------- LocalStorage wrapper ---------- */
 const LS = {
     get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
-    set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+    set(k, v){
+        try {
+            localStorage.setItem(k, JSON.stringify(v));
+        } catch(e) {
+            console.warn('LocalStorage set failed:', e);
+        }
+    }
 };
 
 const ADMIN_NOTES_KEY = 'HDK_admin_notes';
@@ -575,9 +581,10 @@ function renderCompareProducts() {
             return;
         }
 
-        const productEl = document.createElement('div');
-        productEl.innerHTML = createCompareProduct(product);
-        compareProducts.appendChild(productEl);
+        const productEl = createCompareProduct(product);
+        if (productEl) {
+            compareProducts.appendChild(productEl);
+        }
     });
 
     $$('.remove-compare').forEach(btn => {

@@ -11,8 +11,8 @@ let lastProductCategory = null;
 function navigate(hash){
     const parts = hash.split(':');
     currentPage = parts[0] || 'home';
-    currentProductId = parts[1] || null;
-    currentCategory = parts[1] || null;
+    currentProductId = currentPage === 'product' ? (parts[1] || null) : null;
+    currentCategory = currentPage === 'products' ? (parts[1] || null) : null;
     renderPage();
 }
 
@@ -20,6 +20,9 @@ window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
 window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home'));
 
 function renderPage(){
+    if (!contentRoot) {
+        return;
+    }
     contentRoot.innerHTML = '';
 
     if (currentPage !== 'products') {
