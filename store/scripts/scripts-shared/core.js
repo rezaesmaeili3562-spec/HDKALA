@@ -450,7 +450,7 @@ function resetOtpInputs(container) {
 }
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     setupAutoClearInputs();
     setupInputValidation();
 });

@@ -5,9 +5,9 @@
 ## چکیده اجرایی
 HDKALA یک فروشگاه اینترنتی تک‌صفحه‌ای (SPA) مبتنی بر Tailwind CSS و جاوااسکریپت ماژولار است که با ناوبری مبتنی بر `hash`، تجربه‌ای سریع و بدون بارگذاری مجدد ارائه می‌دهد. تمام صفحات (خانه، محصولات، جزییات محصول، سبد خرید، مقایسه، علاقه‌مندی‌ها و احراز هویت) به صورت پویا از طریق رندر DOM و قالب‌های قابل تکثیر مدیریت می‌شوند و داده‌ها در `localStorage` نگه‌داری می‌شوند تا بدون بک‌اند نیز قابل استفاده باشد.
 
-این پروژه برای نمایش یک جریان کامل فروشگاه ایرانی طراحی شده است؛ از کشف محصول و فیلتر‌های پیشرفته تا احراز هویت OTP، مدیریت آدرس، سفارش‌ها، و یک پنل ادمین سبک برای آزمایش سریع. ساختار ماژولار فایل‌های مشترک در پوشه `dist/shared` و داده‌های نمونه در `dist/shared/storage.js` اجرای بدون وابستگی سرور را تسهیل می‌کند و امکان توسعه سریع فرانت‌اند یا اتصال به API واقعی را فراهم می‌سازد.
+این پروژه برای نمایش یک جریان کامل فروشگاه ایرانی طراحی شده است؛ از کشف محصول و فیلتر‌های پیشرفته تا احراز هویت OTP، مدیریت آدرس، سفارش‌ها، و یک پنل ادمین سبک برای آزمایش سریع. ساختار ماژولار فایل‌های مشترک در پوشه `store/scripts/scripts-shared` و داده‌های نمونه در `store/scripts/scripts-shared/storage.js` اجرای بدون وابستگی سرور را تسهیل می‌کند و امکان توسعه سریع فرانت‌اند یا اتصال به API واقعی را فراهم می‌سازد.
 
-> **دمو محلی:** با اجرای `npm run server` و باز کردن `http://localhost:3000` می‌توانید صفحات تولیدی را مشاهده کنید.
+> **دمو محلی:** با اجرای `npm run server` و باز کردن `http://localhost:3000` (به‌صورت خودکار به `templates/home.html` منتقل می‌شوید) می‌توانید فروشگاه را مشاهده کنید.
 
 ## ویژگی‌های اصلی
 - 🎯 **ناوبری تک‌صفحه‌ای بدون رفرش** – مسیریابی مبتنی بر هش بین صفحات اصلی، جزییات محصول و پنل ادمین.
@@ -17,28 +17,28 @@ HDKALA یک فروشگاه اینترنتی تک‌صفحه‌ای (SPA) مبت�
 - 📰 **بلاگ و محتوای الهام‌بخش** – کارت‌های وبلاگ در صفحه خانه و لیست اختصاصی بلاگ.
 - 🧰 **پنل ادمین سبک** – دسترسی دمو برای افزودن سریع محصول و مشاهده ابزارهای مدیریتی.
 
-> برای هر ویژگی در فایل‌های `dist/pages/*` قالب HTML/JS اختصاصی و در `dist/shared/*` منطق مشترک وجود دارد.
+> برای هر ویژگی در فایل‌های `store/templates/*` قالب HTML/JS اختصاصی و در `store/scripts/scripts-shared/*` منطق مشترک وجود دارد.
 
 ## پشته فناوری
 | دسته | تکنولوژی‌ها | نقش در پروژه |
 |------|--------------|---------------|
 | فرانت‌اند | HTML، JavaScript، [Tailwind CSS 3.4](package.json) | استایل‌دهی اتمیک، رندر پویا و تعاملات DOM |
 | آیکون و UI | Iconify Web Components | آیکون‌های واکنش‌گرا در کارت‌ها و منوها |
-| مدیریت استایل | `src/input.css` → `dist/output.css` | ورودی Tailwind و خروجی کامپایل‌شده برای صفحات |
-| سروینگ محلی | `serve` (npm) | اجرای دمو از مسیر `dist/pages` |
-| داده/ذخیره‌سازی | `localStorage`، داده‌های نمونه در `dist/shared/storage.js` | پایداری سبد، علاقه‌مندی، سفارش و بلاگ بدون سرور |
+| مدیریت استایل | `store/css/input.css` → `store/css/output.css` | ورودی Tailwind و خروجی کامپایل‌شده برای صفحات |
+| سروینگ محلی | `serve` (npm) | اجرای دمو از مسیر `store/templates` |
+| داده/ذخیره‌سازی | `localStorage`، داده‌های نمونه در `store/scripts/scripts-shared/storage.js` | پایداری سبد، علاقه‌مندی، سفارش و بلاگ بدون سرور |
 
 ## معماری سیستم
 ```mermaid
 graph TD
-    A[Hash Router<br/>dist/shared/router.js] --> B[Templates & UI Helpers<br/>dist/shared/components.js]
-    A --> C[Pages (HTML/JS)<br/>dist/pages/*]
-    A --> D[Authentication & User Menu<br/>dist/shared/auth.js]
-    A --> E[Filters & Pagination<br/>dist/shared/router.js]
-    C --> F[Local Storage Wrapper<br/>dist/shared/storage.js]
+    A[Hash Router<br/>store/scripts/scripts-shared/router.js] --> B[Templates & UI Helpers<br/>store/scripts/scripts-shared/components.js]
+    A --> C[Pages (HTML/JS)<br/>store/templates/*]
+    A --> D[Authentication & User Menu<br/>store/scripts/scripts-shared/auth.js]
+    A --> E[Filters & Pagination<br/>store/scripts/scripts-shared/router.js]
+    C --> F[Local Storage Wrapper<br/>store/scripts/scripts-shared/storage.js]
     F --> G[Sample Products/Blogs]
-    A --> H[Notifications & Utilities<br/>dist/shared/core.js]
-    C --> I[Styles<br/>dist/output.css]
+    A --> H[Notifications & Utilities<br/>store/scripts/scripts-shared/core.js]
+    C --> I[Styles<br/>store/css/output.css]
 ```
 - **جریان داده:** داده‌های نمونه از `storage.js` در حافظه بارگذاری و در `localStorage` ذخیره می‌شوند؛ رندر صفحات توسط `router.js` و قالب‌ها در `components.js` انجام می‌شود.
 - **الگوهای طراحی:** ماژولار بودن فایل‌های `shared`، جداسازی نگرانی‌ها (UI، ذخیره‌سازی، احراز هویت، مسیریابی) و استفاده از الگوهای DOM قابل کلون شدن برای کارت‌ها و لیست‌ها.
@@ -46,42 +46,45 @@ graph TD
 ## ساختار پروژه
 ```
 project-root/
-├── dist/
-│   ├── output.css              # CSS کامپایل‌شده از Tailwind
-│   ├── shared/                 # ماژول‌های مشترک (router، auth، core، storage و ...)
-│   └── pages/                  # صفحات HTML/JS (home، products، cart، admin، ...)
-├── src/
-│   └── input.css               # ورودی Tailwind
+├── store/
+│   ├── css/                    # CSS کامپایل‌شده Tailwind و استایل هر صفحه
+│   ├── scripts/
+│   │   ├── scripts-shared/     # ماژول‌های مشترک (router، auth، core، storage و ...)
+│   │   ├── scripts-pages/      # اسکریپت هر صفحه
+│   │   ├── admin/              # اسکریپت‌های پنل ادمین
+│   │   └── loader/             # لودر ماژول‌های مشترک
+│   ├── templates/              # صفحات HTML (home، products، cart، admin، ...)
+│   └── index.html              # ریدایرکت به templates/home.html
 ├── package.json                # اسکریپت‌ها و وابستگی‌ها
 ├── package-lock.json
 └── tailwind.config.js
 ```
 
 ### توضیح پوشه‌های کلیدی
-- **dist/shared/**
+- **store/scripts/scripts-shared/**
   - **هدف:** منطق هسته شامل مسیریابی، احراز هویت، ذخیره‌سازی، اعلان، فیلتر و قالب‌ها.
   - **محتوا:** فایل‌هایی مانند `router.js` (مسیرهای hash و رندر صفحات)، `core.js` (ابزارها و رندر کارت محصول)، `auth.js` (فرم‌های ورود، تأیید و منوی کاربر)، `storage.js` (نمونه داده و wrapper `localStorage`).
   - **نقش معماری:** جداسازی منطق مشترک و تسهیل توسعه صفحه‌های جدید با استفاده از همان API‌ها.
 
-- **dist/pages/**
+- **store/templates/**
   - **هدف:** صفحات مستقل HTML/JS برای بخش‌های فروشگاه (خانه، محصولات، محصول، بلاگ، سبد، پرداخت، ادمین و ...).
   - **محتوا:** هر صفحه شامل قالب‌های DOM و اسکریپت اختصاصی است که به توابع `shared` متکی است.
   - **نقش معماری:** مرز نمایشی و نقطه ورود رابط کاربری برای هر مسیر.
 
-- **src/input.css**
-  - **هدف:** نقطه ورود Tailwind برای تولید `dist/output.css`.
+- **store/css/input.css**
+  - **هدف:** نقطه ورود Tailwind برای تولید `store/css/output.css`.
   - **محتوا:** دستورات `@tailwind base|components|utilities` برای فعال‌سازی طراحی اتمیک.
   - **نقش معماری:** منبع واحد استایل که در build به CSS آماده تولید تبدیل می‌شود.
 
 - **package.json**
   - **هدف:** مدیریت وابستگی‌ها و اسکریپت‌های توسعه/ساخت/سرو.
   - **اسکریپت‌ها:**
-    - `npm run dev` → کامپایل زنده Tailwind به `dist/output.css`
+    - `npm run dev` → کامپایل زنده Tailwind به `store/css/output.css`
     - `npm run build` → تولید CSS کمینه‌شده
-    - `npm run server` → سرو فایل‌های `dist/pages`
+    - `npm run server` → سرو فروشگاه از ریشه `store` روی پورت ۳۰۰۰
 
 ### توضیح تک‌به‌تک پوشه‌ها و فایل‌های HTML/JS
-#### ماژول‌های مشترک (`dist/shared/`)
+#### ماژول‌های مشترک (`store/scripts/scripts-shared/`)
 - **core.js:** توابع کمکی DOM (`$`، `$$`)، سیستم اعلان، قالب رندر کارت محصول و مدیریت مقادیر عددی/تخفیف.
 - **ui.js:** راه‌اندازی عناصر مشترک مثل منوی موبایل، نوار اعلان، مودال مقایسه و سایدبار سبد/فیلتر.
 - **filters.js:** منطق فیلتر و صفحه‌بندی محصولات (دسته، برند، محدوده قیمت، امتیاز، موجودی) و اتصال به `router.js`.
@@ -95,7 +98,7 @@ project-root/
 - **storage.js:** داده‌های نمونه محصولات/بلاگ/آدرس، و wrapper امن `localStorage` برای سبد، علاقه‌مندی، مقایسه و سفارش‌ها.
 - **pages.js:** توابع راه‌اندازی مشترک صفحات (هدر، فوتر، شمارنده‌ها) و اتصال به `router.js` برای بارگذاری پویا.
 
-#### صفحات و فایل‌های مرتبط (`dist/pages/`)
+#### صفحات و فایل‌های مرتبط (`store/templates/`)
 - **home/index.html & index.js:** خانه تک‌صفحه‌ای با هدر، بنر، لیست محصولات ویژه و بلاگ؛ اسکریپت هش را روی `#home` ست می‌کند تا مسیریاب UI را رندر کند.
 - **products/products.html & products.js:** فهرست کامل محصولات با فیلترهای چندگانه، مرتب‌سازی، شمارنده نتایج و صفحه‌بندی ۱۲‌تایی.
 - **product/product.html & product.js:** صفحه جزییات محصول شامل گالری، ویژگی‌ها، انتخاب رنگ/تعداد و CTA برای سبد، علاقه‌مندی و مقایسه.
@@ -121,7 +124,7 @@ project-root/
 
 ## مثال‌های کد کلیدی
 ```js
-// dist/shared/core.js
+// store/scripts/scripts-shared/core.js
 function renderProductsList(list, container){
     if(!container) return;
     container.innerHTML = '';
@@ -148,7 +151,7 @@ function renderProductsList(list, container){
 - **ارتباط:** توسط مسیریاب (`router.js`) در صفحات خانه، محصولات، علاقه‌مندی و مقایسه فراخوانی می‌شود.
 
 ```js
-// dist/shared/auth.js
+// store/scripts/scripts-shared/auth.js
 function renderLoginPage() {
     const page = document.createElement('div');
     page.className = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8';
@@ -180,12 +183,12 @@ git clone <repository-url>   # کلون کردن ریپازیتوری
 cd HDKALA                     # ورود به پوشه پروژه
 npm install                   # نصب وابستگی‌های Tailwind
 npm run dev                   # کامپایل زنده CSS (watch)
-npm run server                # سرو صفحات dist/pages روی پورت 3000
+npm run server                # سرو صفحات store/templates روی پورت 3000
 ```
 
 ### محیط‌ها
 - **Development:** `npm run dev` (watch) + `npm run server`
-- **Production:** `npm run build` برای تولید CSS کمینه و سرو فایل‌های `dist/pages`
+- **Production:** `npm run build` برای تولید CSS کمینه و سرو فایل‌های `store/templates`
 
 ## تصاویر و گیف‌ها
 - جای‌گذاری یک بنر در مسیر `public/banner.png` (یا لینک CDN) برای سربرگ.
@@ -206,7 +209,7 @@ npm run server                # سرو صفحات dist/pages روی پورت 300
 ## مشارکت (Contributing)
 1. فورک و کلون.
 2. ایجاد شاخه فیچر: `git checkout -b feature/<name>`
-3. اجرای `npm run dev` و اعمال تغییرات در `src/` یا فایل‌های `dist/pages`/`dist/shared`.
+3. اجرای `npm run dev` و اعمال تغییرات در `src/` یا فایل‌های `store/templates`/`store/scripts/scripts-shared`.
 4. قبل از PR، `npm run build` را اجرا کنید و اسکرین‌شات تغییرات UI را پیوست کنید.
 5. Pull Request با توضیح واضح تغییرات و اسکوپ صفحات ارسال شود.
 

@@ -2,7 +2,7 @@
   const target = '#orders';
 
   function activate(){
-    if (location.hash !== target) {
+    if (!location.hash || location.hash === '#') {
       location.hash = target;
     } else if (typeof renderPage === 'function') {
       renderPage();

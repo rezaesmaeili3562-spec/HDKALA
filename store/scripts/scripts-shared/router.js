@@ -16,8 +16,23 @@ function navigate(hash){
     renderPage();
 }
 
-window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
-window.addEventListener('load', () => navigate(location.hash.slice(1) || 'home'));
+// تا زمانی که همه ماژول‌های مشترک لود نشده‌اند، رویدادهای hashchange را نادیده می‌گیریم؛
+// چون اسکریپت صفحه hash را زودتر تنظیم می‌کند و renderer صفحات هنوز تعریف نشده‌اند
+let routerReady = false;
+
+window.addEventListener('hashchange', () => {
+    if (!routerReady) return;
+    navigate(location.hash.slice(1));
+});
+
+// مسیریابی اولیه: در صف init ثبت می‌شود تا پس از لود «همه» ماژول‌های مشترک اجرا شود.
+// (اجرای زودهنگام آن باعث خطاهایی مثل renderCheckoutPage is not defined می‌شد)
+function initialNavigate() {
+    routerReady = true;
+    navigate(location.hash.slice(1) || 'home');
+}
+
+onDomReady(initialNavigate);
 
 function renderPage(){
     contentRoot.innerHTML = '';
@@ -885,6 +900,6 @@ function setupAdminNavigation() {
 }
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     setupAdminNavigation();
 });

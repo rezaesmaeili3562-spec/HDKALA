@@ -445,4 +445,4 @@ function initializeFilters() {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeFilters);
+onDomReady(initializeFilters);

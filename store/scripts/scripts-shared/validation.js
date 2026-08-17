@@ -206,7 +206,7 @@ function validateAdminNumberField(input) {
 }
 
 // Initialize validation
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     setupRealTimeValidation();
     setupAdminInputValidation();
 });

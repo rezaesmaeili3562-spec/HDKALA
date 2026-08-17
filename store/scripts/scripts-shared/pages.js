@@ -556,6 +556,12 @@ function saveAddress(addressId = null) {
         isDefault: form.querySelector('#isDefault').checked,
         userId: user.id
     };
+
+    // اگر کاربر هنوز هیچ آدرس پیش‌فرضی ندارد، اولین آدرس را خودکار پیش‌فرض می‌کنیم
+    // (در غیر این صورت فرآیند ثبت سفارش برای کاربران تازه‌کار بلاک می‌شود)
+    if (!addressId && !addresses.some(addr => addr.userId === user.id && addr.isDefault)) {
+        formData.isDefault = true;
+    }
     
     // Validation
     if (!validatePostalCode(formData.postalCode)) {
@@ -585,8 +591,11 @@ function saveAddress(addressId = null) {
     
     // If this is set as default, remove default from others
     if (formData.isDefault) {
+        // برای آدرس جدید addressId برابر null است؛ پس شناسه خود آدرس جدید را
+        // از آخرین عضو آرایه می‌گیریم تا در حلقه زیر غیرپیش‌فرض نشود
+        const currentId = addressId || (addresses.length ? addresses[addresses.length - 1].id : null);
         addresses.forEach(addr => {
-            if (addr.userId === user.id && addr.id !== addressId) {
+            if (addr.userId === user.id && addr.id !== currentId) {
                 addr.isDefault = false;
             }
         });

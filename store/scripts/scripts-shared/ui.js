@@ -208,7 +208,7 @@ function renderContactPage(){
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-primary/20">
                 <h1 class="text-3xl font-bold mb-6 text-primary">تماس با ما</h1>
-                <form class="space-y-6">
+                <form class="space-y-6" id="contactForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">نام</label>
@@ -289,6 +289,21 @@ function renderContactPage(){
         </div>
     `;
     contentRoot.appendChild(page);
+
+    // مدیریت ارسال فرم تماس (پیش از این فرم بدون هندلر باعث رفرش صفحه می‌شد)
+    const contactForm = $('#contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const emailInput = contactForm.querySelector('input[type="email"]');
+            if (emailInput && emailInput.value.trim() && !validateEmail(emailInput.value.trim())) {
+                notify('ایمیل وارد شده معتبر نیست', true);
+                return;
+            }
+            notify('پیام شما با موفقیت ارسال شد. به زودی با شما تماس می‌گیریم.');
+            contactForm.reset();
+        });
+    }
 }
 
 function renderInfoPage({ title, description, sections = [] }){
@@ -406,11 +421,11 @@ function renderProfilePage(){
             <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-primary/20">
                     <h2 class="text-lg font-bold mb-4">اطلاعات شخصی</h2>
-                    <form class="space-y-4">
+                    <form class="space-y-4" id="profileForm">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">نام</label>
-                                <input type="text" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.name : ''}">
+                                <input type="text" data-profile-name class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? user.name : ''}">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2">شماره تلفن</label>
@@ -419,7 +434,7 @@ function renderProfilePage(){
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">ایمیل</label>
-                            <input type="email" class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700">
+                            <input type="email" data-profile-email class="w-full p-3 border border-primary/30 rounded-lg bg-white dark:bg-gray-700" value="${user ? (user.email || '') : ''}">
                         </div>
                         <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">ذخیره تغییرات</button>
                     </form>
@@ -455,6 +470,40 @@ function renderProfilePage(){
         </div>
     `;
     contentRoot.appendChild(page);
+
+    // ذخیره تغییرات پروفایل (نام و ایمیل)
+    const profileForm = $('#profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!user) {
+                notify('ابتدا وارد حساب کاربری خود شوید', true);
+                location.hash = 'login';
+                return;
+            }
+
+            const nameInput = profileForm.querySelector('[data-profile-name]');
+            const emailInput = profileForm.querySelector('[data-profile-email]');
+
+            const newName = nameInput ? nameInput.value.trim() : '';
+            const newEmail = emailInput ? emailInput.value.trim() : '';
+
+            if (!newName) {
+                notify('نام نمی‌تواند خالی باشد', true);
+                return;
+            }
+            if (newEmail && !validateEmail(newEmail)) {
+                notify('ایمیل نامعتبر است', true);
+                return;
+            }
+
+            user.name = newName;
+            user.email = newEmail;
+            LS.set('HDK_user', user);
+            updateUserLabel();
+            notify('تغییرات پروفایل با موفقیت ذخیره شد');
+        });
+    }
 }
 
 /* ---------- Orders Page ---------- */
@@ -578,4 +627,4 @@ function initCartAndCompareControls() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initCartAndCompareControls);
+onDomReady(initCartAndCompareControls);

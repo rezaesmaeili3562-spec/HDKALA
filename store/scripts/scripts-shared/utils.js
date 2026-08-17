@@ -425,7 +425,7 @@ function setupIconAnimations() {
 }
 
 // Initialize all utilities
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     setupAutoClearInputs();
     setupInputValidation();
     setupSmoothScroll();

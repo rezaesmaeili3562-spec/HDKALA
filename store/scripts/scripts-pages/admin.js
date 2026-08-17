@@ -1846,7 +1846,7 @@ cancelProductBtn.addEventListener('click', () => {
 adminSearch.addEventListener('input', renderAdminProducts);
 
 // Initialize image upload and admin OTP inputs
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     ensureAdminThemeStyles();
     updateAdminThemeButton();
     setupImageUpload();
@@ -1946,7 +1946,7 @@ document.addEventListener('submit', (event) => {
 
   function activate(){
     const target = '#admin';
-    if (location.hash !== target) {
+    if (!location.hash || location.hash === '#') {
       location.hash = target;
     } else if (typeof renderPage === 'function') {
       renderPage();

@@ -11,7 +11,10 @@
     { file: 'validation.js', role: 'Form validation rules and friendly error messaging' },
     { file: 'components.js', role: 'Template cloning for cards, lists, and empty states' },
     { file: 'utils.js', role: 'Generic utilities for formatting, IDs, and comparisons' },
-    { file: 'constants.js', role: 'Static texts, labels, and configuration defaults' }
+    { file: 'constants.js', role: 'Static texts, labels, and configuration defaults' },
+    // helpers پنل ادمین (SPA #admin) — پیش از این هیچ قالبی آن را لود نمی‌کرد و
+    // باعث خطای setupBlogManagement is not defined می‌شد
+    { file: '../scripts-pages/admin.js', role: 'Admin panel helpers for the in-app admin section' }
   ];
 
   const currentScript = document.currentScript;
@@ -33,16 +36,30 @@
     return new URL('../scripts-shared/', document.baseURI).toString();
   })();
 
+  let lastScript = null;
+
   modules.forEach(({ file, role }) => {
     const script = document.createElement('script');
     script.src = new URL(file, sharedBase).toString();
     script.async = false;
-    script.defer = true;
     script.dataset.role = role;
 
     script.onerror = () =>
       console.error(`Failed to load shared module: ${script.src}`);
 
     document.head.appendChild(script);
+    lastScript = script;
   });
+
+  // پس از اجرای آخرین ماژول، صف init ها را اجرا می‌کنیم.
+  // (لیسنرهای DOMContentLoaded ماژول‌ها قبلا هرگز اجرا نمی‌شدند چون ماژول‌ها دیر لود می‌شوند)
+  if (lastScript) {
+    const flush = () => {
+      if (typeof window.__flushDomReadyQueue === 'function') {
+        window.__flushDomReadyQueue();
+      }
+    };
+    lastScript.addEventListener('load', flush);
+    lastScript.addEventListener('error', flush);
+  }
 })();

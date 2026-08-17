@@ -248,16 +248,27 @@ function setupCheckoutEvents() {
     
     // Final checkout
     $('#finalCheckoutBtn').addEventListener('click', function() {
+        if (!user) {
+            notify('برای ثبت سفارش ابتدا وارد حساب کاربری خود شوید', true);
+            location.hash = 'login';
+            return;
+        }
         if (cart.length === 0) {
             notify('سبد خرید شما خالی است', true);
             return;
         }
         
-        const selectedPayment = $('input[name="payment"]:checked').value;
+        const paymentRadio = $('input[name="payment"]:checked');
+        if (!paymentRadio) {
+            notify('لطفا روش پرداخت را انتخاب کنید', true);
+            return;
+        }
+        const selectedPayment = paymentRadio.value;
         const address = addresses.find(addr => addr.userId === user.id && addr.isDefault);
         
         if (!address) {
             notify('لطفا یک آدرس برای ارسال انتخاب کنید', true);
+            location.hash = 'addresses';
             return;
         }
         
@@ -304,8 +315,29 @@ function enhanceCheckoutRendering() {
     return true;
 }
 
+// صف init ممکن است هنوز توسط dom.js ساخته نشده باشد (این اسکریپت زودتر از ماژول‌ها اجرا می‌شود)؛
+// برای اطمینان آن را از قبل آماده می‌کنیم تا نسخه پیشرفته checkout قبل از ناوبری اولیه اعمال شود
+if (typeof window.__domReadyQueue === 'undefined') {
+    window.__domReadyQueue = [];
+    window.onDomReady = function(fn) {
+        if (typeof fn === 'function') {
+            window.__domReadyQueue.push(fn);
+        }
+    };
+    window.__flushDomReadyQueue = function() {
+        while (window.__domReadyQueue.length) {
+            const fn = window.__domReadyQueue.shift();
+            try {
+                fn();
+            } catch (err) {
+                console.error('Init error:', err);
+            }
+        }
+    };
+}
+
 if (!enhanceCheckoutRendering()) {
-    window.addEventListener('load', enhanceCheckoutRendering, { once: true });
+    window.onDomReady(enhanceCheckoutRendering);
 }
 
 (function(){
@@ -315,7 +347,7 @@ if (!enhanceCheckoutRendering()) {
 
   function activate(){
     const target = '#cart';
-    if (location.hash !== target) {
+    if (!location.hash || location.hash === '#') {
       location.hash = target;
     } else if (typeof renderPage === 'function') {
       renderPage();

@@ -490,6 +490,10 @@ function addToCart(productId, qty=1){
     LS.set('HDK_cart', cart);
     updateCartBadge();
     updateCartDisplay();
+    // باز کردن کشوی سبد خرید برای نمایش آیتم اضافه‌شده
+    if (cartSidebar) {
+        cartSidebar.classList.add('open');
+    }
     notify('محصول به سبد اضافه شد.');
 }
 
@@ -862,7 +866,12 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     updateUserLabel();
     updateAddressQuickPanel(true);
+    // مقداردهی اولیه بج‌ها و محتوای سبد خرید از localStorage
+    // (پیش از این، بعد از رفرش صفحه بج و آیتم‌های سبد خالی می‌ماند)
+    updateCartBadge();
+    updateWishlistBadge();
+    updateCompareBadge();
 });

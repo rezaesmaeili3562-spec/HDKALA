@@ -434,6 +434,6 @@ function createBlogManagement() {
 }
 
 // Initialize components
-document.addEventListener('DOMContentLoaded', () => {
+onDomReady(() => {
     setupCustomScrollbar();
 });

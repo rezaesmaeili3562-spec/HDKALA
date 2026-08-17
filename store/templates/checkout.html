@@ -526,7 +526,7 @@
       <div class="relative overflow-hidden">
         <a data-element="product-link" href="#product">
           <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <img data-element="product-image" src="" alt="تصویر محصول" class="w-full h-48 object-cover hidden transition-transform duration-300 cursor-zoom-in hover:scale-105" loading="lazy" />
+            <img data-element="product-image" alt="تصویر محصول" class="w-full h-48 object-cover hidden transition-transform duration-300 cursor-zoom-in hover:scale-105" loading="lazy" />
             <iconify-icon data-element="product-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
           </div>
         </a>
@@ -581,7 +581,7 @@
   <template id="tpl-blog-card">
     <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-primary/20" data-element="blog-card">
       <div class="h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center" data-element="blog-image-wrapper">
-        <img data-element="blog-image" src="" alt="تصویر مطلب" class="w-full h-48 object-cover hidden" loading="lazy" />
+        <img data-element="blog-image" alt="تصویر مطلب" class="w-full h-48 object-cover hidden" loading="lazy" />
         <iconify-icon data-element="blog-placeholder" icon="mdi:image-off" width="48" class="text-gray-400"></iconify-icon>
       </div>
       <div class="p-4 space-y-3">
@@ -735,6 +735,8 @@
   </template>
   <!-- Main JavaScript Files -->
   <script src="../scripts/loader/loader.js" defer></script>
+  <!-- cart.js شامل نسخه کامل صفحه تسویه حساب با دکمه پرداخت فعال است -->
+  <script src="../scripts/scripts-pages/cart.js" defer></script>
   <script src="../scripts/scripts-pages/checkout.js" defer></script>
 </body>
 </html>
