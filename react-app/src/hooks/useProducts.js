@@ -1,24 +1,15 @@
 import { useEffect, useState } from 'react';
-import { getProducts } from '../services/api';
+import { useStore, selectCatalog } from '../store/useStore';
 
-// هوک دریافت محصولات با مدیریت وضعیت لودینگ و خطا
+// هوک دریافت محصولات از استور مشترک (ادمین + فروشگاه)
 export function useProducts() {
-  const [products, setProducts] = useState(null);
-  const [error, setError] = useState(null);
+  const products = useStore(selectCatalog);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    getProducts()
-      .then((data) => {
-        if (active) setProducts(data);
-      })
-      .catch((e) => {
-        if (active) setError(e);
-      });
-    return () => {
-      active = false;
-    };
+    const t = setTimeout(() => setReady(true), 280);
+    return () => clearTimeout(t);
   }, []);
 
-  return { products, loading: !products && !error, error };
+  return { products: ready ? products : null, loading: !ready, error: null };
 }

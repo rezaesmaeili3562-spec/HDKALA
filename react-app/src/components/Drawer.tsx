@@ -1,12 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { XIcon } from './Icons';
 
-// کشوی عمومی (برای سبد خرید و منوی موبایل) با overlay و بستن با Escape
-export default function Drawer({ open, onClose, side = 'end', title, children, footer, labelledBy }) {
+interface DrawerProps {
+  open: boolean;
+  onClose: () => void;
+  side?: 'end' | 'start';
+  title: string;
+  children?: ReactNode;
+  footer?: ReactNode;
+  labelledBy?: string;
+}
+
+export default function Drawer({
+  open,
+  onClose,
+  side = 'end',
+  title,
+  children,
+  footer,
+  labelledBy
+}: DrawerProps) {
   useEffect(() => {
     if (!open) return undefined;
     document.body.style.overflow = 'hidden';
-    const onKey = (e) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
@@ -21,7 +38,6 @@ export default function Drawer({ open, onClose, side = 'end', title, children, f
 
   return (
     <>
-      {/* پس‌زمینه */}
       <div
         aria-hidden="true"
         onClick={onClose}
@@ -29,7 +45,6 @@ export default function Drawer({ open, onClose, side = 'end', title, children, f
           open ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
-      {/* کشو */}
       <aside
         role="dialog"
         aria-modal="true"
@@ -53,9 +68,7 @@ export default function Drawer({ open, onClose, side = 'end', title, children, f
           </button>
         </header>
         <div className="custom-scrollbar flex-1 overflow-y-auto">{children}</div>
-        {footer && (
-          <footer className="border-t border-slate-200 p-4 dark:border-slate-800">{footer}</footer>
-        )}
+        {footer && <footer className="border-t border-slate-200 p-4 dark:border-slate-800">{footer}</footer>}
       </aside>
     </>
   );

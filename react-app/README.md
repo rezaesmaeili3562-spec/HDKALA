@@ -1,6 +1,6 @@
 # 🛍️ HDKALA — فروشگاه اینترنتی با React
 
-بازسازی کامل فروشگاه HDKALA با **React 18 + Vite + Tailwind CSS + Zustand + React Router v6 + React Hook Form** — راست‌چین، واکنش‌گرا، با دارک‌مود و بدون هیچ خطای کنسول.
+بازسازی کامل فروشگاه HDKALA با **React 18 + Vite + Tailwind CSS + Zustand + React Router v7 + React Hook Form + TypeScript (پنل ادمین)** — راست‌چین، واکنش‌گرا، با دارک‌مود و پنل مدیریت هم‌خانواده با فروشگاه.
 
 > نسخه قدیمی (Vanilla JS) در پوشه `store/` کنار این پروژه باقی مانده است.
 
@@ -12,11 +12,16 @@ npm install
 npm run dev        # توسعه: http://localhost:5173
 npm run build      # خروجی تولید: dist/
 npm run preview    # پیش‌نمایش بیلد تولید
+npm run typecheck  # TypeScript strict
+npm test           # Playwright
 ```
+
+ورود پنل ادمین: `admin` / `admin1234` — از دکمه «پنل ادمین» در هدر یا فوتر.
 
 ## ✨ امکانات
 
-- 🧭 **مسیریابی کامل** با React Router v6 (۱۱ صفحه + 404 + مسیرهای محافظت‌شده با ریدایرکت به ورود)
+- 🛡️ **پنل ادمین TypeScript**: داشبورد، محصولات، سفارش‌ها، کاربران، نظرات، کوپن‌ها و تنظیمات با دادهٔ مشترک
+- 🧭 **مسیریابی کامل** با React Router v7 (فروشگاه + `/admin/*` محافظت‌شده)
 - 🛒 **سبد خرید کشویی** از همه صفحات و همه سایزها باز می‌شود + صفحه سبد خرید کامل + ماندگاری در localStorage
 - 💳 **پرداخت ۳ مرحله‌ای**: اطلاعات گیرنده ← آدرس و ارسال ← پرداخت ← صفحه تأیید با کد سفارش
 - 🔍 **جستجو و فیلتر**: جستجو از هدر، فیلتر دسته/برند/قیمت/موجودی/تخفیف/امتیاز + مرتب‌سازی + صفحه‌بندی
@@ -29,17 +34,19 @@ npm run preview    # پیش‌نمایش بیلد تولید
 
 ```
 src/
+├── admin/        # صفحات و کامپوننت‌های پنل مدیریت (TypeScript)
+├── types/        # تایپ‌های مشترک Product / Order / User / Coupon / …
 ├── components/   # Header، Footer، CartDrawer، ProductCard، Drawer، Toasts، Button…
 ├── pages/        # Home، Products، ProductDetail، Cart، Checkout، Login، Signup،
 │                 # Profile، Wishlist، About، Contact، NotFound
-├── store/        # Zustand (سبد، علاقه‌مندی، کاربر، سفارش‌ها، تم) + persist
-├── services/     # لایه داده mock (برای اتصال API واقعی فقط این فایل عوض می‌شود)
+├── store/        # Zustand (سبد، کاتالوگ، کاربر، سفارش، کوپن، تنظیمات، ادمین) + persist
+├── services/     # لایه داده (خواندن کاتالوگ از استور مشترک)
 ├── hooks/        # useProducts
 ├── utils/        # فرمت اعداد/قیمت فارسی و قواعد اعتبارسنجی
-└── data/         # products.json (۲۰ محصول)، دسته‌ها، استان‌ها
+└── data/         # products.json (۲۰ محصول)، دسته‌ها، استان‌ها، کوپن پیش‌فرض
 ```
 
-جزئیات بیشتر: [`docs/AUDIT.md`](docs/AUDIT.md) (گزارش ممیزی و نتایج تست) و [`docs/DESIGN.md`](docs/DESIGN.md) (دیزاین سیستم و تصمیم‌ها).
+جزئیات بیشتر: [`docs/ADMIN.md`](docs/ADMIN.md)، [`docs/AUDIT.md`](docs/AUDIT.md) و [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## 🧪 تست
 
