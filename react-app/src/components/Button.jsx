@@ -1,14 +1,6 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { CheckIcon, PlusIcon } from './Icons';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'accent' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  loading?: boolean;
-  full?: boolean;
-  children?: ReactNode;
-}
-
+// دکمه با حالت‌های hover / active / disabled / loading
 export default function Button({
   variant = 'primary',
   size = 'md',
@@ -18,18 +10,20 @@ export default function Button({
   className = '',
   children,
   ...rest
-}: ButtonProps) {
-  const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
+}) {
+  const variants = {
     primary:
       'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm hover:shadow-pop disabled:hover:shadow-sm',
-    accent: 'bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-600/90 shadow-sm',
+    accent:
+      'bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-600/90 shadow-sm',
     outline:
       'border border-slate-300 bg-white text-slate-700 hover:border-primary-400 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:text-primary-300',
     ghost:
       'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white',
-    danger: 'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800'
+    danger:
+      'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800'
   };
-  const sizes: Record<NonNullable<ButtonProps['size']>, string> = {
+  const sizes = {
     sm: 'px-3 py-1.5 text-xs rounded-lg',
     md: 'px-4 py-2.5 text-sm rounded-xl',
     lg: 'px-6 py-3 text-base rounded-xl'
@@ -42,7 +36,10 @@ export default function Button({
       {...rest}
     >
       {loading ? (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
+        <span
+          className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+          aria-hidden="true"
+        />
       ) : (
         children
       )}
@@ -50,14 +47,8 @@ export default function Button({
   );
 }
 
-interface AddToCartButtonProps {
-  inCart?: boolean;
-  onClick?: () => void;
-  disabled?: boolean;
-  compact?: boolean;
-}
-
-export function AddToCartButton({ inCart, onClick, disabled, compact = false }: AddToCartButtonProps) {
+// دکمه افزودن به سبد با حالت موفقیت لحظه‌ای (قابل استفاده در کارت محصول)
+export function AddToCartButton({ inCart, onClick, disabled, compact = false }) {
   if (compact) {
     return (
       <button

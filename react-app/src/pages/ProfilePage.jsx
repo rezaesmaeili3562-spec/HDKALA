@@ -2,16 +2,21 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { faDate, faPrice, faNum, rules, toFa } from '../utils/format';
-import { ORDER_STATUS_CLASS } from '../types';
 import Field from '../components/Field';
 import Button from '../components/Button';
 import { UserIcon, PackageIcon, HeartIcon, LogoutIcon } from '../components/Icons';
+
+const orderStatusCls = {
+  'در حال پردازش': 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+  'لغو شده': 'bg-rose-500/15 text-rose-500',
+  'تحویل شده': 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+};
 
 // ---------- پنل کاربری و تاریخچه سفارش‌ها ----------
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useStore((s) => s.user);
-  const orders = useStore((s) => s.orders.filter((o) => !o.userId || o.userId === user?.id));
+  const orders = useStore((s) => s.orders);
   const wishlist = useStore((s) => s.wishlist);
   const updateUser = useStore((s) => s.updateUser);
   const cancelOrder = useStore((s) => s.cancelOrder);
