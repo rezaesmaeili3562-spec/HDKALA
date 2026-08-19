@@ -13,9 +13,14 @@ export default function CartDrawer() {
   const cart = useStore((s) => s.cart);
   const setQty = useStore((s) => s.setQty);
   const removeFromCart = useStore((s) => s.removeFromCart);
+  const settings = useStore((s) => s.settings);
   const navigate = useNavigate();
 
-  const summary = cartSummary(cart);
+  const summary = cartSummary(cart, 'standard', {
+    shippingFee: settings.shippingFee,
+    expressFee: settings.expressFee,
+    freeShippingOver: settings.freeShippingOver
+  });
 
   const goTo = (path) => {
     closeCart();

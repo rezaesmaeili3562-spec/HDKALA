@@ -1,7 +1,16 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 
-// فیلد فرم یکپارچه: لیبل + کنترل + پیام خطا/راهنما
-const Field = forwardRef(function Field(
+interface FieldProps {
+  label?: string;
+  error?: string;
+  hint?: string;
+  required?: boolean;
+  id?: string;
+  className?: string;
+  children?: ReactNode;
+}
+
+const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
   { label, error, hint, required, id, className = '', children },
   ref
 ) {
