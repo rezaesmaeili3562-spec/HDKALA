@@ -14,8 +14,7 @@ import {
   LogoutIcon,
   HomeIcon,
   XIcon,
-  ChevronDownIcon,
-  ShieldCheckIcon
+  ChevronDownIcon
 } from './Icons';
 
 const navItems = [
@@ -31,8 +30,6 @@ export default function Header() {
   const cart = useStore((s) => s.cart);
   const wishlist = useStore((s) => s.wishlist);
   const user = useStore((s) => s.user);
-  const admin = useStore((s) => s.admin);
-  const settings = useStore((s) => s.settings);
   const logout = useStore((s) => s.logout);
   const openCart = useStore((s) => s.openCart);
   const theme = useStore((s) => s.theme);
@@ -86,7 +83,7 @@ export default function Header() {
             HD
           </span>
           <span className="hidden text-xl font-extrabold tracking-tight text-slate-900 sm:block dark:text-white">
-            {settings.storeName}
+            HDKALA
           </span>
         </Link>
 
@@ -120,17 +117,6 @@ export default function Header() {
           >
             {searchOpen ? <XIcon size={20} /> : <SearchIcon size={20} />}
           </button>
-
-          {/* پنل ادمین — در همه سایزها قابل مشاهده */}
-          <Link
-            to={admin ? '/admin' : '/admin/login'}
-            data-testid="admin-panel-link"
-            className="flex h-10 items-center gap-1 rounded-xl px-2 text-xs font-bold text-primary-600 transition hover:bg-primary-50 sm:px-3 sm:text-sm dark:text-primary-300 dark:hover:bg-primary-950/40"
-          >
-            <ShieldCheckIcon size={16} />
-            <span className="hidden xs:inline sm:inline">پنل ادمین</span>
-            <span className="sm:hidden">ادمین</span>
-          </Link>
 
           {/* تم */}
           <button
@@ -273,20 +259,6 @@ export default function Header() {
               {item.label}
             </NavLink>
           ))}
-          <NavLink
-            to={admin ? '/admin' : '/admin/login'}
-            data-testid="admin-panel-link-nav"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? 'border-primary-600 text-primary-600 dark:text-primary-300'
-                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-              }`
-            }
-          >
-            <ShieldCheckIcon size={15} />
-            پنل ادمین
-          </NavLink>
         </div>
       </nav>
 
@@ -299,7 +271,6 @@ export default function Header() {
 function MobileMenu({ open, onClose }) {
   const navigate = useNavigate();
   const user = useStore((s) => s.user);
-  const admin = useStore((s) => s.admin);
   const logout = useStore((s) => s.logout);
 
   const go = (path) => {
@@ -321,14 +292,6 @@ function MobileMenu({ open, onClose }) {
           </button>
         ))}
         <div className="my-2 border-t border-slate-200 dark:border-slate-800" />
-        <button
-          type="button"
-          onClick={() => go(admin ? '/admin' : '/admin/login')}
-          data-testid="admin-panel-link-mobile"
-          className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-start text-sm font-medium text-primary-600 transition hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-950/40"
-        >
-          پنل ادمین
-        </button>
         <button
           type="button"
           onClick={() => go('/wishlist')}

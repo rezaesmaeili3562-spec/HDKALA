@@ -1,14 +1,8 @@
 import { StarIcon } from './Icons';
 import { faNum } from '../utils/format';
 
-interface RatingStarsProps {
-  rating?: number;
-  count?: number;
-  size?: number;
-  showCount?: boolean;
-}
-
-export default function RatingStars({ rating = 0, count, size = 14, showCount = true }: RatingStarsProps) {
+// نمایش امتیاز با ستاره
+export default function RatingStars({ rating = 0, count, size = 14, showCount = true }) {
   const filled = Math.round(rating);
   return (
     <div className="flex items-center gap-1" aria-label={`امتیاز ${faNum(rating)} از ۵`}>
