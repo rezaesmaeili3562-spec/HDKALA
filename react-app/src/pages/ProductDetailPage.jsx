@@ -256,7 +256,7 @@ function ProductInfo({ product }) {
 
 // ---------- نظرات ----------
 function CommentsSection({ productId }) {
-  const comments = useStore((s) => s.comments[productId] || []);
+  const comments = useStore((s) => (s.comments[productId] || []).filter((c) => c.approved));
   const addComment = useStore((s) => s.addComment);
   const user = useStore((s) => s.user);
   const [text, setText] = useState('');
@@ -299,18 +299,19 @@ function CommentsSection({ productId }) {
             placeholder="تجربه خود را با این محصول بنویسید…"
             aria-label="متن دیدگاه"
             className="input-base resize-none"
+            data-testid="comment-text"
           />
-          <Button type="submit" full>ثبت دیدگاه</Button>
+          <Button type="submit" full data-testid="comment-submit">ثبت دیدگاه</Button>
         </form>
 
         <div className="space-y-4 lg:col-span-2">
           {comments.length === 0 ? (
-            <div className="card p-10 text-center text-sm text-slate-400">
-              هنوز دیدگاهی ثبت نشده است. اولین نفر باشید!
+            <div className="card p-10 text-center text-sm text-slate-400" data-testid="comments-empty">
+              هنوز دیدگاهی تأییدشده‌ای ثبت نشده است. اولین نفر باشید!
             </div>
           ) : (
-            comments.map((c, i) => (
-              <article key={i} className="card space-y-2 p-5">
+            comments.map((c) => (
+              <article key={c.id} className="card space-y-2 p-5" data-testid={`comment-${c.id}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-600/10 text-sm font-bold text-primary-600">

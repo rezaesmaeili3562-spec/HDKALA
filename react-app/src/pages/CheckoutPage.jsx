@@ -21,9 +21,14 @@ export default function CheckoutPage() {
   const user = useStore((s) => s.user);
   const cart = useStore((s) => s.cart);
   const placeOrder = useStore((s) => s.placeOrder);
+  const settings = useStore((s) => s.settings);
+  const validateCoupon = useStore((s) => s.validateCoupon);
 
   const [step, setStep] = useState(1);
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
 
   const {
     register,
@@ -47,7 +52,17 @@ export default function CheckoutPage() {
   });
 
   const shippingMethod = watch('shippingMethod');
-  const summary = cartSummary(cart, shippingMethod);
+  const methods = shippingMethods.map((m) => ({
+    ...m,
+    cost: m.id === 'express' ? settings.expressFee : settings.shippingFee,
+    freeOver: m.id === 'standard' ? settings.freeShippingOver : m.freeOver
+  }));
+  const summary = cartSummary(cart, shippingMethod, {
+    shippingFee: settings.shippingFee,
+    expressFee: settings.expressFee,
+    freeShippingOver: settings.freeShippingOver,
+    coupon: appliedCoupon
+  });
 
   // اگر سفارش ثبت شد → صفحه موفقیت
   if (placedOrder) {
@@ -102,12 +117,14 @@ export default function CheckoutPage() {
         postal: data.postal
       },
       shippingMethod: data.shippingMethod,
-      shippingLabel: shippingMethods.find((m) => m.id === data.shippingMethod)?.name,
+      shippingLabel: methods.find((m) => m.id === data.shippingMethod)?.name,
       paymentMethod: data.paymentMethod,
       paymentLabel: paymentMethods.find((m) => m.id === data.paymentMethod)?.name,
       total: summary.total,
       subtotal: summary.subtotal,
       discount: summary.discount,
+      couponDiscount: summary.couponDiscount,
+      couponCode: appliedCoupon?.code,
       shipping: summary.shipping
     });
     setPlacedOrder(order);
@@ -241,7 +258,7 @@ export default function CheckoutPage() {
               <div>
                 <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">روش ارسال</h3>
                 <div className="space-y-3">
-                  {shippingMethods.map((m) => (
+                  {methods.map((m) => (
                     <label
                       key={m.id}
                       className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition ${
@@ -262,7 +279,9 @@ export default function CheckoutPage() {
                         <p className="text-xs text-slate-400">{m.eta}</p>
                       </div>
                       <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                        {m.cost === 0 || (m.freeOver && summary.subtotal >= m.freeOver) ? 'رایگان' : faPrice(m.cost)}
+                        {m.cost === 0 || (m.freeOver && summary.subtotal - summary.couponDiscount >= m.freeOver)
+                          ? 'رایگان'
+                          : faPrice(m.cost)}
                       </span>
                     </label>
                   ))}
@@ -349,6 +368,43 @@ export default function CheckoutPage() {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 space-y-2 border-t border-slate-200 pt-4 dark:border-slate-700">
+              <label className="block text-xs font-medium text-slate-500" htmlFor="coupon-code">
+                کد تخفیف
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="coupon-code"
+                  className="input-base"
+                  placeholder="مثلاً WELCOME10"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  data-testid="coupon-input"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const result = validateCoupon(couponInput, summary.subtotal);
+                    if (!result.ok) {
+                      setAppliedCoupon(null);
+                      setCouponError(result.message);
+                      return;
+                    }
+                    setAppliedCoupon(result.coupon);
+                    setCouponError('');
+                  }}
+                  data-testid="apply-coupon"
+                >
+                  اعمال
+                </Button>
+              </div>
+              {couponError && (
+                <p className="text-xs text-rose-500" role="alert" data-testid="coupon-error">
+                  {couponError}
+                </p>
+              )}
+            </div>
             <dl className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm dark:border-slate-700">
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <dt>جمع کالاها</dt>
@@ -356,8 +412,14 @@ export default function CheckoutPage() {
               </div>
               {summary.discount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <dt>تخفیف</dt>
+                  <dt>تخفیف کالا</dt>
                   <dd>{faPrice(summary.discount)}</dd>
+                </div>
+              )}
+              {summary.couponDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400" data-testid="coupon-discount-row">
+                  <dt>کد تخفیف {appliedCoupon?.code}</dt>
+                  <dd>{faPrice(summary.couponDiscount)}</dd>
                 </div>
               )}
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
@@ -366,7 +428,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-extrabold text-slate-900 dark:border-slate-700 dark:text-white">
                 <dt>قابل پرداخت</dt>
-                <dd>{faPrice(summary.total)}</dd>
+                <dd data-testid="checkout-total">{faPrice(summary.total)}</dd>
               </div>
             </dl>
           </div>
@@ -385,7 +447,7 @@ function SuccessView({ order }) {
       </span>
       <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">سفارش شما با موفقیت ثبت شد 🎉</h1>
       <p className="max-w-md text-sm leading-7 text-slate-500 dark:text-slate-400">
-        سفارش شما با کد <span className="font-bold text-primary-600" dir="ltr">{order.id}</span> ثبت شد و در
+        سفارش شما با کد <span className="font-bold text-primary-600" dir="ltr" data-testid="order-id">{order.id}</span> ثبت شد و در
         وضعیت «{order.status}» قرار گرفت. جزئیات سفارش به شماره{' '}
         <span dir="ltr">{order.receiver.phone}</span> پیامک می‌شود.
       </p>

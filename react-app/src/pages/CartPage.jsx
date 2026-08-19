@@ -12,9 +12,14 @@ export default function CartPage() {
   const setQty = useStore((s) => s.setQty);
   const removeFromCart = useStore((s) => s.removeFromCart);
   const clearCart = useStore((s) => s.clearCart);
+  const settings = useStore((s) => s.settings);
   const navigate = useNavigate();
 
-  const summary = cartSummary(cart);
+  const summary = cartSummary(cart, 'standard', {
+    shippingFee: settings.shippingFee,
+    expressFee: settings.expressFee,
+    freeShippingOver: settings.freeShippingOver
+  });
 
   if (cart.length === 0) {
     return (
@@ -104,7 +109,7 @@ export default function CartPage() {
               )}
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <dt>هزینه ارسال</dt>
-                <dd>{summary.subtotal >= 500000 || summary.subtotal === 0 ? 'رایگان' : faPrice(summary.shipping)}</dd>
+                <dd>{summary.shipping === 0 ? 'رایگان' : faPrice(summary.shipping)}</dd>
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-3 text-base font-extrabold text-slate-900 dark:border-slate-700 dark:text-white">
                 <dt>مبلغ قابل پرداخت</dt>
@@ -115,7 +120,7 @@ export default function CartPage() {
               ادامه فرآیند خرید
             </Button>
             <p className="text-center text-xs text-slate-400">
-              ارسال سفارش‌های بالای ۵۰۰ هزار تومان رایگان است.
+              ارسال سفارش‌های بالای {faPrice(settings.freeShippingOver)} رایگان است.
             </p>
           </div>
         </aside>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { categories } from '../data/categories';
 import { toFa } from '../utils/format';
+import { useStore } from '../store/useStore';
 import { PhoneIcon, MailIcon, MapPinIcon, TruckIcon, ShieldIcon, CreditCardIcon, HeadsetIcon } from './Icons';
 
 const benefits = [
@@ -11,6 +12,8 @@ const benefits = [
 ];
 
 export default function Footer() {
+  const settings = useStore((s) => s.settings);
+  const admin = useStore((s) => s.admin);
   return (
     <footer className="mt-16 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
       {/* مزایا */}
@@ -35,7 +38,7 @@ export default function Footer() {
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-accent-400 text-sm font-extrabold text-white">
               HD
             </span>
-            <span className="text-xl font-extrabold text-slate-900 dark:text-white">HDKALA</span>
+            <span className="text-xl font-extrabold text-slate-900 dark:text-white">{settings.storeName}</span>
           </div>
           <p className="text-sm leading-7 text-slate-500 dark:text-slate-400">
             فروشگاه اینترنتی HDKALA؛ مقصد مطمئن خرید آنلاین با هزاران کالای متنوع، ضمانت اصالت
@@ -94,7 +97,7 @@ export default function Footer() {
 
       <div className="border-t border-slate-100 py-5 dark:border-slate-800/60">
         <p className="container-page text-center text-xs text-slate-400">
-          © {toFa(1404)} فروشگاه اینترنتی HDKALA — تمامی حقوق محفوظ است.
+          © {toFa(1404)} فروشگاه اینترنتی {settings.storeName} — تمامی حقوق محفوظ است.
         </p>
       </div>
     </footer>
