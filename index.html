@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="HDKALA — فروشگاه اینترنتی مدرن؛ خرید آنلاین موبایل، لپ‌تاپ، مد و پوشاک، لوازم خانه و ورزشی با ضمانت اصالت کالا"
+    />
+    <title>HDKALA | فروشگاه اینترنتی</title>
+    <style>
+      /* صفحه خوش‌آمد — با jQuery بعد از آماده شدن React محو می‌شود */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: linear-gradient(135deg, #4338ca, #4f46e5 55%, #3730a3);
+        color: #fff;
+        font-family: Tahoma, sans-serif;
+      }
+      #splash .splash-logo {
+        display: flex;
+        height: 64px;
+        width: 64px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.45);
+      }
+      #splash .splash-spinner {
+        height: 26px;
+        width: 26px;
+        border: 3px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fbbf24;
+        border-radius: 50%;
+        animation: splash-spin 0.9s linear infinite;
+      }
+      @keyframes splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="splash" aria-hidden="true">
+      <span class="splash-logo">HD</span>
+      <span class="splash-spinner"></span>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
